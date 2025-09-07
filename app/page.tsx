@@ -16,7 +16,7 @@ export default function Home() {
         </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {tests.map((test) => (
-          <Card key={test.id} className="card-hover shadow-lg">
+          <Card key={test.id} className="card-hover shadow-lg h-[28rem] flex flex-col">
             <div className={`h-48 rounded-t-lg bg-gradient-to-br ${test.gradient} flex items-center justify-center`}>
               <div className="text-center">
                 <i className={`${test.icon} text-4xl text-white mb-3`}></i>
@@ -30,7 +30,7 @@ export default function Home() {
             <CardContent>
               {/* Removed duration text from here */}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="mt-auto">
               <div className="flex items-center justify-between w-full">
                 <p className="text-sm text-muted-foreground">소요 시간: {test.duration}</p>
                 <Link

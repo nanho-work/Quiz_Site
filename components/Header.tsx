@@ -2,9 +2,25 @@
 
 import { ThemeToggle } from "./button/themetoggle"
 import Link from "next/link"
+import { useState, useEffect, useRef } from "react"
 
 
 export default function Header() {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <header className="bg-card sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,6 +59,17 @@ export default function Header() {
           </nav>
           {/* Dark Mode Toggle */}
           <ThemeToggle />
+          <div className="relative" ref={menuRef}>
+            <span onClick={() => setOpen(!open)} className="cursor-pointer text-foreground font-bold hover:text-primary transition-colors">더보기</span>
+            {open && (
+              <div className="absolute right-0 mt-2 w-48 rounded-md bg-card shadow-lg ring-1 ring-black/5">
+                <div className="py-2">
+                  <Link href="/privacy" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">개인정보처리방침</Link>
+                  <Link href="/terms" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">이용약관</Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
