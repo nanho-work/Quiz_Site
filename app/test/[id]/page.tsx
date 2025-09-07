@@ -104,7 +104,7 @@ export default function TestPage() {
                     type="radio"
                     name="answer"
                     value={value}
-                    className="radio-custom mr-4"
+                    className="radio-custom mr-4 pointer-events-none"
                     readOnly
                   />
                   <span className="text-card-foreground">{option}</span>
