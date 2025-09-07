@@ -57,18 +57,22 @@ export default function Header() {
               새로운테스트
             </Link>*/}
           </nav>
-          {/* Dark Mode Toggle */}
-          <ThemeToggle />
-          <div className="relative" ref={menuRef}>
-            <span onClick={() => setOpen(!open)} className="cursor-pointer text-foreground font-bold hover:text-primary transition-colors">더보기</span>
-            {open && (
-              <div className="absolute right-0 mt-2 w-48 rounded-md bg-card shadow-lg ring-1 ring-black/5">
-                <div className="py-2">
-                  <Link href="/privacy" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">개인정보처리방침</Link>
-                  <Link href="/terms" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">이용약관</Link>
+          {/* Dark Mode Toggle & More Menu */}
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            <div className="relative" ref={menuRef}>
+              <span onClick={() => setOpen(!open)} className="cursor-pointer text-foreground font-bold hover:text-primary transition-colors">더보기</span>
+              {open && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md bg-card shadow-lg ring-1 ring-black/5">
+                  <div className="py-2">
+                    <Link href="/about" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">소개</Link>
+                    <Link href="/contact" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">문의하기</Link>
+                    <Link href="/privacy" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">개인정보처리방침</Link>
+                    <Link href="/terms" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">이용약관</Link>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
