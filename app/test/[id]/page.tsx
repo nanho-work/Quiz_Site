@@ -44,7 +44,7 @@ export default function TestPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
@@ -68,10 +68,10 @@ export default function TestPage() {
       </div>
 
       {/* Question Card */}
-      <div className="bg-card rounded-xl shadow-lg border border-border p-8 mb-8">
+      <div className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
         <div className="text-center mb-8">
           <h1
-            className="text-2xl md:text-3xl font-bold text-card-foreground mb-2"
+            className="text-xl sm:text-2xl md:text-3xl font-bold text-card-foreground mb-2"
             data-testid="test-title"
           >
             {test.title}
@@ -83,7 +83,7 @@ export default function TestPage() {
 
         <div className="max-w-2xl mx-auto">
           <h2
-            className="text-xl font-semibold text-card-foreground mb-6 text-center"
+            className="text-lg sm:text-xl font-semibold text-card-foreground mb-4 sm:mb-6 text-center"
             data-testid="question-text"
           >
             Q{currentQuestion + 1}. {question.text}
@@ -96,7 +96,7 @@ export default function TestPage() {
               return (
                 <label
                   key={index}
-                  className={`flex items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border border-transparent hover:border-primary/20`}
+                  className={`flex items-center p-3 sm:p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border border-transparent hover:border-primary/20`}
                   data-testid={`answer-option-${value}`}
                 >
                   <input
@@ -116,7 +116,7 @@ export default function TestPage() {
 
       {/* Question Counter */}
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           <i className="fas fa-lightbulb mr-1"></i>
           솔직하게 답변해주세요. 정답은 없어요! 😊
         </p>
