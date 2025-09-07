@@ -64,11 +64,10 @@ export default function ResultPage() {
 
         {/* Result Card */}
         <div className="bg-card rounded-xl shadow-xl border border-border overflow-hidden mb-8">
-          <div className="result-card p-8 text-center text-white">
+          <div className="result-card p-8 text-center text-gray-500">
             <h2 className="text-3xl md:text-4xl font-bold mb-2">
               {result.title}
             </h2>
-            <p className="text-xl opacity-90">{result.percentage}%</p>
           </div>
 
           <div className="p-8">
@@ -77,7 +76,7 @@ export default function ResultPage() {
                 <img
                   src={result.image}
                   alt={`${result.type} 성향 이미지`}
-                  className="w-64 h-64 object-cover rounded-xl shadow-lg"
+                  className="w-64 h-90 object-cover rounded-xl shadow-lg"
                 />
               </div>
 
@@ -88,25 +87,6 @@ export default function ResultPage() {
                 <p className="text-muted-foreground text-lg leading-relaxed mb-6">
                   {result.description}
                 </p>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-muted rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-primary">
-                      {result.percentage}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {result.percentage >= 60 ? "외향성" : "내향성"}
-                    </div>
-                  </div>
-                  <div className="bg-muted rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-secondary">
-                      {100 - result.percentage}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {result.percentage >= 60 ? "내향성" : "외향성"}
-                    </div>
-                  </div>
-                </div>
 
                 <div className="space-y-2">
                   <h4 className="font-semibold text-card-foreground mb-3">

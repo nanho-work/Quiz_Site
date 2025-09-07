@@ -27,6 +27,7 @@ export default function Header() {
             >
               홈
             </Link>
+            {/*
             <Link
               href="/popular"
               className="text-foreground hover:text-primary transition-colors"
@@ -38,7 +39,7 @@ export default function Header() {
               className="text-foreground hover:text-primary transition-colors"
             >
               새로운테스트
-            </Link>
+            </Link>*/}
           </nav>
           {/* Dark Mode Toggle */}
           <ThemeToggle />
