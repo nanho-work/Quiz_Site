@@ -77,7 +77,7 @@ export default function TestPage() {
             const questionNumber = start + qIndex + 1;
             return (
               <div key={qIndex} className="mb-6">
-                <h2 className="text-xl font-semibold text-card-foreground mb-4 text-center">
+                <h2 className="text-xl font-semibold text-card-foreground mb-4 text-left">
                   Q{questionNumber}. {question.text}
                 </h2>
                 <div className="space-y-2">
@@ -119,6 +119,7 @@ export default function TestPage() {
                     return;
                   }
                   setCurrentPage(currentPage + 1);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                 } else {
                   if (answeredCount < test.questions.length) {
                     alert("모든 문항에 답변해 주세요!");
