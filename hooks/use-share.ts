@@ -1,4 +1,5 @@
 import { useState } from "react";
+import html2canvas from "html2canvas";
 
 export function useShare() {
   const [isSharing, setIsSharing] = useState(false);
@@ -16,6 +17,23 @@ export function useShare() {
     try {
       // Check if native sharing is available (mobile)
       if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        if (navigator.canShare && navigator.canShare({ files: [] })) {
+          try {
+            const element = document.querySelector('.result-card') as HTMLElement | null;
+            if (element) {
+              const canvas = await html2canvas(element);
+              const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve));
+              if (blob) {
+                const file = new File([blob], "result.png", { type: "image/png" });
+                await navigator.share({ ...shareData, files: [file] });
+                setIsSharing(false);
+                return;
+              }
+            }
+          } catch (error) {
+            // If capturing or sharing file fails, fallback to sharing url/text
+          }
+        }
         await navigator.share(shareData);
       } else {
         // Fallback to clipboard

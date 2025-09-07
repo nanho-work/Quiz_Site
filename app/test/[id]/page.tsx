@@ -30,21 +30,14 @@ export default function TestPage() {
   const question = test.questions[currentQuestion];
 
   const handleAnswerSelect = (answer: string) => {
-    setSelectedAnswer(answer);
-  };
-
-  const handleNext = () => {
-    if (!selectedAnswer) return;
-
     const newAnswers = [...answers];
-    newAnswers[currentQuestion] = selectedAnswer;
+    newAnswers[currentQuestion] = answer;
     setAnswers(newAnswers);
 
     if (currentQuestion < test.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer("");
+      setSelectedAnswer(""); // 선택 초기화
     } else {
-      // Store answers in sessionStorage and navigate to result page
       sessionStorage.setItem(`test-${id}-answers`, JSON.stringify(newAnswers));
       router.push(`/result/${id}`);
     }
@@ -99,23 +92,17 @@ export default function TestPage() {
           <div className="space-y-4">
             {question.options.map((option, index) => {
               const value = String.fromCharCode(65 + index); // A, B
-              const isSelected = selectedAnswer === value;
 
               return (
                 <label
                   key={index}
-                  className={`flex items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-transparent hover:border-primary/20"
-                  }`}
+                  className={`flex items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border border-transparent hover:border-primary/20`}
                   data-testid={`answer-option-${value}`}
                 >
                   <input
                     type="radio"
                     name="answer"
                     value={value}
-                    checked={isSelected}
                     onChange={() => handleAnswerSelect(value)}
                     className="radio-custom mr-4"
                   />
@@ -123,19 +110,6 @@ export default function TestPage() {
                 </label>
               );
             })}
-          </div>
-
-          <div className="text-center mt-8">
-            <button
-              onClick={handleNext}
-              disabled={!selectedAnswer}
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-all transform hover:scale-105 disabled:hover:scale-100"
-              data-testid="next-button"
-            >
-              {currentQuestion === test.questions.length - 1
-                ? "결과보기"
-                : "다음 질문"}
-            </button>
           </div>
         </div>
       </div>
