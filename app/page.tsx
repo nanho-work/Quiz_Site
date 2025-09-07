@@ -17,7 +17,10 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {tests.map((test) => (
           <Card key={test.id} className="card-hover shadow-lg h-[28rem] flex flex-col">
-            <div className={`h-48 rounded-t-lg bg-gradient-to-br ${test.gradient} flex items-center justify-center`}>
+            <div
+              className={`h-48 rounded-t-lg flex items-center justify-center bg-cover bg-center ${!test.image ? `bg-gradient-to-br ${test.gradient}` : ""}`}
+              style={test.image ? { backgroundImage: `url(${test.image})` } : {}}
+            >
               <div className="text-center">
                 <i className={`${test.icon} text-4xl text-white mb-3`}></i>
                 <h3 className="text-white font-bold text-lg">{test.title.split(' ')[0]}</h3>

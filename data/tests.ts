@@ -16,8 +16,9 @@ export interface Test {
   title: string;
   description: string;
   duration: string;
-  icon: string;
-  gradient: string;
+  icon?: string;
+  image?: string;
+  gradient?: string;
   questions: Question[];
   results: Record<string, TestResult>;
 }
@@ -29,7 +30,7 @@ export const tests: Test[] = [
     description: "여성성이 강한(공감, 감정, 관계 지향) 에겐남인지, 남성성이 강한(논리, 성취, 결과 지향) 테토남인지 10가지 질문으로 알아보세요!",
     duration: "3분 소요",
     icon: "fas fa-users",
-    gradient: "from-primary via-secondary to-accent",
+    image: "/egenteto.png",
     questions: [
       {
         text: "친구가 힘들어할 때 당신의 반응은?",
@@ -91,11 +92,11 @@ export const tests: Test[] = [
   },
   {
     id: "mbti",
-    title: "당신은 어떤 MBTI일까? 지금 바로 확인하세요",
+    title: "MBTI 당신의 유형은? 지금 바로 확인하세요",
     "description": "전 세계가 열광하는 MBTI 성격 유형 테스트. 단 5분 만에 나의 성격 유형과 특성을 알 수 있습니다.\n단 3분 만에 성격 유형과 숨겨진 강점을 확인하세요. 친구와 비교하면 더 재미있습니다. 결과는 무료입니다.",
     duration: "10분 소요",
     icon: "fas fa-brain",
-    gradient: "from-indigo-500 via-purple-500 to-pink-500",
+    image: "/mbti.png",
     questions: [
       // E vs I
       { text: "새로운 사람을 만나면 에너지가 충전된다", options: ["그렇다", "아니다"] }, // (E vs I)

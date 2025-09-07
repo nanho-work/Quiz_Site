@@ -10,11 +10,12 @@ export default function TestPage() {
   const router = useRouter();
   const id = params?.id as string | undefined;
 
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<string[]>([]);
-  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
-
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 5;
   const test = id ? getTestById(id) : null;
+  const [answers, setAnswers] = useState<string[]>(
+    Array(test?.questions.length ?? 0).fill("")
+  );
 
   useEffect(() => {
     if (!test) {
@@ -26,29 +27,12 @@ export default function TestPage() {
     return null;
   }
 
-  const progress = ((currentQuestion + 1) / test.questions.length) * 100;
-  const question = test.questions[currentQuestion];
+  const start = currentPage * pageSize;
+  const end = start + pageSize;
+  const currentQuestions = test.questions.slice(start, end);
 
-  const handleAnswerSelect = (answer: string) => {
-    setSelectedAnswer(answer);
-  };
-
-  const handleNext = () => {
-    if (!selectedAnswer) return;
-
-    const newAnswers = [...answers];
-    newAnswers[currentQuestion] = selectedAnswer;
-    setAnswers(newAnswers);
-
-    if (currentQuestion < test.questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-      setSelectedAnswer("");
-    } else {
-      // Store answers in sessionStorage and navigate to result page
-      sessionStorage.setItem(`test-${id}-answers`, JSON.stringify(newAnswers));
-      router.push(`/result/${id}`);
-    }
-  };
+  const answeredCount = answers.filter(Boolean).length;
+  const progress = (answeredCount / test.questions.length) * 100;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -62,7 +46,7 @@ export default function TestPage() {
             className="text-sm font-medium text-primary"
             data-testid="progress-text"
           >
-            {currentQuestion + 1}/{test.questions.length}
+            {answeredCount}/{test.questions.length}
           </span>
         </div>
         <div className="w-full bg-muted rounded-full h-2">
@@ -89,52 +73,64 @@ export default function TestPage() {
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <h2
-            className="text-xl font-semibold text-card-foreground mb-6 text-center"
-            data-testid="question-text"
-          >
-            Q{currentQuestion + 1}. {question.text}
-          </h2>
-
-          <div className="space-y-4">
-            {question.options.map((option, index) => {
-              const value = String.fromCharCode(65 + index); // A, B
-              const isSelected = selectedAnswer === value;
-
-              return (
-                <label
-                  key={index}
-                  className={`flex items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-transparent hover:border-primary/20"
-                  }`}
-                  data-testid={`answer-option-${value}`}
-                >
-                  <input
-                    type="radio"
-                    name="answer"
-                    value={value}
-                    checked={isSelected}
-                    onChange={() => handleAnswerSelect(value)}
-                    className="radio-custom mr-4"
-                  />
-                  <span className="text-card-foreground">{option}</span>
-                </label>
-              );
-            })}
-          </div>
+          {currentQuestions.map((question, qIndex) => {
+            const questionNumber = start + qIndex + 1;
+            return (
+              <div key={qIndex} className="mb-6">
+                <h2 className="text-xl font-semibold text-card-foreground mb-4 text-center">
+                  Q{questionNumber}. {question.text}
+                </h2>
+                <div className="space-y-2">
+                  {question.options.map((option, index) => {
+                    const value = String.fromCharCode(65 + index);
+                    const isSelected = answers[questionNumber - 1] === value;
+                    return (
+                      <label key={index} className={`flex items-center p-3 bg-muted rounded-lg cursor-pointer transition-colors border ${isSelected ? "border-primary bg-primary/5" : "border-transparent hover:border-primary/20"}`}>
+                        <input
+                          type="radio"
+                          name={`answer-${questionNumber}`}
+                          value={value}
+                          checked={isSelected}
+                          onChange={() => {
+                            const newAnswers = [...answers];
+                            newAnswers[questionNumber - 1] = value;
+                            setAnswers(newAnswers);
+                          }}
+                          className="radio-custom mr-3"
+                        />
+                        <span className="text-card-foreground">{option}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
 
           <div className="text-center mt-8">
             <button
-              onClick={handleNext}
-              disabled={!selectedAnswer}
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-all transform hover:scale-105 disabled:hover:scale-100"
-              data-testid="next-button"
+              onClick={() => {
+                if (end < test.questions.length) {
+                  // 현재 페이지의 5문항 답변 여부 확인
+                  const pageAnswers = answers.slice(start, end);
+                  const isPageComplete = pageAnswers.every(Boolean);
+                  if (!isPageComplete) {
+                    alert("모든 문항에 답변해 주세요!");
+                    return;
+                  }
+                  setCurrentPage(currentPage + 1);
+                } else {
+                  if (answeredCount < test.questions.length) {
+                    alert("모든 문항에 답변해 주세요!");
+                    return;
+                  }
+                  sessionStorage.setItem(`test-${id}-answers`, JSON.stringify(answers));
+                  router.push(`/result/${id}`);
+                }
+              }}
+              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all transform hover:scale-105"
             >
-              {currentQuestion === test.questions.length - 1
-                ? "결과보기"
-                : "다음 질문"}
+              {end < test.questions.length ? "다음 5문항" : "결과보기"}
             </button>
           </div>
         </div>
