@@ -96,6 +96,7 @@ export default function TestPage() {
               return (
                 <label
                   key={index}
+                  onClick={() => handleAnswerSelect(value)}
                   className={`flex items-center p-3 sm:p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border border-transparent hover:border-primary/20`}
                   data-testid={`answer-option-${value}`}
                 >
@@ -103,8 +104,8 @@ export default function TestPage() {
                     type="radio"
                     name="answer"
                     value={value}
-                    onChange={() => handleAnswerSelect(value)}
                     className="radio-custom mr-4"
+                    readOnly
                   />
                   <span className="text-card-foreground">{option}</span>
                 </label>
