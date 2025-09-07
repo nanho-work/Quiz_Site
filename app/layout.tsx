@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: "Koofy 심리테스트",
     images: [
       {
-        url: "/image.png",
+        url: "/image_fun.png",
         width: 1200,
         height: 630,
         alt: "심리테스트 대표 이미지",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "심리테스트 - 무료 성격 검사",
     description: "에겐남/테토남, MBTI 등 다양한 심리테스트를 무료로 즐겨보세요.",
-    images: ["/image.png"],
+    images: ["/image_fun.png"],
   },
   icons: {
     icon: "/favicon.ico",
