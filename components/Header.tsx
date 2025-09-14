@@ -2,6 +2,7 @@
 
 import { ThemeToggle } from "./button/themetoggle"
 import Link from "next/link"
+import Image from "next/image"
 import { useState, useEffect, useRef } from "react"
 
 
@@ -29,9 +30,18 @@ export default function Header() {
           <div className="flex items-center">
             <Link
               href="/"
-              className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
+              className="flex items-center text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
             >
-              <i className="fas fa-brain mr-2"></i>심리테스트
+              <Image
+                src="/koofy.png"
+                alt="koofy logo"
+                width={32}
+                height={32}
+                className="mr-2"
+                style={{ height: "32px", width: "auto" }}
+                priority
+              />
+              koofy 모두의 즐거움!
             </Link>
           </div>
 
