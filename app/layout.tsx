@@ -4,7 +4,7 @@ import Header from "../components/Header"
 import { ThemeProvider } from "next-themes"
 
 export const metadata: Metadata = {
-  title: "심리테스트 - 재미있는 무료 성격 검사",
+  title: "모두의 즐거움",
   description: "에겐남/테토남, MBTI 등 다양한 심리테스트를 무료로 즐겨보세요. 나의 성격 유형을 간단히 확인할 수 있습니다!",
   keywords: [
     "MBTI",
