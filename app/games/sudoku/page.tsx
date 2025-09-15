@@ -16,8 +16,9 @@ export default function SudokuPage() {
         <div
           style={{
             position: "relative",
-            width: "100%",
+            width: "600px",
             height: "80vh", // 화면 높이의 80% 차지
+            margin: "0 auto",
           }}
         >
           <iframe
