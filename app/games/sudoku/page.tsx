@@ -1,6 +1,6 @@
 // app/sudoku/page.tsx
 import Head from "next/head";
-import SudokuDescription from "../../components/game/sudoku";
+import SudokuDescription from "../../../components/game/sudoku";
 export default function SudokuPage() {
   return (
     <>
@@ -14,24 +14,24 @@ export default function SudokuPage() {
 
       <main style={{ textAlign: "center", padding: "2rem" }}>
         <div
-  style={{
-    position: "relative",
-    width: "100%",
-    height: "80vh", // 화면 높이의 80% 차지
-  }}
->
-  <iframe
-    src="https://sudoku-flutter.vercel.app/"
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      border: "none",
-    }}
-  />
-</div>
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "80vh", // 화면 높이의 80% 차지
+          }}
+        >
+          <iframe
+            src="https://sudoku-flutter.vercel.app/"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              border: "none",
+            }}
+          />
+        </div>
 
         <SudokuDescription />
       </main>

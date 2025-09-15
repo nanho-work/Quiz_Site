@@ -29,7 +29,7 @@
     "**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-, "tailwind.config.ts"  ],
+, "tailwind.config.ts", "components/Header.tsx"  ],
   "exclude": [
     "node_modules"
   ]
