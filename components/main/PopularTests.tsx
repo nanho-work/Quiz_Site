@@ -8,7 +8,7 @@ export default function PopularTests() {
       <h2 className="text-2xl font-bold mb-6">인기 심리테스트 🧠</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {tests.slice(0, 3).map((test) => (
-          <div key={test.id} className="border rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+          <div key={test.id} className=" rounded-lg shadow hover:shadow-lg transition overflow-hidden">
             <img src={test.image} alt={test.title} className="w-full object-cover" />
             <div className="p-4">
               <h3 className="font-bold text-lg">{test.title}</h3>
