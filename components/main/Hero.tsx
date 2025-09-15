@@ -18,7 +18,7 @@ export default function Hero() {
           심리테스트 바로가기
         </Link>
         <Link
-          href="/games/sudoku"
+          href="/games"
           className="bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition"
         >
           게임 즐기기
