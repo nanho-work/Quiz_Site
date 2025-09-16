@@ -19,6 +19,8 @@ export default function SudokuPage() {
             width: "600px",
             height: "100vh", // 화면 높이의 80% 차지
             margin: "0 auto",
+            padding: "10px", // ← 안전하게 프레임과 경계 사이 여백
+            boxSizing: "border-box", // padding 포함 크기 계산
           }}
         >
           <iframe
