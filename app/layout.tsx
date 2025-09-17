@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       {
         url: "/mainlogo.png",
         width: 1200,
-        height: 630,
+        height: 500,
         alt: "쿠피 메인 로고",
       },
     ],
