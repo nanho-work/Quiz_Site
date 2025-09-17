@@ -101,6 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko" suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-5773331970563455" />
+        <meta name="naver-site-verification" content="1f50027c394809c61b707329ad32b6ba9df23c8b" />
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
