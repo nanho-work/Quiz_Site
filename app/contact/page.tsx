@@ -16,7 +16,7 @@ export default function ContactPage() {
               href="mailto:contact@koofy.co.kr"
               className="underline hover:text-primary"
             >
-              koofylab@gmail.com
+              webmaster@koofy.co.kr
             </a>
           </li>
         </ul>
