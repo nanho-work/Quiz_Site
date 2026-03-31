@@ -1,6 +1,7 @@
 "use client";
 
 import { type Dispatch, type SetStateAction, useMemo, useState } from "react";
+import { CircleHelp } from "lucide-react";
 import {
   calculateNetSalary2026,
   type NetSalaryCalculatorInput2026,
@@ -17,12 +18,29 @@ function selectCardClass(isActive: boolean): string {
   return `w-full rounded-lg border p-4 text-left transition ${
     isActive
       ? "border-primary bg-primary/5 ring-2 ring-primary/30"
-      : "border-border bg-background hover:border-primary/40 hover:bg-muted/40"
+      : "border-border/30 bg-background hover:border-primary/40 hover:bg-muted/40"
   }`;
 }
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
+}
+
+function ItemTooltip({ label, description }: { label: string; description: string }) {
+  return (
+    <span className="relative inline-flex items-center group">
+      <button
+        type="button"
+        aria-label={`${label} 설명`}
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/70 text-white hover:bg-muted-foreground transition-colors"
+      >
+        <CircleHelp className="h-4 w-4" aria-hidden="true" />
+      </button>
+      <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-64 -translate-x-1/2 rounded-md border border-border bg-popover px-3 py-2 text-xs font-normal leading-relaxed text-popover-foreground shadow-md group-hover:block group-focus-within:block">
+        {description}
+      </span>
+    </span>
+  );
 }
 
 export default function NetSalaryCalculatorClient() {
@@ -91,7 +109,7 @@ export default function NetSalaryCalculatorClient() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start lg:items-stretch">
-      <section className="rounded-lg border bg-card p-5 space-y-4 h-full">
+      <section className="rounded-lg border border-border/30 bg-card p-5 space-y-4 h-full">
         <p className="text-sm font-bold">필수 입력</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -176,11 +194,11 @@ export default function NetSalaryCalculatorClient() {
               formatNumberInput(event.target.value, setSalaryAmountInput)
             }
             placeholder={salaryType === "annual" ? "예: 50,000,000" : "예: 4,000,000"}
-            className="w-full rounded-md border bg-background px-3 py-2 text-right"
+            className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-right"
           />
         </div>
 
-        <div className="border-t border-gray-300 dark:border-gray-700" />
+        <div className="border-t border-border/30" />
         <p className="text-sm font-bold">선택 입력</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -198,7 +216,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateFamilyCountByStep(-1);
                 }}
-                className="h-10 w-10 rounded-md border bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
               >
                 -
               </button>
@@ -219,7 +237,7 @@ export default function NetSalaryCalculatorClient() {
                   const fallback = clamp(Number(familyCountInput) || 1, 1, 11);
                   setFamilyCountInput(String(fallback));
                 }}
-                className="h-10 flex-1 rounded-md border bg-background px-3 text-center"
+                className="h-10 flex-1 rounded-md border border-border/30 bg-background px-3 text-center"
               />
               <button
                 type="button"
@@ -227,7 +245,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateFamilyCountByStep(1);
                 }}
-                className="h-10 w-10 rounded-md border bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
               >
                 +
               </button>
@@ -248,7 +266,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateChildrenCountByStep(-1);
                 }}
-                className="h-10 w-10 rounded-md border bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
               >
                 -
               </button>
@@ -269,7 +287,7 @@ export default function NetSalaryCalculatorClient() {
                   const fallback = Math.max(0, Number(childrenCountInput) || 0);
                   setChildrenCountInput(String(fallback));
                 }}
-                className="h-10 flex-1 rounded-md border bg-background px-3 text-center"
+                className="h-10 flex-1 rounded-md border border-border/30 bg-background px-3 text-center"
               />
               <button
                 type="button"
@@ -277,7 +295,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateChildrenCountByStep(1);
                 }}
-                className="h-10 w-10 rounded-md border bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
               >
                 +
               </button>
@@ -297,30 +315,66 @@ export default function NetSalaryCalculatorClient() {
                 formatNumberInput(event.target.value, setNonTaxableInput)
               }
               placeholder="예: 200,000"
-              className="w-full rounded-md border bg-background px-3 py-2 text-right"
+              className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-right"
             />
           </div>
         </div>
       </section>
 
-      <section className="rounded-lg border bg-card p-5 h-full lg:sticky lg:top-24">
+      <section className="rounded-lg border border-border/30 bg-card p-5 h-full lg:sticky lg:top-24">
         <h3 className="text-xl font-bold mb-4">계산 결과</h3>
 
         <ul className="text-base mb-5 divide-y divide-gray-300 dark:divide-gray-700">
           {[
-            { label: "국민연금", value: result ? formatKrw(result.nationalPension) : null },
-            { label: "건강보험", value: result ? formatKrw(result.healthInsurance) : null },
-            { label: "장기요양보험", value: result ? formatKrw(result.longTermCare) : null },
-            { label: "고용보험", value: result ? formatKrw(result.employmentInsurance) : null },
-            { label: "소득세", value: result ? formatKrw(result.incomeTax) : null },
-            { label: "지방소득세", value: result ? formatKrw(result.localIncomeTax) : null },
-            { label: "세금/공제 합계", value: result ? formatKrw(result.totalDeduction) : null },
+            {
+              label: "국민연금",
+              description:
+                "노후 소득 보장을 위한 사회보험으로, 과세 대상 월급의 4.75%가 공제됩니다.",
+              value: result ? formatKrw(result.nationalPension) : null,
+            },
+            {
+              label: "건강보험",
+              description:
+                "질병 및 의료비 부담 완화를 위한 보험료로, 과세 대상 월급의 3.595%가 공제됩니다.",
+              value: result ? formatKrw(result.healthInsurance) : null,
+            },
+            {
+              label: "장기요양보험",
+              description:
+                "노인 장기요양 지원 보험료로, 건강보험료의 약 13.14%(0.9448/7.19)가 추가 공제됩니다.",
+              value: result ? formatKrw(result.longTermCare) : null,
+            },
+            {
+              label: "고용보험",
+              description:
+                "실업급여 및 고용안정 지원 재원을 위한 보험료로, 과세 대상 월급의 0.9%가 공제됩니다.",
+              value: result ? formatKrw(result.employmentInsurance) : null,
+            },
+            {
+              label: "소득세",
+              description:
+                "고정 퍼센트가 아닌 근로소득 간이세액표 기준으로 계산되며, 부양가족/자녀/과세급여에 따라 달라집니다.",
+              value: result ? formatKrw(result.incomeTax) : null,
+            },
+            {
+              label: "지방소득세",
+              description: "소득세의 10%를 기준으로 계산되는 지방세입니다.",
+              value: result ? formatKrw(result.localIncomeTax) : null,
+            },
+            {
+              label: "세금/공제 합계",
+              description: "4대보험과 소득세, 지방소득세를 모두 합한 월 총 공제 금액입니다.",
+              value: result ? formatKrw(result.totalDeduction) : null,
+            },
           ].map((item) => (
             <li
               key={item.label}
               className="flex items-center justify-between px-4 py-3 bg-card"
             >
-              <span>{item.label}</span>
+              <span className="inline-flex items-center gap-2">
+                {item.label}
+                <ItemTooltip label={item.label} description={item.description} />
+              </span>
               <strong>{item.value ?? formatKrw(0)}</strong>
             </li>
           ))}

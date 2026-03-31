@@ -60,11 +60,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="google-adsense-account" content="ca-pub-5773331970563455" />
         <meta name="naver-site-verification" content="1f50027c394809c61b707329ad32b6ba9df23c8b" />
       </head>
-      <body className="min-h-screen bg-background text-foreground">
+      <body className="min-h-screen bg-white text-foreground">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col bg-white">
             <Header />
-            <main className="flex-1">
+            <main className="flex-1 bg-white">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {children}
               </div>
