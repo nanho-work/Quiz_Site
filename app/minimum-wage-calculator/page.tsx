@@ -91,7 +91,7 @@ export default function MinimumWageCalculatorPage() {
         <p>실제 급여는 근무형태 및 계약에 따라 달라질 수 있습니다</p>
       </section>
 
-      <section className="rounded-lg border border-border/30 bg-card p-4 md:p-5">
+      <section className="panel-card p-4 md:p-5">
         <p className="font-semibold mb-2">다른 계산기도 함께 확인해보세요</p>
         <div className="flex flex-wrap gap-3">
           <Link

@@ -3,11 +3,11 @@ export default function PrivacyPolicyPage() {
   return (
     <section>
       <h1 className="text-3xl font-bold mb-6">개인정보 처리방침</h1>
-      <p className="text-sm text-gray-500 mb-10">
+      <p className="text-sm text-muted-foreground mb-10">
         최종 업데이트: 2025-09-07
       </p>
 
-      <div className="space-y-8 text-gray-700 leading-relaxed">
+      <div className="space-y-8 text-muted-foreground leading-relaxed">
         <section>
           <h2 className="text-xl font-semibold mb-2">1. 총칙</h2>
           <p>
@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        <section className="pt-6 border-t border-gray-200">
+        <section className="pt-6 border-t border-border">
           <p className="text-sm">
             관련 문서: <a href="/terms" className="underline">서비스 이용약관</a>
           </p>

@@ -74,7 +74,7 @@ export default function IncomeTaxCalculator2026Page() {
 
       <ComprehensiveIncomeTaxCalculatorClient />
 
-      <section className="rounded-lg border border-border/30 bg-card p-4 md:p-5">
+      <section className="panel-card p-4 md:p-5">
         <p className="font-semibold mb-2">자료만 업로드하면 신고 완료</p>
         <p className="text-sm text-muted-foreground mb-3">
           계산기로 대략 확인했다면, 실제 신고는 전문가 검토로 정확도를 높이세요.
@@ -134,13 +134,13 @@ export default function IncomeTaxCalculator2026Page() {
         <p>연간 총수입(annualIncome) 기준 단순 모델로 실제 신고 구조와 차이가 있을 수 있습니다.</p>
       </section>
 
-      <section className="rounded-lg border border-border/30 bg-card p-4 md:p-5">
+      <section className="panel-card p-4 md:p-5">
         <p className="font-semibold mb-2">다른 계산기도 함께 사용하세요</p>
         <div className="flex flex-wrap gap-3">
           <Link href="/salary-calculator" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
             연봉 실수령 계산기
           </Link>
-          <Link href="/calculators/refund-33" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
+          <Link href="/tax-refund-calculator" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
             3.3% 환급 계산기
           </Link>
           <Link href="/minimum-wage-calculator" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
@@ -149,7 +149,7 @@ export default function IncomeTaxCalculator2026Page() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-border/30 bg-card p-4 md:p-5">
+      <section className="panel-card p-4 md:p-5">
         <p className="font-semibold mb-2">자료만 업로드하면 신고 완료</p>
         <p className="text-sm text-muted-foreground mb-3">
           계산 결과가 애매하면 전문가에게 맡기고 5분 만에 종소세 해결까지 진행해보세요.

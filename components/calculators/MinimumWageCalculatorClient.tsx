@@ -31,11 +31,11 @@ export default function MinimumWageCalculatorClient() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start lg:items-stretch">
-      <section className="rounded-lg border border-border/30 bg-card p-5 space-y-4 h-full">
+      <section className="panel-card space-y-4 h-full">
         <p className="text-sm font-bold">입력</p>
         <div className="grid grid-cols-1 gap-3">
           <div>
-            <label htmlFor="hourlyWage" className="block text-sm font-semibold mb-2">
+            <label htmlFor="hourlyWage" className="field-label">
               시급 (원)
             </label>
             <input
@@ -45,12 +45,12 @@ export default function MinimumWageCalculatorClient() {
               min={0}
               value={hourlyWageInput}
               onChange={(event) => setHourlyWageInput(event.target.value)}
-              className="w-full h-11 rounded-md border border-border/30 bg-background px-3 text-right"
+              className="field-input"
             />
           </div>
 
           <div>
-            <label htmlFor="dailyHours" className="block text-sm font-semibold mb-2">
+            <label htmlFor="dailyHours" className="field-label">
               하루 근무시간
             </label>
             <input
@@ -61,12 +61,12 @@ export default function MinimumWageCalculatorClient() {
               step={0.5}
               value={dailyHoursInput}
               onChange={(event) => setDailyHoursInput(event.target.value)}
-              className="w-full h-11 rounded-md border border-border/30 bg-background px-3 text-right"
+              className="field-input"
             />
           </div>
 
           <div>
-            <label htmlFor="weeklyDays" className="block text-sm font-semibold mb-2">
+            <label htmlFor="weeklyDays" className="field-label">
               주 근무일수
             </label>
             <input
@@ -77,38 +77,38 @@ export default function MinimumWageCalculatorClient() {
               step={1}
               value={weeklyDaysInput}
               onChange={(event) => setWeeklyDaysInput(event.target.value)}
-              className="w-full h-11 rounded-md border border-border/30 bg-background px-3 text-right"
+              className="field-input"
             />
           </div>
         </div>
       </section>
 
-      <section className="rounded-lg border border-border/30 bg-card p-5 h-full">
+      <section className="panel-card h-full">
         <p className="text-sm font-bold mb-4">계산 결과</p>
-        <div className="rounded-lg border border-border/30 divide-y divide-border/30">
-          <div className="flex items-center justify-between px-4 py-3">
+        <div className="result-list">
+          <div className="result-row">
             <span>주 근무시간</span>
             <strong>{result.weeklyHours.toLocaleString("ko-KR")}시간</strong>
           </div>
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="result-row">
             <span>주급 (기본)</span>
             <strong>{formatKrw(result.weeklyPay)}</strong>
           </div>
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="result-row">
             <span>주휴수당</span>
             <strong>{formatKrw(result.weeklyHolidayPay)}</strong>
           </div>
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="result-row">
             <span>주휴수당 적용</span>
             <strong>{result.hasWeeklyHolidayPay ? "포함" : "미포함"}</strong>
           </div>
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="result-row">
             <span>총 주급</span>
             <strong>{formatKrw(result.totalWeeklyPay)}</strong>
           </div>
         </div>
 
-        <div className="rounded-md bg-primary/10 border border-primary/20 p-4 mt-4 flex items-center justify-between">
+        <div className="result-highlight mt-4 flex items-center justify-between">
           <span className="font-semibold">총 월급 (예상)</span>
           <strong className="text-xl text-primary">{formatKrw(result.monthlyPay)}</strong>
         </div>

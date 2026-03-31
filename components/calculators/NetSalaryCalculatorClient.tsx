@@ -1,7 +1,7 @@
 "use client";
 
 import { type Dispatch, type SetStateAction, useMemo, useState } from "react";
-import { CircleHelp } from "lucide-react";
+import { FaQuestion } from "react-icons/fa6";
 import {
   calculateNetSalary2026,
   type NetSalaryCalculatorInput2026,
@@ -17,8 +17,8 @@ type RetirementPayType = "included" | "separate";
 function selectCardClass(isActive: boolean): string {
   return `w-full rounded-lg border p-4 text-left transition ${
     isActive
-      ? "border-primary bg-primary/5 ring-2 ring-primary/30"
-      : "border-border/30 bg-background hover:border-primary/40 hover:bg-muted/40"
+      ? "border-primary bg-primary/10 shadow-sm"
+      : "border-border bg-background hover:border-primary/30 hover:bg-muted"
   }`;
 }
 
@@ -32,11 +32,11 @@ function ItemTooltip({ label, description }: { label: string; description: strin
       <button
         type="button"
         aria-label={`${label} 설명`}
-        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted-foreground/70 text-white hover:bg-muted-foreground transition-colors"
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-400 text-white hover:bg-slate-500 transition-colors"
       >
-        <CircleHelp className="h-4 w-4" aria-hidden="true" />
+        <FaQuestion className="h-2.5 w-2.5" aria-hidden="true" />
       </button>
-      <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-64 -translate-x-1/2 rounded-md border border-border bg-popover px-3 py-2 text-xs font-normal leading-relaxed text-popover-foreground shadow-md group-hover:block group-focus-within:block">
+      <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-64 -translate-x-1/2 rounded-lg border border-border bg-popover px-3 py-2 text-xs font-normal leading-relaxed text-popover-foreground shadow-md group-hover:block group-focus-within:block">
         {description}
       </span>
     </span>
@@ -109,7 +109,7 @@ export default function NetSalaryCalculatorClient() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start lg:items-stretch">
-      <section className="rounded-lg border border-border/30 bg-card p-5 space-y-4 h-full">
+      <section className="panel-card space-y-4 h-full">
         <p className="text-sm font-bold">필수 입력</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -194,11 +194,11 @@ export default function NetSalaryCalculatorClient() {
               formatNumberInput(event.target.value, setSalaryAmountInput)
             }
             placeholder={salaryType === "annual" ? "예: 50,000,000" : "예: 4,000,000"}
-            className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-right"
+            className="field-input"
           />
         </div>
 
-        <div className="border-t border-border/30" />
+        <div className="border-t border-border" />
         <p className="text-sm font-bold">선택 입력</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -216,7 +216,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateFamilyCountByStep(-1);
                 }}
-                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-lg border border-border bg-background text-lg font-semibold hover:bg-muted"
               >
                 -
               </button>
@@ -237,7 +237,7 @@ export default function NetSalaryCalculatorClient() {
                   const fallback = clamp(Number(familyCountInput) || 1, 1, 11);
                   setFamilyCountInput(String(fallback));
                 }}
-                className="h-10 flex-1 rounded-md border border-border/30 bg-background px-3 text-center"
+                className="h-10 flex-1 rounded-lg border border-border bg-background px-3 text-center"
               />
               <button
                 type="button"
@@ -245,7 +245,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateFamilyCountByStep(1);
                 }}
-                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-lg border border-border bg-background text-lg font-semibold hover:bg-muted"
               >
                 +
               </button>
@@ -266,7 +266,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateChildrenCountByStep(-1);
                 }}
-                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-lg border border-border bg-background text-lg font-semibold hover:bg-muted"
               >
                 -
               </button>
@@ -287,7 +287,7 @@ export default function NetSalaryCalculatorClient() {
                   const fallback = Math.max(0, Number(childrenCountInput) || 0);
                   setChildrenCountInput(String(fallback));
                 }}
-                className="h-10 flex-1 rounded-md border border-border/30 bg-background px-3 text-center"
+                className="h-10 flex-1 rounded-lg border border-border bg-background px-3 text-center"
               />
               <button
                 type="button"
@@ -295,7 +295,7 @@ export default function NetSalaryCalculatorClient() {
                   event.preventDefault();
                   updateChildrenCountByStep(1);
                 }}
-                className="h-10 w-10 rounded-md border border-border/30 bg-background text-lg font-semibold hover:bg-muted"
+                className="h-10 w-10 rounded-lg border border-border bg-background text-lg font-semibold hover:bg-muted"
               >
                 +
               </button>
@@ -315,16 +315,16 @@ export default function NetSalaryCalculatorClient() {
                 formatNumberInput(event.target.value, setNonTaxableInput)
               }
               placeholder="예: 200,000"
-              className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-right"
+              className="field-input"
             />
           </div>
         </div>
       </section>
 
-      <section className="rounded-lg border border-border/30 bg-card p-5 h-full lg:sticky lg:top-24">
+      <section className="panel-card h-full lg:sticky lg:top-24">
         <h3 className="text-xl font-bold mb-4">계산 결과</h3>
 
-        <ul className="text-base mb-5 divide-y divide-gray-300 dark:divide-gray-700">
+        <ul className="text-base mb-5 divide-y divide-border">
           {[
             {
               label: "국민연금",
@@ -380,7 +380,7 @@ export default function NetSalaryCalculatorClient() {
           ))}
         </ul>
 
-        <div className="rounded-md bg-primary/10 border border-primary/20 p-4 flex items-center justify-between">
+        <div className="result-highlight flex items-center justify-between">
           <span className="font-semibold">실수령 금액 (월)</span>
           {result ? (
             <strong className="text-xl text-primary">{formatKrw(result.netSalary)}</strong>

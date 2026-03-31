@@ -91,7 +91,7 @@ export default function SalaryCalculatorPage() {
         <p>비과세 및 추가 공제에 따라 실제 금액은 달라질 수 있습니다</p>
       </section>
 
-      <section className="rounded-lg border bg-card p-4 md:p-5">
+      <section className="panel-card p-4 md:p-5">
         <p className="font-semibold mb-2">세금 더 줄이기</p>
         <p className="text-sm text-muted-foreground mb-3">
           종합소득세 계산기로 예상 세액을 함께 확인하고 절세 전략을 점검해보세요.

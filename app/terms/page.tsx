@@ -2,7 +2,7 @@ export default function TermsPage() {
   return (
     <section>
       <h1 className="text-3xl font-bold mb-6">서비스 이용약관</h1>
-      <div className="space-y-6 text-gray-700 leading-relaxed">
+      <div className="space-y-6 text-muted-foreground leading-relaxed">
         <section>
           <h2 className="text-xl font-semibold mb-2">제1조 목적</h2>
           <p>

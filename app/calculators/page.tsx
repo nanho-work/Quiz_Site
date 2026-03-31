@@ -7,7 +7,7 @@ const calculators = [
     description: "예상 종합소득세를 빠르게 계산해보세요.",
   },
   {
-    href: "/calculators/refund-33",
+    href: "/tax-refund-calculator",
     title: "3.3% 환급 계산기",
     description: "3.3% 원천징수 환급 예상 금액을 확인해보세요.",
   },
@@ -34,7 +34,7 @@ export default function CalculatorsPage() {
           <Link
             key={item.href}
             href={item.href}
-            className="rounded-lg border bg-card p-5 hover:shadow-md transition"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
           >
             <h2 className="text-lg font-semibold mb-1">{item.title}</h2>
             <p className="text-sm text-muted-foreground">{item.description}</p>
