@@ -19,6 +19,14 @@ export default function TestPage() {
 
   useEffect(() => {
     if (!test) {
+      return;
+    }
+    setCurrentPage(0);
+    setAnswers(Array(test.questions.length).fill(""));
+  }, [test]);
+
+  useEffect(() => {
+    if (!test) {
       router.push("/");
     }
   }, [test, router]);
@@ -35,7 +43,7 @@ export default function TestPage() {
   const progress = (answeredCount / test.questions.length) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">

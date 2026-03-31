@@ -1,7 +1,7 @@
 // app/privacy/page.tsx
 export default function PrivacyPolicyPage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
+    <section>
       <h1 className="text-3xl font-bold mb-6">개인정보 처리방침</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-10">
         최종 업데이트: 2025-09-07
@@ -139,6 +139,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
       </div>
-    </main>
+    </section>
   );
 }

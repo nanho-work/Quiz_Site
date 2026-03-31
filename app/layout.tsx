@@ -1,26 +1,22 @@
 import "../styles/globals.css"
 import type { Metadata } from "next"
 import Header from "../components/Header"
+import Footer from "../components/Footer"
 import { ThemeProvider } from "next-themes"
 
 export const metadata: Metadata = {
-  title: "쿠피 - 모두의 즐거움 | 무료 게임 · 스도쿠 · 심리테스트",
-  description: "쿠피(Koofy)에서 무료 게임, 스도쿠, 심리테스트 등 다양한 콘텐츠를 즐겨보세요. 간단하고 재미있게 모두의 즐거움을 경험할 수 있습니다.",
+  metadataBase: new URL("https://www.koofy.co.kr"),
+  title: "쿠피 - 모두의 즐거움 | 심리테스트",
+  description: "쿠피(Koofy)에서 다양한 심리테스트 콘텐츠를 즐겨보세요. 간단하고 재미있게 모두의 즐거움을 경험할 수 있습니다.",
   keywords: [
     "쿠피",
     "Koofy",
     "모두의 즐거움",
-    "무료 게임",
-    "스도쿠",
     "심리테스트",
     "재미있는 테스트",
-    "퍼즐 게임",
     "퀴즈",
     "무료 심리테스트",
-    "간단 게임",
     "온라인 테스트",
-    "무료 퍼즐 게임",
-    "온라인 스도쿠",
     "재미있는 심리테스트",
     "성격유형 테스트",
     "간단 퀴즈",
@@ -29,8 +25,8 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "쿠피 (Koofy)" }],
   openGraph: {
-    title: "쿠피 - 모두의 즐거움 | 무료 게임 · 스도쿠 · 심리테스트",
-    description: "쿠피에서 무료 게임, 스도쿠, 심리테스트 등 다양한 콘텐츠로 즐거움을 경험해보세요.",
+    title: "쿠피 - 모두의 즐거움 | 심리테스트",
+    description: "쿠피에서 다양한 심리테스트 콘텐츠로 즐거움을 경험해보세요.",
     url: "https://www.koofy.co.kr",
     siteName: "쿠피 Koofy",
     images: [
@@ -46,14 +42,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "쿠피 - 모두의 즐거움 | 무료 게임 · 스도쿠 · 심리테스트",
-    description: "쿠피(Koofy)에서 무료 게임, 스도쿠, 심리테스트 등 다양한 무료 콘텐츠를 즐겨보세요.",
+    title: "쿠피 - 모두의 즐거움 | 심리테스트",
+    description: "쿠피(Koofy)에서 다양한 심리테스트 콘텐츠를 즐겨보세요.",
     images: ["/mainlogo.png"],
   },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    apple: "/favicon.ico",
   },
 }
 
@@ -64,10 +60,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="google-adsense-account" content="ca-pub-5773331970563455" />
         <meta name="naver-site-verification" content="1f50027c394809c61b707329ad32b6ba9df23c8b" />
       </head>
-      <body>
+      <body className="min-h-screen bg-background text-foreground">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <Header />
-          <main>{children}</main>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {children}
+              </div>
+            </main>
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

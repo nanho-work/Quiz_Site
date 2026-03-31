@@ -1,6 +1,6 @@
 export default function ContactPage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
+    <section>
       <h1 className="text-3xl font-bold mb-6">문의하기</h1>
       <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
         서비스와 관련하여 문의 사항이나 제안 사항이 있으시면 아래 연락처로 알려주세요. 
@@ -13,7 +13,7 @@ export default function ContactPage() {
           <li>
             📧 이메일:{" "}
             <a
-              href="mailto:contact@koofy.co.kr"
+              href="mailto:webmaster@koofy.co.kr"
               className="underline hover:text-primary"
             >
               webmaster@koofy.co.kr
@@ -26,6 +26,6 @@ export default function ContactPage() {
         사용자의 의견은 서비스 개선에 큰 도움이 됩니다. 
         <br/>소중한 의견과 피드백을 기다리고 있습니다.
       </p>
-    </main>
+    </section>
   );
 }

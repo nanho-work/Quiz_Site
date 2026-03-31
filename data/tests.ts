@@ -379,7 +379,7 @@ export function calculateResult(testId: string, answers: string[]): TestResult &
     throw new Error("Test not found");
   }
 
-  if (testId === "personality") {
+  if (testId === "personality" || testId === "personality-female") {
     const aCount = answers.filter(answer => answer === 'A').length;
     const percentage = Math.round((aCount / answers.length) * 100);
     const result = percentage >= 60 ? test.results.high : test.results.low;

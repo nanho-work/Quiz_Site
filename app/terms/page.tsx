@@ -1,12 +1,12 @@
 export default function TermsPage() {
   return (
-    <main className="max-w-3xl mx-auto px-6 py-12">
+    <section>
       <h1 className="text-3xl font-bold mb-6">서비스 이용약관</h1>
       <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
         <section>
           <h2 className="text-xl font-semibold mb-2">제1조 목적</h2>
           <p>
-            본 약관은 koofy.co.kr(이하 "사이트")가 제공하는 모든 서비스의 이용 조건과 절차를 명확히 규정함으로써, 이용자와 사이트 간의 권리, 의무 및 책임 사항을 정의하는 것을 목적으로 합니다. 이를 통해 이용자에게 안정적이고 신뢰할 수 있는 서비스를 제공하고, 원활한 서비스 운영을 도모하고자 합니다. 또한, 본 약관은 서비스 이용과 관련하여 발생할 수 있는 분쟁을 예방하고 해결하는 기준이 됩니다.
+            본 약관은 koofy.co.kr(이하 &quot;사이트&quot;)가 제공하는 모든 서비스의 이용 조건과 절차를 명확히 규정함으로써, 이용자와 사이트 간의 권리, 의무 및 책임 사항을 정의하는 것을 목적으로 합니다. 이를 통해 이용자에게 안정적이고 신뢰할 수 있는 서비스를 제공하고, 원활한 서비스 운영을 도모하고자 합니다. 또한, 본 약관은 서비스 이용과 관련하여 발생할 수 있는 분쟁을 예방하고 해결하는 기준이 됩니다.
           </p>
         </section>
         
@@ -40,6 +40,6 @@ export default function TermsPage() {
           </p>
         </section>
       </div>
-    </main>
+    </section>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getTestById, calculateResult } from "../../../data/tests";
 import { useShare } from "../../../hooks/use-share";
 
@@ -51,8 +52,7 @@ export default function ResultPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section>
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             테스트 완료! 🎉
@@ -73,10 +73,12 @@ export default function ResultPage() {
           <div className="p-8">
             <div className="flex flex-col lg:flex-row items-center gap-8">
               <div className="flex-shrink-0">
-                <img
+                <Image
                   src={result.image}
                   alt={`${result.type} 성향 이미지`}
-                  className="w-64 h-90 object-cover rounded-xl shadow-lg"
+                  width={256}
+                  height={360}
+                  className="w-64 h-auto object-cover rounded-xl shadow-lg"
                 />
               </div>
 
@@ -151,7 +153,6 @@ export default function ResultPage() {
             </div>
           )}
         </div>
-      </div>
-    </main>
+    </section>
   );
 }

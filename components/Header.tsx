@@ -53,29 +53,28 @@ export default function Header() {
             >
               심리테스트
             </Link>
-            {/* 게임 드롭다운 */}
             <div className="relative group">
-              <Link href="/games" className="text-foreground hover:text-primary transition-colors cursor-pointer">
-                게임
+              <Link href="/calculators" className="text-foreground hover:text-primary transition-colors cursor-pointer">
+                간편계산기
               </Link>
-              <div className="absolute left-0 top-full hidden group-hover:flex flex-col bg-card shadow-lg mt-0 rounded-md w-40 z-50">
+              <div className="absolute left-0 top-full hidden group-hover:flex flex-col bg-card shadow-lg mt-0 rounded-md w-56 z-50">
                 <Link
-                  href="/games/sudoku"
+                  href="/calculators/income-tax"
                   className="flex items-center justify-start px-4 py-2 text-sm hover:bg-muted rounded-md w-full"
                 >
-                  스도쿠
+                  종합소득세 간편계산기
                 </Link>
                 <Link
-                  href="/games/speed"
+                  href="/calculators/refund-33"
                   className="flex items-center justify-start px-4 py-2 text-sm hover:bg-muted rounded-md w-full"
                 >
-                  순발력 테스트
+                  3.3% 환급 계산기
                 </Link>
                 <Link
-                  href="/games/whack"
+                  href="/salary-calculator"
                   className="flex items-center justify-start px-4 py-2 text-sm hover:bg-muted rounded-md w-full"
                 >
-                  두더지 잡기
+                  연봉 실수령 계산기
                 </Link>
               </div>
             </div>
@@ -101,7 +100,10 @@ export default function Header() {
               {open && (
                 <div className="absolute right-0 mt-2 w-48 rounded-md bg-card shadow-lg ring-1 ring-black/5 z-50">
                   <div className="py-2">
-                    <Link href="/games" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">게임</Link>
+                    <Link href="/calculators" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">간편계산기</Link>
+                    <Link href="/calculators/income-tax" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">종합소득세 간편계산기</Link>
+                    <Link href="/calculators/refund-33" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">3.3% 환급 계산기</Link>
+                    <Link href="/salary-calculator" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">연봉 실수령 계산기</Link>
                     <Link href="/about" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">소개</Link>
                     <Link href="/contact" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">문의하기</Link>
                     <Link href="/privacy" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">개인정보처리방침</Link>
