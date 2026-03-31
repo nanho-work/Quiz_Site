@@ -46,19 +46,13 @@ export default function Header() {
 
           {/* Navigation */}
           <nav className="hidden md:flex font-bold text-lg space-x-8">
-            <Link
-              href="/testhub"
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              심리테스트
-            </Link>
             <div className="relative group">
               <Link href="/calculators" className="text-foreground hover:text-primary transition-colors cursor-pointer">
                 간편계산기
               </Link>
               <div className="absolute left-0 top-full hidden group-hover:flex flex-col bg-card shadow-lg mt-0 rounded-md w-56 z-50">
                 <Link
-                  href="/calculators/income-tax"
+                  href="/income-tax-calculator"
                   className="flex items-center justify-start px-4 py-2 text-sm hover:bg-muted rounded-md w-full"
                 >
                   종합소득세 간편계산기
@@ -105,7 +99,7 @@ export default function Header() {
                 <div className="absolute right-0 mt-2 w-48 rounded-md bg-card shadow-lg ring-1 ring-black/5 z-50">
                   <div className="py-2">
                     <Link href="/calculators" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">간편계산기</Link>
-                    <Link href="/calculators/income-tax" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">종합소득세 간편계산기</Link>
+                    <Link href="/income-tax-calculator" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">종합소득세 간편계산기</Link>
                     <Link href="/calculators/refund-33" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">3.3% 환급 계산기</Link>
                     <Link href="/salary-calculator" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">연봉 실수령 계산기</Link>
                     <Link href="/minimum-wage-calculator" onClick={() => setOpen(false)} className="block px-4 py-2 text-sm text-foreground hover:bg-muted">최저임금 계산기 (2026)</Link>

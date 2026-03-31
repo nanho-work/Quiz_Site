@@ -97,7 +97,7 @@ export default function SalaryCalculatorPage() {
           종합소득세 계산기로 예상 세액을 함께 확인하고 절세 전략을 점검해보세요.
         </p>
         <Link
-          href="/calculators/income-tax"
+          href="/income-tax-calculator"
           className="inline-flex h-11 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
         >
           종합소득세 간편계산기 이동

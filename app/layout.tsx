@@ -5,27 +5,23 @@ import Footer from "../components/Footer"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.koofy.co.kr"),
-  title: "쿠피 - 모두의 즐거움 | 심리테스트",
-  description: "쿠피(Koofy)에서 다양한 심리테스트 콘텐츠를 즐겨보세요. 간단하고 재미있게 모두의 즐거움을 경험할 수 있습니다.",
+  title: "쿠피 - 간편계산기 모음",
+  description: "쿠피(Koofy)에서 연봉 실수령, 최저임금, 종합소득세, 3.3% 환급 계산기를 빠르게 이용해보세요.",
   keywords: [
     "쿠피",
     "Koofy",
-    "모두의 즐거움",
-    "심리테스트",
-    "재미있는 테스트",
-    "퀴즈",
-    "무료 심리테스트",
-    "온라인 테스트",
-    "재미있는 심리테스트",
-    "성격유형 테스트",
-    "간단 퀴즈",
-    "테스트 모음",
-    "무료 퀴즈 사이트"
+    "간편계산기",
+    "연봉 실수령 계산기",
+    "최저임금 계산기",
+    "종합소득세 계산기",
+    "3.3% 환급 계산기",
+    "급여 계산기",
+    "세금 계산기"
   ],
   authors: [{ name: "쿠피 (Koofy)" }],
   openGraph: {
-    title: "쿠피 - 모두의 즐거움 | 심리테스트",
-    description: "쿠피에서 다양한 심리테스트 콘텐츠로 즐거움을 경험해보세요.",
+    title: "쿠피 - 간편계산기 모음",
+    description: "쿠피에서 급여·세금 계산기를 빠르게 확인해보세요.",
     url: "https://www.koofy.co.kr",
     siteName: "쿠피 Koofy",
     images: [
@@ -41,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "쿠피 - 모두의 즐거움 | 심리테스트",
-    description: "쿠피(Koofy)에서 다양한 심리테스트 콘텐츠를 즐겨보세요.",
+    title: "쿠피 - 간편계산기 모음",
+    description: "쿠피(Koofy)에서 급여·세금 계산기를 빠르게 이용해보세요.",
     images: ["/mainlogo.png"],
   },
   icons: {

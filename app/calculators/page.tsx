@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const calculators = [
   {
-    href: "/calculators/income-tax",
+    href: "/income-tax-calculator",
     title: "종합소득세 간편계산기",
     description: "예상 종합소득세를 빠르게 계산해보세요.",
   },

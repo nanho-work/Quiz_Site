@@ -2,7 +2,7 @@ export default function TermsPage() {
   return (
     <section>
       <h1 className="text-3xl font-bold mb-6">서비스 이용약관</h1>
-      <div className="space-y-6 text-gray-700 dark:text-gray-300 leading-relaxed">
+      <div className="space-y-6 text-gray-700 leading-relaxed">
         <section>
           <h2 className="text-xl font-semibold mb-2">제1조 목적</h2>
           <p>
@@ -20,7 +20,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-semibold mb-2">제3조 서비스 제공 및 변경</h2>
           <p>
-            사이트는 이용자에게 심리 테스트 및 관련 콘텐츠를 제공하며, 서비스의 품질 향상과 이용자 편의 증대를 위해 지속적으로 서비스를 개선합니다. 서비스의 내용, 기능, 이용 방법 등은 사전 공지 후 변경, 추가, 제한 또는 중단될 수 있으며, 이러한 변경으로 인해 이용자에게 발생하는 불이익에 대해 사이트는 책임을 지지 않습니다. 다만, 서비스 제공의 중단 시에는 합리적인 기간 내에 사전 고지하며, 긴급한 경우에는 예외로 할 수 있습니다.
+            사이트는 이용자에게 급여·세금 등 계산기 서비스를 제공하며, 서비스의 품질 향상과 이용자 편의 증대를 위해 지속적으로 서비스를 개선합니다. 서비스의 내용, 기능, 이용 방법 등은 사전 공지 후 변경, 추가, 제한 또는 중단될 수 있으며, 이러한 변경으로 인해 이용자에게 발생하는 불이익에 대해 사이트는 책임을 지지 않습니다. 다만, 서비스 제공의 중단 시에는 합리적인 기간 내에 사전 고지하며, 긴급한 경우에는 예외로 할 수 있습니다.
           </p>
         </section>
 

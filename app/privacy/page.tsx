@@ -3,11 +3,11 @@ export default function PrivacyPolicyPage() {
   return (
     <section>
       <h1 className="text-3xl font-bold mb-6">개인정보 처리방침</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-10">
+      <p className="text-sm text-gray-500 mb-10">
         최종 업데이트: 2025-09-07
       </p>
 
-      <div className="space-y-8 text-gray-700 dark:text-gray-300 leading-relaxed">
+      <div className="space-y-8 text-gray-700 leading-relaxed">
         <section>
           <h2 className="text-xl font-semibold mb-2">1. 총칙</h2>
           <p>
@@ -20,19 +20,19 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2 className="text-xl font-semibold mb-2">2. 수집하는 개인정보 항목</h2>
           <ul className="list-disc list-inside space-y-1">
-            <li><b>필수:</b> 서비스 이용 기록(페이지 방문, 클릭, 테스트 응답 결과의 집계값 등 비식별 정보)</li>
+            <li><b>필수:</b> 서비스 이용 기록(페이지 방문, 클릭 등 비식별 정보)</li>
             <li><b>선택:</b> 문의 시 제공되는 이메일, 이름 등 사용자가 직접 입력한 정보</li>
             <li><b>자동 수집:</b> 쿠키(Cookie), 접속 IP, 브라우저/기기 정보, 접속 일시, 리퍼러 등</li>
           </ul>
           <p className="mt-2 text-sm opacity-80">
-            * 테스트 문항의 개별 응답은 개인 식별이 불가능한 형태로 처리·집계될 수 있습니다.
+            * 입력한 계산 값은 개인 식별 정보와 분리된 형태로 처리될 수 있습니다.
           </p>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-2">3. 개인정보의 처리 목적</h2>
           <ul className="list-disc list-inside space-y-1">
-            <li>서비스 제공 및 운영(심리 테스트 진행, 결과 화면 제공)</li>
+            <li>서비스 제공 및 운영(계산기 기능 및 결과 화면 제공)</li>
             <li>이용 통계·분석을 통한 서비스 개선</li>
             <li>부정 이용 방지 및 보안</li>
             <li>고객 문의 응대(연락처를 제공한 경우에 한함)</li>
@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        <section className="pt-6 border-t border-gray-200 dark:border-gray-800">
+        <section className="pt-6 border-t border-gray-200">
           <p className="text-sm">
             관련 문서: <a href="/terms" className="underline">서비스 이용약관</a>
           </p>

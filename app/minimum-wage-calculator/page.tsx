@@ -101,7 +101,7 @@ export default function MinimumWageCalculatorPage() {
             연봉 실수령 계산기
           </Link>
           <Link
-            href="/calculators/income-tax"
+            href="/income-tax-calculator"
             className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted"
           >
             종합소득세 계산기
