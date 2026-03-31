@@ -2,7 +2,6 @@ import "../styles/globals.css"
 import type { Metadata } from "next"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import { ThemeProvider } from "next-themes"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.koofy.co.kr"),
@@ -55,23 +54,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko">
       <head>
         <meta name="google-adsense-account" content="ca-pub-5773331970563455" />
         <meta name="naver-site-verification" content="1f50027c394809c61b707329ad32b6ba9df23c8b" />
       </head>
       <body className="min-h-screen bg-white text-foreground">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <div className="min-h-screen flex flex-col bg-white">
-            <Header />
-            <main className="flex-1 bg-white">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {children}
-              </div>
-            </main>
-            <Footer />
-          </div>
-        </ThemeProvider>
+        <div className="min-h-screen flex flex-col bg-white">
+          <Header />
+          <main className="flex-1 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              {children}
+            </div>
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   )

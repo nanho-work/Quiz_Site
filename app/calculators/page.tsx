@@ -16,6 +16,11 @@ const calculators = [
     title: "연봉 실수령 계산기 (2026년 버전)",
     description: "연봉 기준 월 실수령액을 간편하게 계산해보세요.",
   },
+  {
+    href: "/minimum-wage-calculator",
+    title: "최저임금 계산기 (2026)",
+    description: "시급, 주급, 주휴수당, 월급을 빠르게 계산해보세요.",
+  },
 ];
 
 export default function CalculatorsPage() {
