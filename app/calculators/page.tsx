@@ -13,7 +13,7 @@ const calculators = [
   },
   {
     href: "/salary-calculator",
-    title: "연봉 실수령 계산기",
+    title: "연봉 실수령 계산기 (2026년 버전)",
     description: "연봉 기준 월 실수령액을 간편하게 계산해보세요.",
   },
 ];
