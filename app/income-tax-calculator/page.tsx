@@ -70,6 +70,9 @@ export default function IncomeTaxCalculator2026Page() {
         <p className="text-muted-foreground">
           2026년 5월 신고 시즌 기준 간편 추정용 계산기입니다. 총수입 기준으로 빠르게 예상 납부세액 또는 종합소득세 환급 가능성을 확인하세요.
         </p>
+        <p className="text-xs text-amber-700 mt-2">
+          직업군 카드의 경비율은 간편 추정치이며, 실제 단순경비율은 국세청 업종코드·귀속연도 기준과 다를 수 있습니다.
+        </p>
       </header>
 
       <ComprehensiveIncomeTaxCalculatorClient />

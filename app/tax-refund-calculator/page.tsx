@@ -70,6 +70,9 @@ export default function TaxRefundCalculatorPage() {
         <p className="text-muted-foreground">
           3.3 환급 가능성을 빠르게 확인하는 간편 계산기입니다. 이미 낸 3.3% 세금과 예상 종합소득세를 비교해 환급 또는 추가 납부 금액을 확인하세요.
         </p>
+        <p className="text-xs text-amber-700 mt-2">
+          본 계산기는 사업소득(인적용역) 원천징수 3.3% 기준 간편 추정용입니다. 실제 신고 결과는 소득 종류와 공제·감면에 따라 달라질 수 있습니다.
+        </p>
       </header>
 
       <Refund33CalculatorClient />
@@ -84,7 +87,7 @@ export default function TaxRefundCalculatorPage() {
             전문가에게 맡기기
           </Link>
           <Link href="/contact" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
-            환급 금액 더 줄이기
+            환급 가능성 더 확인하기
           </Link>
         </div>
       </section>
@@ -146,7 +149,7 @@ export default function TaxRefundCalculatorPage() {
             전문가에게 맡기기
           </Link>
           <Link href="/contact" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
-            환급 금액 더 줄이기
+            환급 가능성 더 확인하기
           </Link>
         </div>
       </section>

@@ -112,6 +112,7 @@ export default function MinimumWageCalculatorClient() {
           <span className="font-semibold">총 월급 (예상)</span>
           <strong className="text-xl text-primary">{formatKrw(result.monthlyPay)}</strong>
         </div>
+
       </section>
     </div>
   );

@@ -388,6 +388,7 @@ export default function NetSalaryCalculatorClient() {
             <strong className="text-xl text-primary">{formatKrw(0)}</strong>
           )}
         </div>
+
       </section>
     </div>
   );

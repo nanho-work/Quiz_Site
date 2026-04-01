@@ -3,9 +3,7 @@ export default function PrivacyPolicyPage() {
   return (
     <section>
       <h1 className="text-3xl font-bold mb-6">개인정보 처리방침</h1>
-      <p className="text-sm text-muted-foreground mb-10">
-        최종 업데이트: 2025-09-07
-      </p>
+      <p className="text-sm text-muted-foreground mb-10">최종 업데이트: 2026-04-01</p>
 
       <div className="space-y-8 text-muted-foreground leading-relaxed">
         <section>
@@ -22,6 +20,7 @@ export default function PrivacyPolicyPage() {
           <ul className="list-disc list-inside space-y-1">
             <li><b>필수:</b> 서비스 이용 기록(페이지 방문, 클릭 등 비식별 정보)</li>
             <li><b>선택:</b> 문의 시 제공되는 이메일, 이름 등 사용자가 직접 입력한 정보</li>
+            <li><b>상담 신청 시:</b> 이름, 연락처, 계산기 입력값/결과값, 문의 내용, 동의 정보</li>
             <li><b>자동 수집:</b> 쿠키(Cookie), 접속 IP, 브라우저/기기 정보, 접속 일시, 리퍼러 등</li>
           </ul>
           <p className="mt-2 text-sm opacity-80">
@@ -36,6 +35,7 @@ export default function PrivacyPolicyPage() {
             <li>이용 통계·분석을 통한 서비스 개선</li>
             <li>부정 이용 방지 및 보안</li>
             <li>고객 문의 응대(연락처를 제공한 경우에 한함)</li>
+            <li>세무 상담 신청 접수, 상담 배정 및 연락</li>
             <li>맞춤형 광고 제공(쿠키/광고 식별자 활용)</li>
           </ul>
         </section>
@@ -69,6 +69,9 @@ export default function PrivacyPolicyPage() {
             법령에 특별한 규정이 없는 한, 개인정보는 수집·이용 목적 달성 시 지체 없이 파기합니다.
             단, 서비스 운영 기록 등은 서비스 개선 및 보안, 분쟁 대비를 위해 합리적인 기간 동안 보관될 수 있습니다.
           </p>
+          <p className="mt-2">
+            상담 신청 정보는 원칙적으로 신청일로부터 3년 보관 후 파기합니다. 다만 관계 법령에 따라 보존 의무가 있는 경우 해당 기간 동안 보관합니다.
+          </p>
         </section>
 
         <section>
@@ -77,6 +80,10 @@ export default function PrivacyPolicyPage() {
             사이트는 이용자의 동의가 있거나 법령에 근거가 있는 경우를 제외하고 개인정보를 제3자에게 제공하지 않습니다.
             서비스 품질 향상을 위해 필요한 경우, 개인정보 처리 업무의 일부를 위탁할 수 있으며,
             위탁 시 수탁자, 위탁 범위 및 보호 조치를 고지합니다.
+          </p>
+          <p className="mt-2">
+            상담 신청의 경우, 이용자가 별도 동의한 범위에서 KevinTax 상담 운영팀 및 제휴 세무사/세무법인에 정보가 제공될 수 있습니다.
+            제공 항목·목적·보유기간은 상담 신청 동의서에 고지합니다.
           </p>
         </section>
 
@@ -120,9 +127,12 @@ export default function PrivacyPolicyPage() {
             개인정보 보호와 관련된 문의는 아래로 연락해 주세요. 합리적인 기간 내에 성실히 답변드리겠습니다.
           </p>
           <ul className="list-disc list-inside">
-            <li>담당자: 개인정보 보호책임자</li>
+            <li>담당부서: Koofy 개인정보보호 담당</li>
             <li>이메일: <a className="underline" href="mailto:contact@koofy.co.kr">contact@koofy.co.kr</a></li>
           </ul>
+          <p className="mt-2">
+            개인정보 열람·정정·삭제·처리정지 요청은 위 이메일로 접수할 수 있으며, 요청자 확인 절차 후 관련 법령에 따라 처리됩니다.
+          </p>
         </section>
 
         <section>
@@ -135,7 +145,8 @@ export default function PrivacyPolicyPage() {
 
         <section className="pt-6 border-t border-border">
           <p className="text-sm">
-            관련 문서: <a href="/terms" className="underline">서비스 이용약관</a>
+            관련 문서: <a href="/terms" className="underline">서비스 이용약관</a> /{" "}
+            <a href="/legal/consultation-consent" className="underline">상담 신청 동의서</a>
           </p>
         </section>
       </div>
