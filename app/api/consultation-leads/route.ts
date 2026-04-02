@@ -5,13 +5,11 @@ const FIXED_CLIENT_ID = 2;
 export async function POST(request: Request) {
   const baseUrl =
     process.env.KEVINTAX_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_KEVINTAX_API_BASE_URL;
+    process.env.NEXT_PUBLIC_KEVINTAX_API_BASE_URL ||
+    "https://api.thekevinstaxlab.com";
 
   if (!baseUrl) {
-    return new NextResponse(
-      "서버 환경변수 KEVINTAX_API_BASE_URL이 설정되지 않았습니다.",
-      { status: 500 }
-    );
+    return new NextResponse("상담 API 주소를 확인할 수 없습니다.", { status: 500 });
   }
 
   let payload: unknown;
