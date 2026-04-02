@@ -22,6 +22,8 @@ export type CreateConsultationLeadPayload = {
   consentVersion: string;
 };
 
+const FIXED_CLIENT_ID = 2;
+
 type ConsultationLeadResponse = {
   id: number;
   name: string;
@@ -52,6 +54,7 @@ export async function createConsultationLead(
       consent_third_party: payload.consentThirdParty,
       consent_marketing: payload.consentMarketing,
       consent_version: payload.consentVersion,
+      client_id: FIXED_CLIENT_ID,
     }),
   });
 

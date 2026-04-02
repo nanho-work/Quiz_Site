@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+const FIXED_CLIENT_ID = 2;
+
 export async function POST(request: Request) {
   const baseUrl =
     process.env.KEVINTAX_API_BASE_URL ||
@@ -19,12 +21,21 @@ export async function POST(request: Request) {
     return new NextResponse("잘못된 요청 본문입니다.", { status: 400 });
   }
 
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return new NextResponse("잘못된 요청 본문입니다.", { status: 400 });
+  }
+
   try {
+    const body = payload as Record<string, unknown>;
     const origin = request.headers.get("origin");
     const referer = request.headers.get("referer");
     const forwardedHost =
       request.headers.get("x-forwarded-host") ||
       request.headers.get("host");
+    const upstreamPayload = {
+      ...body,
+      client_id: FIXED_CLIENT_ID,
+    };
 
     const upstreamHeaders: Record<string, string> = {
       "Content-Type": "application/json",
@@ -44,7 +55,7 @@ export async function POST(request: Request) {
       {
         method: "POST",
         headers: upstreamHeaders,
-        body: JSON.stringify(payload),
+        body: JSON.stringify(upstreamPayload),
       }
     );
 
