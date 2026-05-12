@@ -14,6 +14,7 @@ import {
 } from "../../lib/legal/consultationConsent";
 
 type ConsultationLeadFormProps = {
+  sectionId?: string;
   calculatorType: MarketingCalculatorType;
   calculationInput?: Record<string, unknown> | null;
   calculationResult?: Record<string, unknown> | null;
@@ -24,6 +25,7 @@ type ConsultationLeadFormProps = {
 };
 
 export default function ConsultationLeadForm({
+  sectionId,
   calculatorType,
   calculationInput = null,
   calculationResult = null,
@@ -124,7 +126,7 @@ export default function ConsultationLeadForm({
   }
 
   return (
-    <section className="panel-card mt-4">
+    <section id={sectionId} className="panel-card mt-4 scroll-mt-24">
       <h3 className="text-base font-bold mb-2">{title}</h3>
       <p className="text-sm text-muted-foreground mb-4">{description}</p>
 

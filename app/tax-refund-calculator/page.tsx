@@ -83,11 +83,8 @@ export default function TaxRefundCalculatorPage() {
           환급 계산기 결과를 확인했다면, 신고 단계는 전문가 검토로 정확도를 높일 수 있습니다.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
+          <Link href="#refund-33-consultation-form" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
             전문가에게 맡기기
-          </Link>
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
-            환급 가능성 더 확인하기
           </Link>
         </div>
       </section>
@@ -145,11 +142,8 @@ export default function TaxRefundCalculatorPage() {
           환급 규모를 확인했다면 이제 신고만 남았습니다. 전문가에게 맡기고 처리 시간을 줄여보세요.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
+          <Link href="#refund-33-consultation-form" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
             전문가에게 맡기기
-          </Link>
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
-            환급 가능성 더 확인하기
           </Link>
         </div>
       </section>

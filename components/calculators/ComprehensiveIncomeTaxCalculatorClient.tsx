@@ -313,30 +313,26 @@ export default function ComprehensiveIncomeTaxCalculatorClient() {
           <strong className="text-xl text-primary">{formatKrw(highlightValue)}</strong>
         </div>
 
-        {result ? (
-          <div className="mt-4 fade-in">
-            <ConsultationLeadForm
-              calculatorType="income_tax"
-              canSubmit
-              calculationInput={{
-                annualIncome: parseNumber(annualIncomeInput),
-                expenseMode,
-                expenseRatePercent: parseNumber(expenseRateInput),
-                manualExpense: parseNumber(manualExpenseInput),
-                withheldTax: parseNumber(withheldTaxInput),
-                basicDeduction: BASIC_DEDUCTION_DEFAULT,
-                localTaxIncluded,
-              }}
-              calculationResult={result}
-              title="전문가에게 맡기기"
-              description="종합소득세 추정 결과를 함께 전달해 신고 방향을 빠르게 안내받을 수 있습니다."
-            />
-          </div>
-        ) : (
-          <p className="mt-4 text-xs text-muted-foreground">
-            계산을 완료하면 아래에 상담 신청 입력창이 자동으로 나타납니다.
-          </p>
-        )}
+        <div className="mt-4">
+          <ConsultationLeadForm
+            sectionId="income-tax-consultation-form"
+            calculatorType="income_tax"
+            canSubmit={Boolean(result)}
+            submitBlockedReason="연간 총수입과 필요경비 입력 후 계산 결과가 표시되면 신청할 수 있습니다."
+            calculationInput={{
+              annualIncome: parseNumber(annualIncomeInput),
+              expenseMode,
+              expenseRatePercent: parseNumber(expenseRateInput),
+              manualExpense: parseNumber(manualExpenseInput),
+              withheldTax: parseNumber(withheldTaxInput),
+              basicDeduction: BASIC_DEDUCTION_DEFAULT,
+              localTaxIncluded,
+            }}
+            calculationResult={result}
+            title="전문가에게 맡기기"
+            description="종합소득세 추정 결과를 함께 전달해 신고 방향을 빠르게 안내받을 수 있습니다."
+          />
+        </div>
       </section>
     </div>
   );

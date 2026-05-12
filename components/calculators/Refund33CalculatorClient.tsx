@@ -341,29 +341,25 @@ export default function Refund33CalculatorClient() {
           </strong>
         </div>
 
-        {result ? (
-          <div className="mt-4 fade-in">
-            <ConsultationLeadForm
-              calculatorType="refund_33"
-              canSubmit
-              calculationInput={{
-                annualIncome: parseNumber(annualIncomeInput),
-                expenseMode,
-                expenseRatePercent: parseNumber(expenseRateInput),
-                manualExpense: parseNumber(manualExpenseInput),
-                deductionMode,
-                withheldTax: withheldTaxInput.trim() ? parseNumber(withheldTaxInput) : null,
-              }}
-              calculationResult={result}
-              title="전문가에게 맡기기"
-              description="3.3% 환급 계산 결과를 함께 전달해 환급 가능성 상담을 빠르게 받을 수 있습니다."
-            />
-          </div>
-        ) : (
-          <p className="mt-4 text-xs text-muted-foreground">
-            계산을 완료하면 아래에 상담 신청 입력창이 자동으로 나타납니다.
-          </p>
-        )}
+        <div className="mt-4">
+          <ConsultationLeadForm
+            sectionId="refund-33-consultation-form"
+            calculatorType="refund_33"
+            canSubmit={Boolean(result)}
+            submitBlockedReason="연간 총수입과 필요경비 입력 후 계산 결과가 표시되면 신청할 수 있습니다."
+            calculationInput={{
+              annualIncome: parseNumber(annualIncomeInput),
+              expenseMode,
+              expenseRatePercent: parseNumber(expenseRateInput),
+              manualExpense: parseNumber(manualExpenseInput),
+              deductionMode,
+              withheldTax: withheldTaxInput.trim() ? parseNumber(withheldTaxInput) : null,
+            }}
+            calculationResult={result}
+            title="전문가에게 맡기기"
+            description="3.3% 환급 계산 결과를 함께 전달해 환급 가능성 상담을 빠르게 받을 수 있습니다."
+          />
+        </div>
       </section>
     </div>
   );

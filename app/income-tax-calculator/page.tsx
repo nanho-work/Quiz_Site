@@ -83,11 +83,8 @@ export default function IncomeTaxCalculator2026Page() {
           계산기로 대략 확인했다면, 실제 신고는 전문가 검토로 정확도를 높이세요.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
+          <Link href="#income-tax-consultation-form" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
             전문가에게 맡기기
-          </Link>
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
-            5분 만에 종소세 해결
           </Link>
         </div>
       </section>
@@ -158,11 +155,8 @@ export default function IncomeTaxCalculator2026Page() {
           계산 결과가 애매하면 전문가에게 맡기고 5분 만에 종소세 해결까지 진행해보세요.
         </p>
         <div className="flex flex-wrap gap-3">
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
+          <Link href="#income-tax-consultation-form" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
             전문가에게 맡기기
-          </Link>
-          <Link href="/contact" className="inline-flex h-10 items-center rounded-md border border-border/40 px-4 text-sm font-semibold hover:bg-muted">
-            5분 만에 종소세 해결
           </Link>
         </div>
       </section>
