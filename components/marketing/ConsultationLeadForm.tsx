@@ -43,6 +43,12 @@ export default function ConsultationLeadForm({
   const [error, setError] = useState<string | null>(null);
 
   const normalizedPhone = useMemo(() => phone.replace(/[^\d\-+]/g, ""), [phone]);
+  const isReadyToSubmit =
+    canSubmit &&
+    name.trim().length > 0 &&
+    normalizedPhone.trim().length > 0 &&
+    consentPrivacy &&
+    consentThirdParty;
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -99,11 +105,19 @@ export default function ConsultationLeadForm({
       setConsentThirdParty(false);
       setConsentMarketing(false);
     } catch (submitError) {
-      const errorMessage =
+      const rawMessage =
         submitError instanceof Error
           ? submitError.message
-          : "상담 신청 중 오류가 발생했습니다.";
-      setError(errorMessage);
+          : "";
+      if (
+        rawMessage.includes("webmaster") ||
+        rawMessage.includes("traceback") ||
+        rawMessage.includes("<html")
+      ) {
+        setError("상담 신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      } else {
+        setError(rawMessage || "상담 신청 중 오류가 발생했습니다.");
+      }
     } finally {
       setLoading(false);
     }
@@ -273,10 +287,15 @@ export default function ConsultationLeadForm({
             {success}
           </p>
         )}
+        {!isReadyToSubmit && (
+          <p className="text-xs text-muted-foreground">
+            이름, 연락처, 필수 동의 항목을 입력하면 제출할 수 있습니다.
+          </p>
+        )}
 
         <button
           type="submit"
-          disabled={loading || !canSubmit}
+          disabled={loading || !isReadyToSubmit}
           className="inline-flex h-11 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
         >
           {loading ? "신청 중..." : "상담 신청하기"}
