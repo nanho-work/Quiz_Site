@@ -10,10 +10,10 @@ export const metadata: Metadata = {
   title: "Bus Puzzle 개인정보 처리방침 | Koofy",
   description: "Koofy Lab Bus Puzzle 앱의 개인정보 처리방침입니다.",
   alternates: {
-    canonical: "/bus-puzzle/privacy",
+    canonical: "/bus-pop/privacy",
     languages: {
-      ko: "/bus-puzzle/privacy?lang=ko",
-      en: "/bus-puzzle/privacy?lang=en",
+      ko: "/bus-pop/privacy?lang=ko",
+      en: "/bus-pop/privacy?lang=en",
     },
   },
 };
@@ -46,7 +46,7 @@ export default async function BusPuzzlePrivacyPage({ searchParams }: PageProps) 
             return (
               <Link
                 key={language.code}
-                href={`/bus-puzzle/privacy?lang=${language.code}`}
+                href={`/bus-pop/privacy?lang=${language.code}`}
                 className={[
                   "rounded-full border px-3 py-1.5 text-sm font-semibold transition",
                   isActive
