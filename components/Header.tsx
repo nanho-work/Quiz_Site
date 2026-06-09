@@ -14,8 +14,8 @@ export default function Header() {
               className="flex items-center text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
             >
               <Image
-                src="/koofy.png"
-                alt="koofy logo"
+                src="/KoofyLab2.png"
+                alt="Koofy Lab logo"
                 width={32}
                 height={32}
                 className="mr-2"

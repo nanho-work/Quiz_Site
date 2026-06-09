@@ -4,7 +4,7 @@ export const metadata = {
     openGraph: {
         title: "테스트 허브 | 쿠피",
         description: "무료 심리테스트와 MBTI 성격유형 테스트까지! 쿠피에서 만나보세요.",
-        images: ["/mainlogo.png"], // 퍼블릭에 배너 이미지 추가
+        images: ["/KoofyLab_Banner.png"],
     },
 };
 

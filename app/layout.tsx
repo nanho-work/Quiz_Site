@@ -26,10 +26,10 @@ export const metadata: Metadata = {
     siteName: "쿠피 Koofy",
     images: [
       {
-        url: "/mainlogo.png",
-        width: 1200,
-        height: 500,
-        alt: "쿠피 메인 로고",
+        url: "/KoofyLab_Banner.png",
+        width: 1536,
+        height: 1024,
+        alt: "Koofy Lab banner",
       },
     ],
     locale: "ko_KR",
@@ -39,12 +39,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "쿠피 - 간편계산기 모음",
     description: "쿠피(Koofy)에서 급여·세금 계산기를 빠르게 이용해보세요.",
-    images: ["/mainlogo.png"],
+    images: ["/KoofyLab_Banner.png"],
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "/KoofyLab2.png",
+    shortcut: "/KoofyLab2.png",
+    apple: "/KoofyLab2.png",
   },
 }
 
