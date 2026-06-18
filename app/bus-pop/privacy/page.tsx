@@ -7,8 +7,8 @@ import {
 } from "../../../lib/legal/busPuzzlePrivacy";
 
 export const metadata: Metadata = {
-  title: "Bus Puzzle 개인정보 처리방침 | Koofy",
-  description: "Koofy Lab Bus Puzzle 앱의 개인정보 처리방침입니다.",
+  title: "Bus Pop 개인정보 처리방침 | Koofy",
+  description: "Koofy Lab Bus Pop 앱의 개인정보 처리방침입니다.",
   alternates: {
     canonical: "/bus-pop/privacy",
     languages: {
@@ -32,7 +32,7 @@ export default async function BusPuzzlePrivacyPage({ searchParams }: PageProps) 
     <section className="mx-auto max-w-4xl">
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="mb-2 text-sm font-semibold text-primary">Bus Puzzle</p>
+          <p className="mb-2 text-sm font-semibold text-primary">Bus Pop</p>
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{content.title}</h1>
           <p className="mt-3 text-sm text-muted-foreground">
             {content.updatedLabel}: {content.updatedAt}
@@ -68,7 +68,7 @@ export default async function BusPuzzlePrivacyPage({ searchParams }: PageProps) 
 
       <div className="space-y-8 text-muted-foreground leading-relaxed">
         {content.sections.map((section) => (
-          <section key={section.heading}>
+          <section key={section.heading} id={section.id}>
             <h2 className="mb-2 text-xl font-semibold text-foreground">{section.heading}</h2>
 
             {section.paragraphs?.map((paragraph) => (
