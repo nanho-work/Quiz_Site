@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   Bot,
+  ExternalLink,
   Gamepad2,
   Globe2,
   Layers,
@@ -26,52 +28,72 @@ type ProductCardProps = {
     category: string;
     description: string;
     status: string;
+    image?: string;
+    imageAlt?: string;
     href?: string;
+    links?: Array<{
+      label: string;
+      href: string;
+    }>;
   };
   openLabel: string;
 };
 
 function ProductCard({ product, openLabel }: ProductCardProps) {
-  const content = (
-    <>
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase text-primary">
-            {product.category}
-          </p>
-          <h3 className="mt-2 text-xl font-bold text-foreground">
-            {product.name}
-          </h3>
-        </div>
-        <span className="shrink-0 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
-          {product.status}
-        </span>
-      </div>
-      <p className="text-sm leading-6 text-muted-foreground">
-        {product.description}
-      </p>
-      {product.href ? (
-        <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary">
-          {openLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </span>
-      ) : null}
-    </>
-  );
-
-  if (product.href) {
-    return (
-      <Link
-        href={product.href}
-        className="block rounded-lg border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-md"
-      >
-        {content}
-      </Link>
-    );
-  }
-
   return (
-    <article className="rounded-lg border border-border bg-card p-5 shadow-sm">
-      {content}
+    <article className="overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
+      {product.image ? (
+        <div className="relative aspect-[3/2] border-b border-border bg-muted">
+          <Image
+            src={product.image}
+            alt={product.imageAlt ?? product.name}
+            fill
+            sizes="(min-width: 1024px) 320px, (min-width: 768px) 45vw, 100vw"
+            className="object-contain"
+          />
+        </div>
+      ) : null}
+      <div className="p-5">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase text-primary">
+              {product.category}
+            </p>
+            <h3 className="mt-2 text-xl font-bold text-foreground">
+              {product.name}
+            </h3>
+          </div>
+          <span className="shrink-0 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
+            {product.status}
+          </span>
+        </div>
+        <p className="text-sm leading-6 text-muted-foreground">
+          {product.description}
+        </p>
+        {product.links?.length ? (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {product.links.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 text-xs font-bold text-foreground transition hover:border-primary/40 hover:text-primary"
+              >
+                {link.label}
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+        ) : product.href ? (
+          <Link
+            href={product.href}
+            className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary"
+          >
+            {openLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -142,13 +164,17 @@ export default function Home() {
           </p>
           <div className="mt-6 grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-3xl font-black text-foreground">4</p>
+              <p className="text-3xl font-black text-foreground">
+                {home.products.sites.length}
+              </p>
               <p className="mt-1 text-sm font-semibold text-muted-foreground">
                 {home.products.sitesLabel}
               </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">
-              <p className="text-3xl font-black text-foreground">3</p>
+              <p className="text-3xl font-black text-foreground">
+                {home.products.apps.length}
+              </p>
               <p className="mt-1 text-sm font-semibold text-muted-foreground">
                 {home.products.appsLabel}
               </p>
@@ -164,7 +190,7 @@ export default function Home() {
                 {home.products.appsTitle}
               </h3>
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               {home.products.apps.map((product) => (
                 <ProductCard
                   key={product.name}
@@ -182,7 +208,7 @@ export default function Home() {
                 {home.products.sitesTitle}
               </h3>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {home.products.sites.map((product) => (
                 <ProductCard
                   key={product.name}

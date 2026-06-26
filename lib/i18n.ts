@@ -49,7 +49,13 @@ type ProductText = {
   category: string;
   description: string;
   status: string;
+  image?: string;
+  imageAlt?: string;
   href?: string;
+  links?: Array<{
+    label: string;
+    href: string;
+  }>;
 };
 
 type TextSection = {
@@ -190,9 +196,9 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "Current shape",
-        title: "Seven product surfaces, one clear home.",
+        title: "Six featured product surfaces, one clear home.",
         description:
-          "Koofy Lab now has multiple sites and apps. This page gives them a single frame so the portfolio feels intentional instead of scattered.",
+          "Koofy Lab now has multiple sites and apps. This page gives the portfolio a visual frame, with representative images and store links where they are ready.",
         sitesLabel: "Sites",
         appsLabel: "Apps",
         appsTitle: "Apps",
@@ -204,52 +210,71 @@ export const translations: Record<LanguageCode, Translation> = {
             description:
               "A cheerful puzzle game about buses, passengers, timing, and satisfying movement.",
             status: "Live",
-            href: "/bus-pop/privacy",
+            image: "/products/buspop.png",
+            imageAlt: "Bus Pop representative game image",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofylab.buspop",
+              },
+              {
+                label: "App Store",
+                href: "https://apps.apple.com/kr/app/buspop/id6779111275",
+              },
+            ],
           },
           {
             name: "Koofy Sudoku",
             category: "Puzzle App",
             description:
-              "A clean number puzzle experience shaped for quick focus and daily play.",
-            status: "In progress",
-          },
-          {
-            name: "Koofy Mini Apps",
-            category: "Mobile App",
-            description:
-              "Small, useful mobile experiments that turn simple ideas into polished tools.",
-            status: "Prototype",
+              "A bright Sudoku app shaped for quick focus, daily play, and a friendly puzzle rhythm.",
+            status: "Live",
+            image: "/products/koofy-sudoku.png",
+            imageAlt: "Koofy Sudoku representative app image",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofy.sudoku",
+              },
+            ],
           },
         ],
         sites: [
           {
-            name: "Koofy Lab",
-            category: "Brand Hub",
+            name: "DKEVINZ Tax Lab",
+            category: "Tax Website",
             description:
-              "The home base for Koofy products, experiments, policies, and launch updates.",
-            status: "Live",
-            href: "/",
+              "A professional landing site for tax accounting, consulting, and business growth support.",
+            status: "Website",
+            image: "/products/thekevins-taxlab.png",
+            imageAlt: "DKEVINZ Tax Lab representative website image",
           },
           {
-            name: "Koofy Web Tools",
-            category: "Utility Site",
+            name: "Yong's Dining",
+            category: "Restaurant Website",
             description:
-              "Fast browser-based tools for everyday tasks, calculations, and lightweight workflows.",
-            status: "Reviewing",
+              "A warm restaurant presentation for tofu dishes, atmosphere, menu identity, and local dining.",
+            status: "Website",
+            image: "/products/yongs-dining.png",
+            imageAlt: "Yong's Dining representative website image",
           },
           {
-            name: "Test Experiences",
-            category: "Web Experience",
+            name: "Oren Gym",
+            category: "Fitness Website",
             description:
-              "Light, shareable quizzes and playful web formats from the early Koofy archive.",
-            status: "Archive",
+              "A high-contrast fitness brand page built around training, discipline, strength, and results.",
+            status: "Website",
+            image: "/products/orengym.png",
+            imageAlt: "Oren Gym representative website image",
           },
           {
-            name: "AI Micro Tools",
-            category: "AI Site",
+            name: "Intranet System",
+            category: "Business Web App",
             description:
-              "Focused AI-powered helpers designed around one clear job at a time.",
-            status: "Planned",
+              "A custom internal dashboard concept for notices, schedules, documents, tasks, and reports.",
+            status: "Case",
+            image: "/products/intranet.png",
+            imageAlt: "Intranet System representative web app image",
           },
         ],
       },
@@ -292,7 +317,7 @@ export const translations: Record<LanguageCode, Translation> = {
       refinement: {
         title: "A first landing, ready to refine.",
         description:
-          "This version creates the main frame: brand, portfolio, product categories, and contact. The next pass can replace temporary product names, add store links, and decide which older web tools stay public.",
+          "This version now includes representative product images, store links for live apps, and a clearer portfolio frame. The next pass can tune names, order, and which case studies should become public pages.",
         tags: ["Portfolio", "Store-ready", "Search-friendly"],
       },
       operations: {
@@ -461,9 +486,9 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "현재 구성",
-        title: "7개의 제품 표면을 하나의 본진으로 정리합니다.",
+        title: "6개의 대표 제품 표면을 하나의 본진으로 정리합니다.",
         description:
-          "Koofy Lab에는 여러 사이트와 앱이 있습니다. 이 페이지는 포트폴리오가 흩어진 느낌이 아니라 의도된 묶음처럼 보이도록 기준점을 만듭니다.",
+          "Koofy Lab에는 여러 사이트와 앱이 있습니다. 이 페이지는 대표 이미지와 준비된 스토어 링크를 함께 보여주며, 포트폴리오가 의도된 묶음처럼 보이도록 기준점을 만듭니다.",
         sitesLabel: "사이트",
         appsLabel: "앱",
         appsTitle: "앱",
@@ -475,52 +500,71 @@ export const translations: Record<LanguageCode, Translation> = {
             description:
               "버스, 승객, 타이밍, 시원한 이동감이 어우러진 밝은 퍼즐 게임입니다.",
             status: "운영 중",
-            href: "/bus-pop/privacy",
+            image: "/products/buspop.png",
+            imageAlt: "Bus Pop 대표 게임 이미지",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofylab.buspop",
+              },
+              {
+                label: "App Store",
+                href: "https://apps.apple.com/kr/app/buspop/id6779111275",
+              },
+            ],
           },
           {
             name: "Koofy Sudoku",
             category: "퍼즐 앱",
             description:
-              "짧은 집중과 데일리 플레이에 맞춘 깔끔한 숫자 퍼즐 경험입니다.",
-            status: "진행 중",
-          },
-          {
-            name: "Koofy Mini Apps",
-            category: "모바일 앱",
-            description:
-              "작고 유용한 아이디어를 완성도 있는 도구로 바꾸는 모바일 실험입니다.",
-            status: "프로토타입",
+              "짧은 집중, 데일리 플레이, 친근한 퍼즐 리듬에 맞춘 밝은 스도쿠 앱입니다.",
+            status: "운영 중",
+            image: "/products/koofy-sudoku.png",
+            imageAlt: "Koofy Sudoku 대표 앱 이미지",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofy.sudoku",
+              },
+            ],
           },
         ],
         sites: [
           {
-            name: "Koofy Lab",
-            category: "브랜드 허브",
+            name: "DKEVINZ Tax Lab",
+            category: "세무 웹사이트",
             description:
-              "Koofy 제품, 실험, 정책, 출시 소식을 모으는 본진입니다.",
-            status: "운영 중",
-            href: "/",
+              "세무 회계, 컨설팅, 기업 성장 지원을 전문적으로 보여주는 랜딩 사이트입니다.",
+            status: "웹사이트",
+            image: "/products/thekevins-taxlab.png",
+            imageAlt: "DKEVINZ Tax Lab 대표 웹사이트 이미지",
           },
           {
-            name: "Koofy Web Tools",
-            category: "유틸리티 사이트",
+            name: "Yong's Dining",
+            category: "식당 웹사이트",
             description:
-              "일상 업무, 계산, 가벼운 워크플로우를 빠르게 처리하는 브라우저 도구입니다.",
-            status: "검토 중",
+              "두부요리, 공간 분위기, 메뉴 아이덴티티, 로컬 다이닝 감각을 담은 식당 소개 페이지입니다.",
+            status: "웹사이트",
+            image: "/products/yongs-dining.png",
+            imageAlt: "Yong's Dining 대표 웹사이트 이미지",
           },
           {
-            name: "Test Experiences",
-            category: "웹 경험",
+            name: "Oren Gym",
+            category: "피트니스 웹사이트",
             description:
-              "초기 Koofy 아카이브에 있는 가볍고 공유하기 좋은 테스트와 퀴즈 형식입니다.",
-            status: "아카이브",
+              "트레이닝, 집중, 힘, 결과를 강하게 전달하는 고대비 피트니스 브랜드 페이지입니다.",
+            status: "웹사이트",
+            image: "/products/orengym.png",
+            imageAlt: "Oren Gym 대표 웹사이트 이미지",
           },
           {
-            name: "AI Micro Tools",
-            category: "AI 사이트",
+            name: "Intranet System",
+            category: "업무 웹앱",
             description:
-              "한 번에 하나의 분명한 일을 돕는 집중형 AI 도구입니다.",
-            status: "예정",
+              "공지, 일정, 문서, 업무, 리포트를 한 화면에서 관리하는 맞춤형 내부 대시보드 콘셉트입니다.",
+            status: "케이스",
+            image: "/products/intranet.png",
+            imageAlt: "Intranet System 대표 웹앱 이미지",
           },
         ],
       },
@@ -563,7 +607,7 @@ export const translations: Record<LanguageCode, Translation> = {
       refinement: {
         title: "확인하며 다듬기 위한 첫 랜딩입니다.",
         description:
-          "이번 버전은 브랜드, 포트폴리오, 제품 카테고리, 문의의 큰 틀을 만듭니다. 다음 단계에서는 임시 제품명 교체, 스토어 링크 추가, 오래된 웹 도구의 공개 여부를 결정할 수 있습니다.",
+          "이번 버전은 대표 제품 이미지, 운영 중인 앱의 스토어 링크, 더 명확한 포트폴리오 틀을 포함합니다. 다음 단계에서는 이름, 순서, 공개할 케이스 페이지를 더 다듬으면 됩니다.",
         tags: ["포트폴리오", "스토어 준비", "검색 친화"],
       },
       operations: {
@@ -732,9 +776,9 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "現在の構成",
-        title: "7つのプロダクト面を、ひとつの明確な拠点へ。",
+        title: "6つの代表的なプロダクト面を、ひとつの明確な拠点へ。",
         description:
-          "Koofy Labには複数のサイトとアプリがあります。このページは、それらが散らばって見えないように、意図のあるポートフォリオとして整理します。",
+          "Koofy Labには複数のサイトとアプリがあります。このページでは代表画像と準備済みのストアリンクを並べ、意図のあるポートフォリオとして整理します。",
         sitesLabel: "サイト",
         appsLabel: "アプリ",
         appsTitle: "アプリ",
@@ -746,52 +790,71 @@ export const translations: Record<LanguageCode, Translation> = {
             description:
               "バス、乗客、タイミング、気持ちよい動きが合わさった明るいパズルゲームです。",
             status: "公開中",
-            href: "/bus-pop/privacy",
+            image: "/products/buspop.png",
+            imageAlt: "Bus Popの代表ゲーム画像",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofylab.buspop",
+              },
+              {
+                label: "App Store",
+                href: "https://apps.apple.com/kr/app/buspop/id6779111275",
+              },
+            ],
           },
           {
             name: "Koofy Sudoku",
             category: "パズルアプリ",
             description:
-              "短い集中と毎日のプレイに合わせた、クリーンな数字パズル体験です。",
-            status: "進行中",
-          },
-          {
-            name: "Koofy Mini Apps",
-            category: "モバイルアプリ",
-            description:
-              "小さく便利なアイデアを、磨かれたツールへ変えるモバイル実験です。",
-            status: "プロトタイプ",
+              "短い集中、毎日のプレイ、親しみやすいパズルのリズムに合わせた明るい数独アプリです。",
+            status: "公開中",
+            image: "/products/koofy-sudoku.png",
+            imageAlt: "Koofy Sudokuの代表アプリ画像",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofy.sudoku",
+              },
+            ],
           },
         ],
         sites: [
           {
-            name: "Koofy Lab",
-            category: "ブランド拠点",
+            name: "DKEVINZ Tax Lab",
+            category: "税務Webサイト",
             description:
-              "Koofyのプロダクト、実験、ポリシー、リリース情報を集めるホームです。",
-            status: "公開中",
-            href: "/",
+              "税務会計、コンサルティング、企業成長支援を専門的に見せるランディングサイトです。",
+            status: "Webサイト",
+            image: "/products/thekevins-taxlab.png",
+            imageAlt: "DKEVINZ Tax Labの代表Webサイト画像",
           },
           {
-            name: "Koofy Web Tools",
-            category: "ユーティリティサイト",
+            name: "Yong's Dining",
+            category: "飲食店Webサイト",
             description:
-              "日常のタスク、計算、軽いワークフローを素早く扱うブラウザツールです。",
-            status: "検討中",
+              "豆腐料理、空間の雰囲気、メニューの個性、ローカルな食体験を伝える飲食店ページです。",
+            status: "Webサイト",
+            image: "/products/yongs-dining.png",
+            imageAlt: "Yong's Diningの代表Webサイト画像",
           },
           {
-            name: "Test Experiences",
-            category: "Web体験",
+            name: "Oren Gym",
+            category: "フィットネスWebサイト",
             description:
-              "初期Koofyアーカイブにある、軽く共有しやすいテストやクイズ形式です。",
-            status: "アーカイブ",
+              "トレーニング、集中、力、結果を強く伝える高コントラストのフィットネスブランドページです。",
+            status: "Webサイト",
+            image: "/products/orengym.png",
+            imageAlt: "Oren Gymの代表Webサイト画像",
           },
           {
-            name: "AI Micro Tools",
-            category: "AIサイト",
+            name: "Intranet System",
+            category: "業務Webアプリ",
             description:
-              "一度にひとつの明確な仕事を助ける、集中型AIツールです。",
-            status: "予定",
+              "お知らせ、予定、文書、タスク、レポートを一画面で管理するカスタム社内ダッシュボード案です。",
+            status: "ケース",
+            image: "/products/intranet.png",
+            imageAlt: "Intranet Systemの代表Webアプリ画像",
           },
         ],
       },
@@ -834,7 +897,7 @@ export const translations: Record<LanguageCode, Translation> = {
       refinement: {
         title: "確認しながら磨くための最初のランディングです。",
         description:
-          "このバージョンでは、ブランド、ポートフォリオ、プロダクトカテゴリ、お問い合わせの大枠を作ります。次の段階では仮のプロダクト名の置き換え、ストアリンク追加、古いWebツールの公開方針を決められます。",
+          "このバージョンでは代表プロダクト画像、公開中アプリのストアリンク、より明確なポートフォリオ構成を入れました。次は名前、順序、公開するケースページをさらに磨けます。",
         tags: ["ポートフォリオ", "ストア対応", "検索対応"],
       },
       operations: {
@@ -1002,9 +1065,9 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "当前结构",
-        title: "7 个产品触点，一个清晰的主页。",
+        title: "6 个代表产品触点，一个清晰的主页。",
         description:
-          "Koofy Lab 现在拥有多个网站和应用。这个页面把它们放进同一个框架中，让作品集看起来有意图，而不是分散。",
+          "Koofy Lab 现在拥有多个网站和应用。这个页面把代表图片和已准备好的商店链接放在一起，让作品集看起来更有结构。",
         sitesLabel: "网站",
         appsLabel: "应用",
         appsTitle: "应用",
@@ -1016,48 +1079,71 @@ export const translations: Record<LanguageCode, Translation> = {
             description:
               "一款围绕公交、乘客、时机和爽快移动感设计的明亮解谜游戏。",
             status: "已上线",
-            href: "/bus-pop/privacy",
+            image: "/products/buspop.png",
+            imageAlt: "Bus Pop 代表游戏图片",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofylab.buspop",
+              },
+              {
+                label: "App Store",
+                href: "https://apps.apple.com/kr/app/buspop/id6779111275",
+              },
+            ],
           },
           {
             name: "Koofy Sudoku",
             category: "解谜应用",
-            description: "为短时间专注和每日游玩设计的清爽数字谜题体验。",
-            status: "开发中",
-          },
-          {
-            name: "Koofy Mini Apps",
-            category: "移动应用",
-            description: "把小而实用的想法打磨成完整工具的移动实验。",
-            status: "原型",
+            description:
+              "为短时间专注、每日游玩和亲切谜题节奏设计的明亮数独应用。",
+            status: "已上线",
+            image: "/products/koofy-sudoku.png",
+            imageAlt: "Koofy Sudoku 代表应用图片",
+            links: [
+              {
+                label: "Google Play",
+                href: "https://play.google.com/store/apps/details?id=com.koofy.sudoku",
+              },
+            ],
           },
         ],
         sites: [
           {
-            name: "Koofy Lab",
-            category: "品牌主页",
-            description: "汇集 Koofy 产品、实验、政策和发布更新的主站。",
-            status: "已上线",
-            href: "/",
-          },
-          {
-            name: "Koofy Web Tools",
-            category: "工具网站",
+            name: "DKEVINZ Tax Lab",
+            category: "税务网站",
             description:
-              "用于日常任务、计算和轻量工作流的快速浏览器工具。",
-            status: "评估中",
+              "展示税务会计、咨询服务和企业成长支持的专业落地页。",
+            status: "网站",
+            image: "/products/thekevins-taxlab.png",
+            imageAlt: "DKEVINZ Tax Lab 代表网站图片",
           },
           {
-            name: "Test Experiences",
-            category: "Web体验",
+            name: "Yong's Dining",
+            category: "餐厅网站",
             description:
-              "来自早期 Koofy 档案的轻量、易分享测试和趣味问答形式。",
-            status: "归档",
+              "呈现豆腐料理、空间氛围、菜单识别和本地用餐感的餐厅介绍页。",
+            status: "网站",
+            image: "/products/yongs-dining.png",
+            imageAlt: "Yong's Dining 代表网站图片",
           },
           {
-            name: "AI Micro Tools",
-            category: "AI网站",
-            description: "一次专注解决一个明确任务的 AI 小工具。",
-            status: "计划中",
+            name: "Oren Gym",
+            category: "健身网站",
+            description:
+              "围绕训练、专注、力量和结果打造的高对比度健身品牌页面。",
+            status: "网站",
+            image: "/products/orengym.png",
+            imageAlt: "Oren Gym 代表网站图片",
+          },
+          {
+            name: "Intranet System",
+            category: "业务 Web 应用",
+            description:
+              "用于公告、日程、文档、任务和报表管理的定制内部仪表盘概念。",
+            status: "案例",
+            image: "/products/intranet.png",
+            imageAlt: "Intranet System 代表 Web 应用图片",
           },
         ],
       },
@@ -1100,7 +1186,7 @@ export const translations: Record<LanguageCode, Translation> = {
       refinement: {
         title: "这是一个方便继续打磨的第一版主页。",
         description:
-          "这个版本先建立品牌、作品集、产品类别和联系方式的主框架。下一步可以替换临时产品名、添加商店链接，并决定旧 Web 工具是否继续公开。",
+          "这个版本已经加入代表产品图片、已上线应用的商店链接，以及更清晰的作品集框架。下一步可以继续打磨名称、排序和公开的案例页面。",
         tags: ["作品集", "商店准备", "搜索友好"],
       },
       operations: {
