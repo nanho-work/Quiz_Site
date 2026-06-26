@@ -196,7 +196,7 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "Current shape",
-        title: "Six featured product surfaces, one clear home.",
+        title: "Six featured products, one clear home.",
         description:
           "Koofy Lab now has multiple sites and apps. This page gives the portfolio a visual frame, with representative images and store links where they are ready.",
         sitesLabel: "Sites",
@@ -486,7 +486,7 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "현재 구성",
-        title: "6개의 대표 제품 표면을 하나의 본진으로 정리합니다.",
+        title: "6개의 대표 제품을 하나의 본진으로 정리합니다.",
         description:
           "Koofy Lab에는 여러 사이트와 앱이 있습니다. 이 페이지는 대표 이미지와 준비된 스토어 링크를 함께 보여주며, 포트폴리오가 의도된 묶음처럼 보이도록 기준점을 만듭니다.",
         sitesLabel: "사이트",
@@ -776,7 +776,7 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "現在の構成",
-        title: "6つの代表的なプロダクト面を、ひとつの明確な拠点へ。",
+        title: "6つの代表的なプロダクトを、ひとつの明確な拠点へ。",
         description:
           "Koofy Labには複数のサイトとアプリがあります。このページでは代表画像と準備済みのストアリンクを並べ、意図のあるポートフォリオとして整理します。",
         sitesLabel: "サイト",
@@ -1065,7 +1065,7 @@ export const translations: Record<LanguageCode, Translation> = {
       },
       products: {
         eyebrow: "当前结构",
-        title: "6 个代表产品触点，一个清晰的主页。",
+        title: "6 个代表产品，一个清晰的主页。",
         description:
           "Koofy Lab 现在拥有多个网站和应用。这个页面把代表图片和已准备好的商店链接放在一起，让作品集看起来更有结构。",
         sitesLabel: "网站",
