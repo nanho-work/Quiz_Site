@@ -1,31 +1,58 @@
+"use client";
+
+import Link from "next/link";
+import { Mail } from "lucide-react";
+
+import { useLanguage } from "../../components/LanguageProvider";
+
 export default function ContactPage() {
+  const { text } = useLanguage();
+  const contact = text.contact;
+
   return (
-    <section className="space-y-6">
-      <h1 className="text-3xl font-bold">문의하기</h1>
-      <p className="text-muted-foreground leading-relaxed">
-        서비스와 관련하여 문의 사항이나 제안 사항이 있으시면 아래 연락처로 알려주세요. 
-        <br/>가능한 한 빠르게 확인하고 답변드리겠습니다.
+    <section className="mx-auto max-w-3xl">
+      <p className="mb-3 text-xs font-bold uppercase text-primary">
+        {contact.eyebrow}
+      </p>
+      <h1 className="text-4xl font-black text-foreground md:text-5xl">
+        {contact.title}
+      </h1>
+      <p className="mt-5 text-base leading-7 text-muted-foreground">
+        {contact.description}
       </p>
 
-      <div className="panel-card">
-        <h2 className="text-xl font-semibold mb-2">연락처</h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li>
-            📧 이메일:{" "}
+      <div className="mt-8 rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="flex items-start gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Mail className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-foreground">
+              {contact.emailTitle}
+            </h2>
             <a
-              href="mailto:webmaster@koofy.co.kr"
-              className="underline decoration-border underline-offset-4 hover:text-primary"
+              href="mailto:koofylab@gmail.com"
+              className="mt-2 inline-block font-semibold text-primary underline-offset-4 hover:underline"
             >
-              webmaster@koofy.co.kr
+              koofylab@gmail.com
             </a>
-          </li>
-        </ul>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {contact.emailNote}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <p className="text-muted-foreground leading-relaxed">
-        사용자의 의견은 서비스 개선에 큰 도움이 됩니다. 
-        <br/>소중한 의견과 피드백을 기다리고 있습니다.
-      </p>
+      <div className="mt-8 rounded-lg border border-primary/20 bg-primary/5 p-5 text-sm leading-6 text-muted-foreground">
+        {contact.policyPrompt}{" "}
+        <Link
+          href="/bus-pop/privacy"
+          className="font-bold text-primary underline-offset-4 hover:underline"
+        >
+          {contact.policyCta}
+        </Link>
+        .
+      </div>
     </section>
   );
 }

@@ -1,44 +1,56 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
+import Image from "next/image";
+import Link from "next/link";
+
+import LanguageSelect from "./LanguageSelect";
+import { useLanguage } from "./LanguageProvider";
 
 export default function Header() {
+  const { text } = useLanguage();
+  const navItems = [
+    { href: "/#products", label: text.common.nav.products },
+    { href: "/about", label: text.common.nav.about },
+    { href: "/contact", label: text.common.nav.contact },
+  ];
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link
-              href="/"
-              className="flex items-center text-2xl font-bold text-primary hover:text-primary/80 transition-colors"
-            >
-              <Image
-                src="/KoofyLab2.png"
-                alt="Koofy Lab logo"
-                width={32}
-                height={32}
-                className="mr-2"
-                style={{ height: "32px", width: "auto" }}
-                priority
-              />
-              <span className="text-xl font-extrabold tracking-tight">koofy 간편계산기</span>
-            </Link>
-          </div>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="flex min-w-0 items-center gap-2 text-primary transition-colors hover:text-primary/80"
+          >
+            <Image
+              src="/KoofyLab2.png"
+              alt="Koofy Lab logo"
+              width={34}
+              height={34}
+              className="h-8 w-8 shrink-0 rounded-md object-contain"
+              priority
+            />
+            <span className="truncate text-base font-black tracking-normal text-foreground sm:text-lg">
+              {text.common.brand}
+            </span>
+          </Link>
 
-          <nav className="flex items-center gap-4 text-xs md:text-sm font-semibold">
-            <Link href="/about" className="text-foreground hover:text-primary transition-colors">
-              소개
-            </Link>
-            <Link href="/privacy" className="text-foreground hover:text-primary transition-colors">
-              개인정보처리방침
-            </Link>
-            <Link href="/terms" className="text-foreground hover:text-primary transition-colors">
-              이용약관
-            </Link>
-          </nav>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <nav className="flex items-center gap-2 text-xs font-bold sm:gap-4 sm:text-sm">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-muted-foreground transition-colors hover:text-primary"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <LanguageSelect />
+          </div>
         </div>
       </div>
     </header>
-  )
+  );
 }

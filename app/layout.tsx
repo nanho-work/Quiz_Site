@@ -1,29 +1,32 @@
-import "../styles/globals.css"
-import type { Metadata } from "next"
-import Header from "../components/Header"
-import Footer from "../components/Footer"
+import "../styles/globals.css";
+import type { Metadata } from "next";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { LanguageProvider } from "../components/LanguageProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.koofy.co.kr"),
-  title: "쿠피 - 간편계산기 모음",
-  description: "쿠피(Koofy)에서 연봉 실수령, 최저임금, 종합소득세, 3.3% 환급 계산기를 빠르게 이용해보세요.",
+  title: "Koofy Lab - Games, Apps, and AI-Powered Tools",
+  description:
+    "Koofy Lab creates simple, fun, and memorable digital products across games, mobile apps, AI-powered tools, and web utilities.",
   keywords: [
-    "쿠피",
+    "Koofy Lab",
     "Koofy",
-    "간편계산기",
-    "연봉 실수령 계산기",
-    "최저임금 계산기",
-    "종합소득세 계산기",
-    "3.3% 환급 계산기",
-    "급여 계산기",
-    "세금 계산기"
+    "쿠피",
+    "쿠피랩",
+    "Bus Pop",
+    "Koofy Sudoku",
+    "mobile games",
+    "AI tools",
+    "web utilities",
   ],
-  authors: [{ name: "쿠피 (Koofy)" }],
+  authors: [{ name: "Koofy Lab" }],
   openGraph: {
-    title: "쿠피 - 간편계산기 모음",
-    description: "쿠피에서 급여·세금 계산기를 빠르게 확인해보세요.",
+    title: "Koofy Lab - Simple, Fun, Memorable Experiences",
+    description:
+      "Games, apps, AI-powered tools, and web utilities by Koofy Lab.",
     url: "https://www.koofy.co.kr",
-    siteName: "쿠피 Koofy",
+    siteName: "Koofy Lab",
     images: [
       {
         url: "/KoofyLab_Banner.png",
@@ -32,13 +35,14 @@ export const metadata: Metadata = {
         alt: "Koofy Lab banner",
       },
     ],
-    locale: "ko_KR",
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "쿠피 - 간편계산기 모음",
-    description: "쿠피(Koofy)에서 급여·세금 계산기를 빠르게 이용해보세요.",
+    title: "Koofy Lab - Games, Apps, and AI-Powered Tools",
+    description:
+      "Simple, fun, and memorable digital products from Koofy Lab.",
     images: ["/KoofyLab_Banner.png"],
   },
   icons: {
@@ -46,26 +50,29 @@ export const metadata: Metadata = {
     shortcut: "/KoofyLab2.png",
     apple: "/KoofyLab2.png",
   },
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="en">
       <head>
         <meta name="google-adsense-account" content="ca-pub-5773331970563455" />
-        <meta name="naver-site-verification" content="1f50027c394809c61b707329ad32b6ba9df23c8b" />
+        <meta
+          name="naver-site-verification"
+          content="1f50027c394809c61b707329ad32b6ba9df23c8b"
+        />
       </head>
       <body className="min-h-screen bg-background text-foreground">
-        <div className="min-h-screen flex flex-col bg-background">
-          <Header />
-          <main className="flex-1">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        <LanguageProvider>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
               {children}
-            </div>
-          </main>
-          <Footer />
-        </div>
+            </main>
+            <Footer />
+          </div>
+        </LanguageProvider>
       </body>
     </html>
-  )
+  );
 }

@@ -1,66 +1,38 @@
-# Quiz_Site
+# Koofy Lab Website
 
-## 프로젝트 설명
-Quiz_Site는 Next.js로 구축된 현대적인 웹 애플리케이션으로 Tailwind CSS를 사용하여 스타일링되었습니다. Next.js App Router를 활용하여 직관적이고 확장 가능한 프로젝트 구조를 제공하며, 빠르고 동적인 퀴즈 경험을 가능하게 합니다.
+Koofy Lab is the home site for Koofy products: games, mobile apps, AI-powered tools, and lightweight web utilities.
 
-## 프로젝트 구조 (Next.js App Router 스타일)
-```
-/app
-  /api        # API 경로
-  /components # React 컴포넌트
-  /styles     # Tailwind 및 전역 스타일
-  /quiz       # 퀴즈 관련 페이지 및 컴포넌트
-  layout.js   # 루트 레이아웃
-  page.js     # 홈 페이지
-/public       # 정적 자산
-/next.config.js
-/postcss.config.js
-/tailwind.config.js
-/tsconfig.json (TypeScript 사용 시)
-```
+The project was originally created as `Quiz_Site`, but the current direction is a Koofy Lab brand and product landing page.
 
-## 의존성
-- next (최신 안정 버전)
-- react (최신 안정 버전)
-- react-dom (최신 안정 버전)
-- tailwindcss (최신 안정 버전)
-- postcss (최신 안정 버전)
-- autoprefixer (최신 안정 버전)
+## Stack
 
-## 개발 의존성
-- typescript (최신 안정 버전, TypeScript 사용 시)
-- eslint (최신 안정 버전)
-- eslint-config-next (최신 안정 버전)
+- Next.js App Router
+- React
+- TypeScript
+- Tailwind CSS
+- lucide-react icons
 
-## 설치
-
-안정적인 버전의 Next.js + Tailwind CSS 프로젝트를 생성하려면 다음을 실행하세요:
-
-```bash
-npx create-next-app@latest quiz_site --typescript
-cd quiz_site
-npm install tailwindcss@latest postcss@latest autoprefixer@latest
-npx tailwindcss init -p
-```
-
-`tailwind.config.js`를 업데이트하고 전역 CSS에 Tailwind 지시문을 추가하여 Tailwind CSS를 구성하세요.
-
-## 프로젝트 실행
-
-모든 의존성을 설치하세요:
+## Local Development
 
 ```bash
 npm install
-```
-
-개발 서버를 시작하세요:
-
-```bash
 npm run dev
 ```
 
-[http://localhost:3000](http://localhost:3000)에서 앱을 확인할 수 있습니다.
+Open [http://localhost:3000](http://localhost:3000).
 
-## 배포
+## Useful Scripts
 
-배포를 위해, Quiz_Site는 Next.js 제작자가 만든 플랫폼인 Vercel에 최적화되어 있습니다. GitHub 저장소를 Vercel에 연결하고 배포 지침을 따르면 쉽게 프로젝트를 배포할 수 있습니다. Vercel은 Next.js 애플리케이션의 모든 빌드 및 최적화 단계를 자동으로 처리합니다.
+```bash
+npm run build
+npm run start
+```
+
+## Notes
+
+- `app/page.tsx` is the main Koofy Lab landing page.
+- Site copy is managed through `lib/i18n.ts` with English, Korean, Japanese, and Chinese variants.
+- `components/LanguageProvider.tsx` stores the selected language in local storage and updates the page language.
+- `/bus-pop/privacy` is preserved for the Bus Pop mobile app.
+- `public/ads.txt` and `public/app-ads.txt` are preserved for ads and app store requirements.
+- Older quiz and calculator routes may still exist in the codebase, but they are no longer promoted from the main landing page or sitemap.
