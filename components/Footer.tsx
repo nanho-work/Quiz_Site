@@ -9,7 +9,6 @@ export default function Footer() {
   const footerLinks = [
     { href: "/privacy", label: text.common.footer.privacy },
     { href: "/terms", label: text.common.footer.terms },
-    { href: "/bus-pop/privacy", label: text.common.footer.busPopPolicy },
   ];
 
   return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "../../components/LanguageProvider";
+import PrivacyPolicyNav from "../../components/legal/PrivacyPolicyNav";
 
 export default function PrivacyPolicyPage() {
   const { text } = useLanguage();
@@ -8,6 +9,8 @@ export default function PrivacyPolicyPage() {
 
   return (
     <section className="mx-auto max-w-4xl">
+      <PrivacyPolicyNav active="website" />
+
       <h1 className="text-3xl font-black text-foreground">
         {privacy.title}
       </h1>

@@ -5,6 +5,7 @@ import {
   getBusPuzzlePrivacyContent,
 } from "../../lib/legal/busPuzzlePrivacy";
 import { useLanguage } from "../LanguageProvider";
+import PrivacyPolicyNav from "./PrivacyPolicyNav";
 
 export default function BusPopPrivacyClient() {
   const { language, setLanguage } = useLanguage();
@@ -12,6 +13,8 @@ export default function BusPopPrivacyClient() {
 
   return (
     <section className="mx-auto max-w-4xl">
+      <PrivacyPolicyNav active="bus-pop" />
+
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="mb-2 text-sm font-semibold text-primary">Bus Pop</p>

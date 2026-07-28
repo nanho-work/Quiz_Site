@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import PrivacyPolicyNav from "../../../components/legal/PrivacyPolicyNav";
+
 export const metadata: Metadata = {
   title: "허니비(Honeybee) 개인정보 처리방침 | Koofy Lab",
   description: "Koofy Lab의 모바일 게임 허니비(Honeybee) 개인정보 처리방침입니다.",
@@ -26,6 +28,8 @@ const googlePrivacyLinks = [
 export default function HoneybeePrivacyPage() {
   return (
     <article className="mx-auto max-w-4xl">
+      <PrivacyPolicyNav active="honeybee" />
+
       <header className="mb-10">
         <p className="mb-2 text-sm font-semibold text-primary">Honeybee</p>
         <h1 className="text-3xl font-bold text-foreground md:text-4xl">
