@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/privacy", changeFrequency: "yearly", priority: 0.4 },
     { path: "/terms", changeFrequency: "yearly", priority: 0.4 },
     { path: "/bus-pop/privacy", changeFrequency: "yearly", priority: 0.5 },
+    { path: "/honeybee/privacy", changeFrequency: "yearly", priority: 0.5 },
   ];
 
   return routes.map((route) => ({
