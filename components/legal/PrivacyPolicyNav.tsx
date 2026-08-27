@@ -4,7 +4,11 @@ import Link from "next/link";
 
 import { useLanguage } from "../LanguageProvider";
 
-type PrivacyPolicyKey = "website" | "bus-pop" | "honeybee";
+type PrivacyPolicyKey =
+  | "website"
+  | "bus-pop"
+  | "honeybee"
+  | "slime-strike-force";
 
 const copy = {
   ko: {
@@ -13,6 +17,7 @@ const copy = {
     website: ["Koofy Lab 웹사이트", "웹사이트 이용 및 문의"],
     busPop: ["Bus Pop", "모바일 퍼즐 게임"],
     honeybee: ["허니비(Honeybee)", "모바일 머지 게임"],
+    slimeStrikeForce: ["슬라임특공대", "모바일 디펜스 게임"],
   },
   en: {
     title: "Privacy policies by service",
@@ -20,6 +25,7 @@ const copy = {
     website: ["Koofy Lab Website", "Website use and inquiries"],
     busPop: ["Bus Pop", "Mobile puzzle game"],
     honeybee: ["Honeybee", "Mobile merge game"],
+    slimeStrikeForce: ["Slime Strike Force", "Mobile defense game"],
   },
   ja: {
     title: "サービス別プライバシーポリシー",
@@ -27,6 +33,7 @@ const copy = {
     website: ["Koofy Lab ウェブサイト", "ウェブサイトの利用とお問い合わせ"],
     busPop: ["Bus Pop", "モバイルパズルゲーム"],
     honeybee: ["Honeybee", "モバイルマージゲーム"],
+    slimeStrikeForce: ["スライム特攻隊", "モバイル防衛ゲーム"],
   },
   zh: {
     title: "各服务隐私政策",
@@ -34,6 +41,7 @@ const copy = {
     website: ["Koofy Lab 网站", "网站使用与咨询"],
     busPop: ["Bus Pop", "移动益智游戏"],
     honeybee: ["Honeybee", "移动合并游戏"],
+    slimeStrikeForce: ["史莱姆特攻队", "手机塔防游戏"],
   },
 } as const;
 
@@ -63,6 +71,12 @@ export default function PrivacyPolicyNav({
       label: labels.honeybee[0],
       description: labels.honeybee[1],
     },
+    {
+      key: "slime-strike-force" as const,
+      href: "/slime-strike-force/privacy",
+      label: labels.slimeStrikeForce[0],
+      description: labels.slimeStrikeForce[1],
+    },
   ];
 
   return (
@@ -79,7 +93,7 @@ export default function PrivacyPolicyNav({
         </p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-3" role="list">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4" role="list">
         {policies.map((policy) => {
           const isActive = policy.key === active;
 

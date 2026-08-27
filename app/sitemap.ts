@@ -17,6 +17,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/terms", changeFrequency: "yearly", priority: 0.4 },
     { path: "/bus-pop/privacy", changeFrequency: "yearly", priority: 0.5 },
     { path: "/honeybee/privacy", changeFrequency: "yearly", priority: 0.5 },
+    {
+      path: "/slime-strike-force/privacy",
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
+      path: "/slime-strike-force/terms",
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
   ];
 
   return routes.map((route) => ({
