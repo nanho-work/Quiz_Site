@@ -42,7 +42,7 @@ export const slimeStrikeForceLegalLanguages: Array<{
   { code: "zh", label: "中文" },
 ];
 
-const updatedAt = "2026-08-27";
+const updatedAt = "2026-08-30";
 const contactEmail = "koofylab@gmail.com";
 
 export const slimeStrikeForceLegalContent: Record<
@@ -71,17 +71,18 @@ export const slimeStrikeForceLegalContent: Record<
           ],
         },
         {
-          heading: "2. 기기에 저장되는 게임 정보",
+          heading: "2. 계정, 서버 및 기기에 저장되는 정보",
           paragraphs: [
-            "현재 슬라임특공대는 회원가입 또는 로그인 기능을 제공하지 않습니다. 다음 정보는 게임 기능 제공을 위해 이용자의 기기 로컬 저장소에 저장될 수 있습니다.",
+            "앱을 처음 실행하면 Firebase Authentication의 익명 계정이 자동으로 생성되며, 이용자는 선택적으로 Google 계정을 연결할 수 있습니다. Google 로그인 시 Firebase 사용자 식별자(UID), 이메일 주소, 표시 이름 및 인증 관련 정보가 처리될 수 있습니다.",
+            "게임의 영구 진행 정보는 부정 이용 방지와 기기 간 복원을 위해 Firebase Cloud Firestore의 이용자별 서버 계정에 저장됩니다. 앱은 서버 상태의 표시용 사본과 설정·전투 이어하기 정보를 기기에 저장할 수 있습니다.",
           ],
           bullets: [
-            "튜토리얼 진행 및 완료 여부",
-            "스테이지 진행, 난이도, 전투 기록 및 보상 수령 상태",
-            "캐릭터·스킬의 해금, 장착, 레벨, 강화 및 선택 옵션",
-            "에너지, 골드, 잼, 조각, 열쇠, 광고 스킵권 등 게임 내 재화와 아이템",
-            "일일·월간 퀘스트와 출석 보상 진행 상태",
-            "언어, 사운드, 진동 등 앱 설정과 광고 동의 선택 상태",
+            "서버 계정 식별자, 계정 연결 상태 및 보안·부정 이용 방지 식별자",
+            "튜토리얼, 스테이지, 난이도, 전투 상태 및 보상 수령 기록",
+            "캐릭터·스킬의 해금, 장착, 레벨과 게임 내 재화·아이템",
+            "일일·월간 퀘스트, 출석 보상과 상점 이용 기록",
+            "기기에 저장되는 언어, 사운드, 진동, 알림 및 동의 설정과 전투 이어하기 캐시",
+            "앱 버전, 기기·운영체제 정보, Firebase 설치 식별자, 접속·오류·충돌 및 기능 이용 이벤트",
           ],
         },
         {
@@ -113,20 +114,26 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "6. 정보 처리 목적",
           bullets: [
-            "게임 진행 저장과 앱 기능 제공",
+            "익명 또는 Google 계정 인증, 게임 진행 저장과 기기 간 복원",
             "보상형 광고 제공 및 광고 보상 확인",
             "원격 게임 리소스 다운로드와 업데이트",
-            "부정 이용 방지, 보안, 오류 해결 및 서비스 안정성 개선",
+            "Firebase App Check를 통한 앱 무결성 확인과 부정 이용 방지",
+            "Remote Config를 통한 기능 운영, Analytics를 통한 이용 현황 분석, Crashlytics를 통한 오류 해결",
             "이용자 문의 처리와 법적 의무 준수",
           ],
         },
         {
           heading: "7. 제3자 처리 및 국외 이전",
           paragraphs: [
-            "Koofy Lab은 개인정보를 판매하지 않습니다. 앱 운영에 필요한 범위에서 Unity Technologies 및 그 광고·인프라 파트너가 정보를 처리할 수 있습니다.",
-            "Unity LevelPlay, Unity Ads 및 CCD 이용 과정에서 정보가 네트워크를 통해 미국을 포함한 Unity 또는 파트너의 서버 운영 국가로 전송·처리될 수 있습니다. 처리 항목, 목적과 기간은 본 방침 및 해당 제공자의 정책과 법령에 따릅니다.",
+            "Koofy Lab은 개인정보를 판매하지 않습니다. 앱 운영에 필요한 범위에서 Google LLC(Firebase, Google 로그인, Play Integrity)와 Unity Technologies(Unity LevelPlay, Unity Ads, CCD) 및 각 사의 인프라·광고 파트너가 정보를 처리할 수 있습니다.",
+            "Cloud Firestore와 Cloud Functions의 게임 서버 데이터는 서울 리전(asia-northeast3)에 구성되어 있습니다. Firebase Authentication과 그 밖의 Google·Unity 서비스는 미국을 포함하여 각 제공자가 시설을 운영하는 국가에서 정보를 처리할 수 있습니다.",
           ],
           links: [
+            {
+              label: "Firebase 개인정보 및 보안 안내",
+              href: "https://firebase.google.com/support/privacy",
+            },
+            { label: "Google 개인정보처리방침", href: "https://policies.google.com/privacy" },
             {
               label: "Unity 개인정보 처리방침",
               href: "https://unity.com/legal/privacy-policy",
@@ -140,17 +147,20 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "8. 보유 및 삭제",
           paragraphs: [
-            "로컬 게임 데이터는 이용자의 기기에 보관되며 앱 데이터 삭제, 앱 제거 또는 기기 초기화 시 삭제될 수 있습니다. 앱 삭제 전에는 복구하거나 다른 기기로 이전하지 못할 수 있습니다.",
+            "서버 계정과 게임 진행 정보는 계정이 유지되는 동안 보관됩니다. 이용자가 앱의 설정 > 계정 삭제를 요청하면 Firebase 인증 계정과 해당 계정의 게임 진행 데이터가 자동 삭제 절차에 들어갑니다.",
+            "명령 중복 지급과 부정 이용 방지를 위한 제한된 영수증·보안 기록은 계정 데이터 삭제 후에도 필요한 범위에서 최대 90일간 보관된 뒤 삭제될 수 있습니다. Firebase 백업 시스템에서의 완전 삭제에는 제공자 정책에 따른 추가 시간이 걸릴 수 있습니다.",
+            "기기의 설정과 이어하기 캐시는 앱 데이터 삭제 또는 앱 제거 시 삭제됩니다. 앱만 제거하면 서버 계정 데이터가 자동으로 삭제되지는 않습니다.",
             "문의 이메일은 문의 처리와 분쟁 대응에 필요한 합리적인 기간 동안 보관한 후 삭제합니다. 법령상 보관 의무가 있는 경우에는 해당 기간 동안 보관할 수 있습니다.",
             "제3자 서비스가 처리하는 정보의 보유 기간과 삭제 절차는 각 제공자의 정책을 따릅니다.",
           ],
         },
         {
-          id: "user-rights",
-          heading: "9. 이용자의 권리 및 동의 변경",
+          id: "account-deletion",
+          heading: "9. 이용자의 권리, 계정 삭제 및 동의 변경",
           paragraphs: [
             "이용자는 적용 법령에 따라 개인정보의 열람, 정정, 삭제, 처리 제한 또는 동의 철회를 요청할 수 있습니다.",
-            "로컬 게임 데이터는 기기의 앱 데이터 삭제 기능으로 직접 제거할 수 있습니다. 광고 동의 설정은 앱에서 제공되는 개인정보 또는 광고 설정 화면을 통해 변경할 수 있으며, 관련 요청은 아래 이메일로 접수할 수 있습니다.",
+            "계정과 연결된 게임 데이터는 앱의 설정 > 계정 삭제에서 삭제를 요청할 수 있습니다. 앱을 이용할 수 없는 경우 아래 이메일로 앱 이름과 삭제 요청 사실을 보내면 본인 확인 후 처리 방법을 안내합니다.",
+            "기기 데이터는 운영체제의 앱 데이터 삭제 기능으로 제거할 수 있습니다. 개인정보·광고 동의 선택은 앱의 개인정보 설정에서 확인할 수 있으며, 관련 요청도 아래 이메일로 접수할 수 있습니다.",
           ],
         },
         {
@@ -207,8 +217,9 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "4. 게임 데이터와 기기 변경",
           paragraphs: [
-            "현재 게임 진행 정보는 주로 이용자의 기기에 저장되며 회원 계정 또는 클라우드 동기화를 제공하지 않습니다.",
-            "앱 삭제, 앱 데이터 초기화, 기기 고장 또는 기기 변경 시 게임 기록과 재화가 삭제되거나 이전되지 않을 수 있습니다. Koofy Lab의 고의 또는 중대한 과실이 없는 한 로컬 데이터 손실을 복구하지 못할 수 있습니다.",
+            "앱은 Firebase 익명 계정을 자동 생성하고, 이용자가 선택하면 Google 계정에 연결합니다. 영구 게임 진행과 재화는 인증된 서버 계정에 저장되며 온라인 연결이 필요한 기능입니다.",
+            "Google 계정을 연결하지 않은 익명 계정은 앱 데이터 삭제, 앱 제거 또는 기기 변경 시 다시 접근하지 못할 수 있습니다. 기기 간 복원을 원하면 앱을 삭제하거나 기기를 변경하기 전에 Google 계정을 연결해야 합니다.",
+            "계정 전환 시 각 서버 계정의 진행 정보가 적용되며 서로 다른 계정의 진행은 자동으로 합쳐지지 않을 수 있습니다.",
           ],
         },
         {
@@ -293,17 +304,18 @@ export const slimeStrikeForceLegalContent: Record<
           ],
         },
         {
-          heading: "2. Game Information Stored on the Device",
+          heading: "2. Account, Server, and Device Information",
           paragraphs: [
-            "Slime Strike Force currently does not provide account registration or login. The following information may be stored locally on the user's device to provide game features.",
+            "When the app first starts, Firebase Authentication automatically creates an anonymous account. Users may optionally connect a Google account. Google sign-in may process a Firebase user ID (UID), email address, display name, and authentication information.",
+            "Permanent game progress is stored in a user-specific Firebase Cloud Firestore account to prevent abuse and support restoration across devices. The app may retain a display cache of server state, settings, and battle-resume information on the device.",
           ],
           bullets: [
-            "Tutorial progress and completion",
-            "Stage progress, difficulty, battle records, and reward status",
-            "Character and skill unlocks, equipment, levels, upgrades, and selected options",
-            "Energy, gold, gems, fragments, keys, ad-skip tickets, and other in-game items",
-            "Daily and monthly quest and attendance reward progress",
-            "Language, sound, vibration, and advertising consent preferences",
+            "Server account identifiers, account-link status, and security or anti-abuse identifiers",
+            "Tutorial, stage, difficulty, battle state, and reward records",
+            "Character and skill unlocks, equipment, levels, in-game resources, and items",
+            "Daily and monthly quests, attendance rewards, and shop activity",
+            "Device-stored language, sound, vibration, notification, consent, and battle-resume settings",
+            "App version, device and operating-system information, Firebase installation identifiers, access, error, crash, and feature-use events",
           ],
         },
         {
@@ -335,20 +347,23 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "6. Purposes of Processing",
           bullets: [
-            "Saving progress and providing app features",
+            "Authenticating anonymous or Google accounts, saving progress, and restoring it across devices",
             "Providing rewarded ads and verifying rewards",
             "Downloading and updating remote game content",
-            "Preventing abuse, maintaining security, resolving errors, and improving stability",
+            "Checking app integrity through Firebase App Check and preventing abuse",
+            "Operating features through Remote Config, analyzing use through Analytics, and resolving errors through Crashlytics",
             "Responding to inquiries and meeting legal obligations",
           ],
         },
         {
           heading: "7. Service Providers and International Transfers",
           paragraphs: [
-            "Koofy Lab does not sell personal information. Unity Technologies and its advertising or infrastructure partners may process information as necessary to operate the app.",
-            "When LevelPlay, Unity Ads, or CCD is used, information may be transmitted over networks to and processed in the United States and other countries where Unity or its partners operate servers. Processing is governed by this policy, provider policies, and applicable law.",
+            "Koofy Lab does not sell personal information. Google LLC (Firebase, Google sign-in, and Play Integrity), Unity Technologies (Unity LevelPlay, Unity Ads, and CCD), and their infrastructure or advertising partners may process information as necessary to operate the app.",
+            "Game-server data in Cloud Firestore and Cloud Functions is configured in the Seoul region (asia-northeast3). Firebase Authentication and other Google or Unity services may process information in the United States and other countries where the providers operate facilities.",
           ],
           links: [
+            { label: "Firebase Privacy and Security", href: "https://firebase.google.com/support/privacy" },
+            { label: "Google Privacy Policy", href: "https://policies.google.com/privacy" },
             { label: "Unity Privacy Policy", href: "https://unity.com/legal/privacy-policy" },
             {
               label: "Unity LevelPlay Legal Resources",
@@ -359,17 +374,20 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "8. Retention and Deletion",
           paragraphs: [
-            "Local game data remains on the user's device and may be deleted by clearing app data, uninstalling the app, or resetting the device. It may not be recoverable or transferable after deletion.",
+            "The server account and game progress are retained while the account remains active. A request made through Settings > Delete Account starts an automated deletion of the Firebase authentication account and its account-scoped game data.",
+            "Limited receipts and security records needed to prevent duplicate rewards and abuse may be retained for up to 90 days after account-data deletion and then deleted. Removal from Firebase backup systems may take additional time under the provider's policy.",
+            "Device settings and battle-resume caches are removed when app data is cleared or the app is uninstalled. Uninstalling the app alone does not automatically delete the server account.",
             "Inquiry emails are retained for a reasonable period needed to handle the inquiry or disputes and are then deleted, unless retention is required by law.",
             "Information processed by third-party services is retained and deleted according to each provider's policy.",
           ],
         },
         {
-          id: "user-rights",
-          heading: "9. User Rights and Consent Changes",
+          id: "account-deletion",
+          heading: "9. User Rights, Account Deletion, and Consent Changes",
           paragraphs: [
             "Where applicable, users may request access, correction, deletion, restriction of processing, or withdrawal of consent.",
-            "Local game data can be removed through the device's app-data controls. Advertising choices can be changed through the privacy or advertising settings provided in the app. Requests may also be sent to the email below.",
+            "You can request deletion of the account and associated game data through Settings > Delete Account. If you cannot access the app, email the address below with the app name and your deletion request; we will provide instructions after appropriate identity verification.",
+            "Device data can be removed through operating-system app-data controls. Privacy and advertising choices can be reviewed in the app's privacy settings, and related requests may also be sent to the email below.",
           ],
         },
         {
@@ -426,8 +444,9 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "4. Game Data and Device Changes",
           paragraphs: [
-            "Game progress is currently stored primarily on the user's device, without an account or cloud synchronization feature.",
-            "Records and resources may be lost or may not transfer if the app is uninstalled, app data is cleared, the device fails, or the device is changed. Except in cases of intent or gross negligence by Koofy Lab, local data may not be recoverable.",
+            "The app automatically creates a Firebase anonymous account and lets the user optionally connect a Google account. Permanent progress and resources are stored in the authenticated server account and require an online connection.",
+            "An anonymous account that has not been connected to Google may become inaccessible if app data is cleared, the app is uninstalled, or the device is changed. Connect a Google account before deleting the app or changing devices if you want cross-device restoration.",
+            "When accounts are switched, the selected server account's progress is applied. Progress from different accounts may not be merged automatically.",
           ],
         },
         {
@@ -512,17 +531,18 @@ export const slimeStrikeForceLegalContent: Record<
           ],
         },
         {
-          heading: "2. 端末に保存されるゲーム情報",
+          heading: "2. アカウント、サーバーおよび端末の情報",
           paragraphs: [
-            "現在、本アプリには会員登録またはログイン機能がありません。ゲーム機能の提供のため、次の情報がユーザーの端末内に保存される場合があります。",
+            "初回起動時にFirebase Authenticationの匿名アカウントが自動作成され、ユーザーは任意でGoogleアカウントを連携できます。GoogleログインではFirebaseユーザーID（UID）、メールアドレス、表示名および認証情報が処理される場合があります。",
+            "不正利用の防止と端末間の復元のため、永続的なゲーム進行はFirebase Cloud Firestoreのユーザー別サーバーアカウントに保存されます。端末にはサーバー状態の表示用キャッシュ、設定および戦闘再開情報が保存される場合があります。",
           ],
           bullets: [
-            "チュートリアルの進行・完了状況",
-            "ステージ進行、難易度、戦闘記録、報酬受領状況",
-            "キャラクター・スキルの解放、装着、レベル、強化、選択オプション",
-            "エネルギー、ゴールド、ジェム、欠片、鍵、広告スキップ券などのゲーム内アイテム",
-            "デイリー・マンスリークエストおよびログイン報酬の進行状況",
-            "言語、サウンド、振動、広告同意の設定",
+            "サーバーアカウント識別子、アカウント連携状態、セキュリティ・不正防止識別子",
+            "チュートリアル、ステージ、難易度、戦闘状態および報酬記録",
+            "キャラクター・スキルの解放、装着、レベル、ゲーム内資源・アイテム",
+            "デイリー・マンスリークエスト、ログイン報酬およびショップ利用記録",
+            "端末に保存される言語、サウンド、振動、通知、同意設定および戦闘再開キャッシュ",
+            "アプリバージョン、端末・OS情報、Firebaseインストール識別子、アクセス・エラー・クラッシュ・機能利用イベント",
           ],
         },
         {
@@ -554,20 +574,23 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "6. 処理目的",
           bullets: [
-            "ゲーム進行の保存とアプリ機能の提供",
+            "匿名またはGoogleアカウントの認証、ゲーム進行の保存および端末間の復元",
             "リワード広告の提供と報酬確認",
             "リモートゲームリソースのダウンロードと更新",
-            "不正防止、セキュリティ、エラー解決、安定性向上",
+            "Firebase App Checkによるアプリの完全性確認と不正利用防止",
+            "Remote Configによる機能運用、Analyticsによる利用分析、Crashlyticsによる障害解決",
             "お問い合わせ対応と法的義務の履行",
           ],
         },
         {
           heading: "7. 第三者処理と国外移転",
           paragraphs: [
-            "Koofy Labは個人情報を販売しません。アプリ運営に必要な範囲でUnity Technologiesおよびその広告・インフラパートナーが情報を処理する場合があります。",
-            "LevelPlay、Unity Ads、CCDの利用により、情報がネットワークを通じて米国その他Unityまたはパートナーがサーバーを運営する国に送信・処理される場合があります。処理は本ポリシー、提供者のポリシーおよび適用法令に従います。",
+            "Koofy Labは個人情報を販売しません。アプリ運営に必要な範囲でGoogle LLC（Firebase、Googleログイン、Play Integrity）、Unity Technologies（Unity LevelPlay、Unity Ads、CCD）および各社のインフラ・広告パートナーが情報を処理する場合があります。",
+            "Cloud FirestoreとCloud Functionsのゲームサーバーデータはソウルリージョン（asia-northeast3）に設定されています。Firebase Authenticationその他のGoogle・Unityサービスは、米国を含む各提供者の施設所在国で情報を処理する場合があります。",
           ],
           links: [
+            { label: "Firebaseのプライバシーとセキュリティ", href: "https://firebase.google.com/support/privacy" },
+            { label: "Googleプライバシーポリシー", href: "https://policies.google.com/privacy" },
             { label: "Unityプライバシーポリシー", href: "https://unity.com/legal/privacy-policy" },
             {
               label: "Unity LevelPlay法務資料",
@@ -578,17 +601,20 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "8. 保管と削除",
           paragraphs: [
-            "ローカルゲームデータは端末に保管され、アプリデータの消去、アプリ削除または端末初期化により削除される場合があります。削除後の復旧や移行ができないことがあります。",
+            "サーバーアカウントとゲーム進行はアカウントが有効な間保管されます。設定 > アカウント削除からの申請により、Firebase認証アカウントとそのアカウントに紐づくゲームデータの自動削除処理が開始されます。",
+            "重複報酬や不正利用の防止に必要な限定的なレシート・セキュリティ記録は、アカウントデータ削除後も最大90日保管された後に削除される場合があります。Firebaseのバックアップからの完全削除には提供者ポリシーに基づく追加時間を要する場合があります。",
+            "端末設定と戦闘再開キャッシュはアプリデータの消去またはアプリ削除により削除されます。アプリを削除するだけではサーバーアカウントは自動削除されません。",
             "問い合わせメールは対応または紛争処理に必要な合理的期間保管した後に削除します。法令上の保存義務がある場合を除きます。",
             "第三者サービスが処理する情報の保管・削除は各提供者のポリシーに従います。",
           ],
         },
         {
-          id: "user-rights",
-          heading: "9. ユーザーの権利と同意変更",
+          id: "account-deletion",
+          heading: "9. ユーザーの権利、アカウント削除および同意変更",
           paragraphs: [
             "適用法令に従い、ユーザーは開示、訂正、削除、処理制限または同意撤回を求めることができます。",
-            "ローカルデータは端末のアプリデータ機能から削除できます。広告設定はアプリ内のプライバシーまたは広告設定から変更でき、下記メールでもお問い合わせいただけます。",
+            "アカウントと関連ゲームデータは、アプリの設定 > アカウント削除から削除を申請できます。アプリを利用できない場合は、下記メールにアプリ名と削除希望を記載して送信してください。適切な本人確認後に手続きを案内します。",
+            "端末データはOSのアプリデータ機能から削除できます。プライバシー・広告の選択はアプリ内のプライバシー設定で確認でき、関連する申請は下記メールでも受け付けます。",
           ],
         },
         {
@@ -645,8 +671,9 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "4. ゲームデータと端末変更",
           paragraphs: [
-            "現在、ゲーム進行は主に端末内に保存され、アカウントやクラウド同期はありません。",
-            "アプリ削除、データ消去、端末故障・変更により記録や資源が失われ、移行できない場合があります。Koofy Labの故意または重大な過失がない限り、ローカルデータを復旧できない場合があります。",
+            "本アプリはFirebase匿名アカウントを自動作成し、ユーザーは任意でGoogleアカウントを連携できます。永続的なゲーム進行と資源は認証済みサーバーアカウントに保存され、オンライン接続が必要です。",
+            "Googleに連携していない匿名アカウントは、アプリデータの消去、アプリ削除または端末変更によりアクセスできなくなる場合があります。端末間の復元を希望する場合は、削除・変更前にGoogleアカウントを連携してください。",
+            "アカウントを切り替えると、選択したサーバーアカウントの進行が適用されます。異なるアカウントの進行は自動的に統合されない場合があります。",
           ],
         },
         {
@@ -731,17 +758,18 @@ export const slimeStrikeForceLegalContent: Record<
           ],
         },
         {
-          heading: "2. 保存在设备上的游戏信息",
+          heading: "2. 账号、服务器与设备信息",
           paragraphs: [
-            "本应用目前不提供注册或登录功能。为提供游戏功能，以下信息可能保存在用户设备本地。",
+            "应用首次启动时，Firebase Authentication 会自动创建匿名账号，用户也可以选择关联 Google 账号。Google 登录可能处理 Firebase 用户标识符（UID）、电子邮件地址、显示名称及认证信息。",
+            "为防止滥用并支持跨设备恢复，永久游戏进度会保存在 Firebase Cloud Firestore 中按用户区分的服务器账号内。应用可能在设备上保留服务器状态的显示缓存、设置和战斗继续信息。",
           ],
           bullets: [
-            "教程进度及完成状态",
-            "关卡进度、难度、战斗记录及奖励领取状态",
-            "角色和技能的解锁、装备、等级、强化及已选选项",
-            "能量、金币、宝石、碎片、钥匙、广告跳过券等游戏内物品",
-            "每日和每月任务及签到奖励进度",
-            "语言、声音、振动及广告同意设置",
+            "服务器账号标识符、账号关联状态及安全或反滥用标识符",
+            "教程、关卡、难度、战斗状态及奖励记录",
+            "角色和技能的解锁、装备、等级、游戏内资源与物品",
+            "每日和每月任务、签到奖励及商店使用记录",
+            "保存在设备上的语言、声音、振动、通知、同意设置及战斗继续缓存",
+            "应用版本、设备和操作系统信息、Firebase 安装标识符、访问、错误、崩溃及功能使用事件",
           ],
         },
         {
@@ -773,20 +801,23 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "6. 信息处理目的",
           bullets: [
-            "保存游戏进度并提供应用功能",
+            "认证匿名或 Google 账号、保存游戏进度并支持跨设备恢复",
             "提供激励广告并验证奖励",
             "下载和更新远程游戏资源",
-            "防止滥用、维护安全、解决错误并提高稳定性",
+            "通过 Firebase App Check 验证应用完整性并防止滥用",
+            "通过 Remote Config 运营功能、通过 Analytics 分析使用情况、通过 Crashlytics 解决错误",
             "回复咨询并履行法律义务",
           ],
         },
         {
           heading: "7. 第三方处理与跨境传输",
           paragraphs: [
-            "Koofy Lab 不出售个人信息。Unity Technologies 及其广告或基础设施合作伙伴可能在运营应用所需范围内处理信息。",
-            "使用 LevelPlay、Unity Ads 或 CCD 时，信息可能经网络传输至美国及 Unity 或其合作伙伴运营服务器的其他国家并在那里处理。处理活动受本政策、提供商政策和适用法律约束。",
+            "Koofy Lab 不出售个人信息。Google LLC（Firebase、Google 登录、Play Integrity）、Unity Technologies（Unity LevelPlay、Unity Ads、CCD）及其基础设施或广告合作伙伴可能在运营应用所需范围内处理信息。",
+            "Cloud Firestore 与 Cloud Functions 的游戏服务器数据配置在首尔区域（asia-northeast3）。Firebase Authentication 以及其他 Google 或 Unity 服务可能在美国及提供商设有设施的其他国家处理信息。",
           ],
           links: [
+            { label: "Firebase 隐私与安全", href: "https://firebase.google.com/support/privacy" },
+            { label: "Google 隐私政策", href: "https://policies.google.com/privacy" },
             { label: "Unity 隐私政策", href: "https://unity.com/legal/privacy-policy" },
             {
               label: "Unity LevelPlay 法律资料",
@@ -797,17 +828,20 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "8. 保存与删除",
           paragraphs: [
-            "本地游戏数据保存在用户设备上，可通过清除应用数据、卸载应用或重置设备删除。删除后可能无法恢复或转移。",
+            "服务器账号和游戏进度会在账号有效期间保存。通过设置 > 删除账号提出请求后，将启动 Firebase 认证账号及其账号范围内游戏数据的自动删除流程。",
+            "为防止重复奖励和滥用而必需的有限凭据及安全记录，可能在账号数据删除后最多保留 90 天，随后删除。按照提供商政策，从 Firebase 备份系统中完全移除可能还需要额外时间。",
+            "设备设置和战斗继续缓存会在清除应用数据或卸载应用时删除。仅卸载应用不会自动删除服务器账号。",
             "咨询邮件将在处理咨询或争议所需的合理期限内保存，之后删除；法律要求保存的除外。",
             "第三方服务处理的信息按相应提供商的政策保存和删除。",
           ],
         },
         {
-          id: "user-rights",
-          heading: "9. 用户权利与同意变更",
+          id: "account-deletion",
+          heading: "9. 用户权利、账号删除与同意变更",
           paragraphs: [
             "在适用法律规定的情况下，用户可以请求访问、更正、删除、限制处理或撤回同意。",
-            "本地游戏数据可通过设备的应用数据设置删除。广告选择可通过应用提供的隐私或广告设置进行修改，也可通过下方邮箱提出请求。",
+            "用户可通过应用的设置 > 删除账号申请删除账号及相关游戏数据。如果无法使用应用，请向下方邮箱发送应用名称和删除请求；我们会在适当验证身份后提供处理指引。",
+            "设备数据可通过操作系统的应用数据设置删除。隐私和广告选择可在应用的隐私设置中查看，相关请求也可通过下方邮箱提出。",
           ],
         },
         {
@@ -864,8 +898,9 @@ export const slimeStrikeForceLegalContent: Record<
         {
           heading: "4. 游戏数据与设备变更",
           paragraphs: [
-            "游戏进度目前主要保存在用户设备上，不提供账号或云同步功能。",
-            "卸载应用、清除数据、设备故障或更换设备时，记录和资源可能丢失或无法转移。除 Koofy Lab 故意或重大过失外，本地数据可能无法恢复。",
+            "应用会自动创建 Firebase 匿名账号，并允许用户选择关联 Google 账号。永久游戏进度和资源保存在经过认证的服务器账号中，相关功能需要网络连接。",
+            "未关联 Google 的匿名账号可能在清除应用数据、卸载应用或更换设备后无法再次访问。如需跨设备恢复，请在删除应用或更换设备前关联 Google 账号。",
+            "切换账号时会应用所选服务器账号的进度，不同账号的进度可能不会自动合并。",
           ],
         },
         {
