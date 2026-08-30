@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { LanguageProvider } from "../components/LanguageProvider";
+import { RootChrome } from "../components/RootChrome";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.koofy.co.kr"),
@@ -64,13 +65,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen bg-background text-foreground">
         <LanguageProvider>
-          <div className="min-h-screen bg-background">
-            <Header />
-            <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <RootChrome header={<Header />} footer={<Footer />}>
+            {children}
+          </RootChrome>
         </LanguageProvider>
       </body>
     </html>
