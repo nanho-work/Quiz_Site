@@ -18,7 +18,7 @@ export function StageDefinitionForm({ stage, onChange }: {
   const totalUnits = plannedUnits(stage);
 
   return (
-    <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_340px]">
+    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div className="space-y-5">
         <FieldGroup title="표시 및 리소스" description="ID는 이미 배포된 스테이지 연결에 사용되므로 수정할 수 없습니다.">
           <TextField label="스테이지 ID" value={stage.id} disabled />
@@ -74,7 +74,7 @@ export function StageDefinitionForm({ stage, onChange }: {
           <ScheduleFields label="옵션 선택" value={stage.optionChoiceSchedule} onChange={(value) => update("optionChoiceSchedule", value)} />
         </FieldGroup>
       </div>
-      <div className="2xl:sticky 2xl:top-24"><StagePathPreview stage={stage} /></div>
+      <div className="order-first xl:order-none xl:sticky xl:top-24"><StagePathPreview stage={stage} /></div>
     </div>
   );
 }
@@ -127,11 +127,24 @@ function PathSettings({ stage, pathType, onChange }: {
       <ToggleField label="시계 방향" checked={path.clockwise} onChange={(clockwise) => onChange({ ...stage, starSpiralPath: { ...path, clockwise } })} />
     </FieldGroup>;
   }
-  if ((pathType === "pattern" || pathType === "twin") && stage.patternPath) {
+  if (pathType === "twin") {
+    return <FieldGroup title="트윈 뱀형 경로"><InlineHelp>Unity 엔진이 보드 크기에 맞춰 두 경로를 자동 생성합니다. 경로 모양은 오른쪽 미리보기에서 확인하세요.</InlineHelp></FieldGroup>;
+  }
+  if (pathType === "pattern" && stage.patternPath) {
     const path = stage.patternPath;
     return <FieldGroup title="패턴 경로 설정">
       <SelectField label="엔진 패턴" value={path.kind} onChange={(event) => onChange({ ...stage, patternPath: { ...path, kind: Number(event.target.value) } })}>
-        <option value={0}>패턴 0 · 기본 트윈</option><option value={1}>패턴 1 · 뱀형</option><option value={2}>패턴 2</option><option value={3}>패턴 3</option><option value={4}>패턴 4</option><option value={5}>패턴 5 · 트윈 스프링</option><option value={6}>패턴 6 · 트윈 열 이동</option>
+        {stage.dualLaneEnabled ? <>
+          <option value={0}>기본 트윈 경로</option>
+          <option value={5}>트윈 스프링</option>
+          <option value={6}>트윈 열 이동</option>
+        </> : <>
+          <option value={0}>하트</option>
+          <option value={1}>8자</option>
+          <option value={2}>번개</option>
+          <option value={3}>꽃</option>
+          <option value={4}>역회전 소용돌이</option>
+        </>}
       </SelectField>
       <PointFields label="중심" value={path.centerWorld} onChange={(centerWorld) => onChange({ ...stage, patternPath: { ...path, centerWorld } })} />
       <NumberField label="가로 반폭" value={path.outerHalfWidthWorld} min={0.01} step={0.1} onValue={(outerHalfWidthWorld) => onChange({ ...stage, patternPath: { ...path, outerHalfWidthWorld } })} />
@@ -193,10 +206,20 @@ function changePathType(stage: StageDefinition, type: PathType): StageDefinition
   if (type === "star") return { ...next, battleMode: 3, starSpiralPath: stage.starSpiralPath ?? { centerWorld: { x: 0, y: 0 }, outerHalfWidthWorld: 4, outerHalfHeightWorld: 8, innerScale: 0.55, startAngleDegrees: 162, clockwise: true } };
   if (type === "parallel") return { ...next, battleMode: 0, bottomLanePathKind: 2, dualLaneEnabled: false, parallelLaneCount: stage.parallelLaneCount ?? 3, parallelLaneUnitRatio: stage.parallelLaneUnitRatio ?? 0.34, parallelLaneHealthRatio: stage.parallelLaneHealthRatio ?? 1 };
   const twin = type === "twin";
-  return { ...next, battleMode: twin ? 0 : 4, bottomLanePathKind: twin ? 1 : 0, dualLaneEnabled: twin ? true : stage.dualLaneEnabled, secondaryMonsterVisualId: stage.secondaryMonsterVisualId ?? stage.monsterVisualId, dualLaneUnitRatio: stage.dualLaneUnitRatio ?? 0.7, dualLaneHealthRatio: stage.dualLaneHealthRatio ?? 0.6, patternPath: stage.patternPath ?? { kind: twin ? 1 : 0, centerWorld: { x: 0, y: 0 }, outerHalfWidthWorld: 4, outerHalfHeightWorld: 8, innerScale: 0.55, samples: 72, clockwise: true } };
+  const dualLaneEnabled = twin ? true : stage.dualLaneEnabled === true;
+  const existingPattern = stage.patternPath ?? { kind: 0, centerWorld: { x: 0, y: 0 }, outerHalfWidthWorld: 4, outerHalfHeightWorld: 8, innerScale: 0.55, samples: 72, clockwise: true };
+  const patternKind = dualLaneEnabled
+    ? existingPattern.kind === 5 || existingPattern.kind === 6 ? existingPattern.kind : 0
+    : existingPattern.kind >= 0 && existingPattern.kind <= 4 ? existingPattern.kind : 0;
+  return { ...next, battleMode: twin ? 0 : 4, bottomLanePathKind: twin ? 1 : 0, dualLaneEnabled, secondaryMonsterVisualId: stage.secondaryMonsterVisualId ?? stage.monsterVisualId, dualLaneUnitRatio: stage.dualLaneUnitRatio ?? 0.7, dualLaneHealthRatio: stage.dualLaneHealthRatio ?? 0.6, patternPath: { ...existingPattern, kind: patternKind } };
 }
 
 function toggleDualLane(stage: StageDefinition, enabled: boolean): StageDefinition {
-  if (!enabled) return { ...stage, dualLaneEnabled: false };
-  return { ...stage, dualLaneEnabled: true, secondaryMonsterVisualId: stage.secondaryMonsterVisualId ?? stage.monsterVisualId, dualLaneUnitRatio: stage.dualLaneUnitRatio ?? 0.7, dualLaneHealthRatio: stage.dualLaneHealthRatio ?? 0.6 };
+  const currentKind = stage.patternPath?.kind ?? 0;
+  const patternKind = enabled
+    ? currentKind === 5 || currentKind === 6 ? currentKind : 0
+    : currentKind >= 0 && currentKind <= 4 ? currentKind : 0;
+  const patternPath = stage.patternPath ? { ...stage.patternPath, kind: patternKind } : stage.patternPath;
+  if (!enabled) return { ...stage, dualLaneEnabled: false, patternPath };
+  return { ...stage, dualLaneEnabled: true, patternPath, secondaryMonsterVisualId: stage.secondaryMonsterVisualId ?? stage.monsterVisualId, dualLaneUnitRatio: stage.dualLaneUnitRatio ?? 0.7, dualLaneHealthRatio: stage.dualLaneHealthRatio ?? 0.6 };
 }

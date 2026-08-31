@@ -1,136 +1,263 @@
-import type { Point, StageDefinition } from "../../../../lib/admin/stage-content/types";
+"use client";
 
-const width = 280;
-const height = 360;
-const padding = 22;
+import { useMemo, useState } from "react";
+import type { Point, StageDefinition } from "../../../../lib/admin/stage-content/types";
+import {
+  buildUnityStagePathModel,
+  unityPathLabel,
+  type UnityStagePathModel,
+  type WorldRect,
+} from "../../../../lib/admin/stage-content/unity-path-engine";
+
+const svgWidth = 300;
+const svgHeight = 560;
+const svgPadding = 16;
+const centerClearanceWorld = 1.55;
+const laneColors = ["#34d399", "#38bdf8", "#f59e0b", "#a78bfa", "#fb7185"];
+
+const aspectPresets = [
+  { id: "1440x2960", label: "1440 × 2960 · 테스트 기준", aspect: 1440 / 2960 },
+  { id: "1080x2400", label: "1080 × 2400 · 20:9", aspect: 1080 / 2400 },
+  { id: "1080x1920", label: "1080 × 1920 · 16:9", aspect: 1080 / 1920 },
+] as const;
 
 export function StagePathPreview({ stage }: { stage: StageDefinition }) {
-  const lines = previewLines(stage);
+  const [aspectId, setAspectId] = useState<(typeof aspectPresets)[number]["id"]>("1440x2960");
+  const aspect = aspectPresets.find((preset) => preset.id === aspectId)?.aspect ?? aspectPresets[0].aspect;
+  const preview = useMemo(() => {
+    try {
+      return { model: buildUnityStagePathModel(stage, aspect), error: null };
+    } catch (error) {
+      return {
+        model: null,
+        error: error instanceof Error ? error.message : "경로를 계산하지 못했습니다.",
+      };
+    }
+  }, [aspect, stage]);
   const label = pathLabel(stage);
+
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-950 p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-bold text-white">경로 미리보기</p>
           <p className="mt-0.5 text-xs text-slate-500">{label}</p>
         </div>
-        <span className="rounded-full bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-300">형태 참고용</span>
+        <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-300">
+          Unity 경로 기준
+        </span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} className="mx-auto max-h-[360px] w-full rounded-lg bg-slate-900" role="img" aria-label={`${label} 경로 미리보기`}>
-        <defs>
-          <linearGradient id={`path-${stage.id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#34d399" />
-            <stop offset="1" stopColor="#38bdf8" />
-          </linearGradient>
-        </defs>
-        {Array.from({ length: 7 }, (_, index) => <line key={`v-${index}`} x1={padding + index * (width - padding * 2) / 6} y1={padding} x2={padding + index * (width - padding * 2) / 6} y2={height - padding} stroke="#1e293b" strokeWidth="1" />)}
-        {Array.from({ length: 11 }, (_, index) => <line key={`h-${index}`} x1={padding} y1={padding + index * (height - padding * 2) / 10} x2={width - padding} y2={padding + index * (height - padding * 2) / 10} stroke="#1e293b" strokeWidth="1" />)}
-        {lines.map((line, index) => (
-          <polyline
-            key={index}
-            points={line.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ")}
-            fill="none"
-            stroke={`url(#path-${stage.id})`}
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity={index === 0 ? 1 : 0.72}
-          />
-        ))}
-        {lines[0]?.length ? <circle cx={lines[0][0].x} cy={lines[0][0].y} r="6" fill="#34d399" /> : null}
-        {lines[0]?.length ? <circle cx={lines[0][lines[0].length - 1].x} cy={lines[0][lines[0].length - 1].y} r="6" fill="#fb7185" /> : null}
-      </svg>
-      <p className="mt-3 text-[11px] leading-5 text-slate-600">실제 이동 결과는 Unity 엔진 계산을 기준으로 합니다. production 승격 전에 test 빌드에서 반드시 확인하세요.</p>
+
+      <label className="mt-3 block text-[11px] font-semibold text-slate-500">
+        표시할 기기 화면비
+        <select
+          value={aspectId}
+          onChange={(event) => setAspectId(event.target.value as (typeof aspectPresets)[number]["id"])}
+          className="mt-1.5 w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-300 outline-none focus:border-emerald-500"
+        >
+          {aspectPresets.map((preset) => <option key={preset.id} value={preset.id}>{preset.label}</option>)}
+        </select>
+      </label>
+
+      {preview.model ? <UnityPathSvg model={preview.model} stage={stage} /> : (
+        <div className="mt-3 flex min-h-56 items-center justify-center rounded-lg border border-rose-500/20 bg-rose-500/5 p-5 text-center text-xs leading-5 text-rose-200">
+          {preview.error}
+        </div>
+      )}
+
+      {preview.model ? (
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-semibold text-slate-400">
+          {preview.model.lines.map((line, index) => (
+            <span key={line.id} className="inline-flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: laneColors[index % laneColors.length] }} />
+              {line.label}
+            </span>
+          ))}
+          <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />시작</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-rose-400" />도착</span>
+        </div>
+      ) : null}
+
+      <p className="mt-3 text-[11px] leading-5 text-slate-500">
+        좌표, 화면 밖 진입, 중앙 안전 반경과 복수 레인을 Unity 런타임과 같은 순서로 계산합니다.
+        흰 테두리는 실제 기기 화면이며 테두리 밖 경로는 몬스터가 보이기 전의 진입 구간입니다.
+      </p>
     </div>
   );
 }
 
+function UnityPathSvg({ model, stage }: { model: UnityStagePathModel; stage: StageDefinition }) {
+  const displayBounds = calculateDisplayBounds(model);
+  const project = createProjector(displayBounds);
+  const visibleRect = projectRect(model.visibleBounds, project);
+  const boardRect = projectRect(model.boardBounds, project);
+  const center = project(model.centerWorld);
+  const finish = model.lines[0]?.points.length
+    ? project(model.lines[0].points[model.lines[0].points.length - 1])
+    : center;
+  const scale = project.scale;
+
+  return (
+    <svg
+      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      className="mt-3 max-h-[620px] w-full rounded-lg bg-slate-950"
+      role="img"
+      aria-label={`${unityPathLabel(stage)} Unity 실제 경로 미리보기`}
+    >
+      <rect x="0" y="0" width={svgWidth} height={svgHeight} rx="10" fill="#020617" />
+      <rect
+        x={visibleRect.x}
+        y={visibleRect.y}
+        width={visibleRect.width}
+        height={visibleRect.height}
+        fill="#0f172a"
+        stroke="#e2e8f0"
+        strokeWidth="1.5"
+      />
+      <text x={visibleRect.x + 7} y={visibleRect.y + 14} fill="#94a3b8" fontSize="9" fontWeight="700">
+        실제 기기 화면
+      </text>
+
+      <rect
+        x={boardRect.x}
+        y={boardRect.y}
+        width={boardRect.width}
+        height={boardRect.height}
+        fill="#0b1220"
+        fillOpacity="0.45"
+        stroke="#64748b"
+        strokeWidth="1"
+        strokeDasharray="4 4"
+      />
+      {gridLines(stage, model.boardBounds, project)}
+
+      {model.isCenterAimStage ? (
+        <circle
+          cx={center.x}
+          cy={center.y}
+          r={centerClearanceWorld * scale}
+          fill="#fb7185"
+          fillOpacity="0.06"
+          stroke="#fb7185"
+          strokeOpacity="0.5"
+          strokeWidth="1"
+          strokeDasharray="3 3"
+        />
+      ) : null}
+
+      {model.lines.map((line, index) => {
+        const projected = line.points.map(project);
+        const start = projected[0];
+        const color = laneColors[index % laneColors.length];
+        return (
+          <g key={line.id}>
+            <polyline
+              points={projected.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ")}
+              fill="none"
+              stroke="#020617"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.85"
+            />
+            <polyline
+              points={projected.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ")}
+              fill="none"
+              stroke={color}
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={index === 0 ? 1 : 0.86}
+            />
+            {start ? <circle cx={start.x} cy={start.y} r="5" fill="#34d399" stroke="#020617" strokeWidth="2" /> : null}
+          </g>
+        );
+      })}
+
+      {model.lines[0]?.points.length ? (
+        <circle cx={finish.x} cy={finish.y} r="5.5" fill="#fb7185" stroke="#020617" strokeWidth="2" />
+      ) : null}
+    </svg>
+  );
+}
+
+function gridLines(
+  stage: StageDefinition,
+  board: WorldRect,
+  project: Projector,
+): React.ReactNode[] {
+  const lines: React.ReactNode[] = [];
+  const columns = Math.max(1, Math.trunc(stage.gridWidth));
+  const rows = Math.max(1, Math.trunc(stage.gridHeight));
+  for (let column = 0; column <= columns; column += 1) {
+    const x = board.xMin + board.width * column / columns;
+    const from = project({ x, y: board.yMin });
+    const to = project({ x, y: board.yMin + board.height });
+    lines.push(<line key={`column-${column}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="#1e293b" strokeWidth="0.8" />);
+  }
+  for (let row = 0; row <= rows; row += 1) {
+    const y = board.yMin + board.height * row / rows;
+    const from = project({ x: board.xMin, y });
+    const to = project({ x: board.xMin + board.width, y });
+    lines.push(<line key={`row-${row}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="#1e293b" strokeWidth="0.8" />);
+  }
+  return lines;
+}
+
+interface Projector {
+  (point: Point): Point;
+  scale: number;
+}
+
+function createProjector(bounds: WorldRect): Projector {
+  const scale = Math.min(
+    (svgWidth - svgPadding * 2) / bounds.width,
+    (svgHeight - svgPadding * 2) / bounds.height,
+  );
+  const renderedWidth = bounds.width * scale;
+  const renderedHeight = bounds.height * scale;
+  const offsetX = (svgWidth - renderedWidth) * 0.5;
+  const offsetY = (svgHeight - renderedHeight) * 0.5;
+  const projector = ((point: Point) => ({
+    x: offsetX + (point.x - bounds.xMin) * scale,
+    y: offsetY + (bounds.yMin + bounds.height - point.y) * scale,
+  })) as Projector;
+  projector.scale = scale;
+  return projector;
+}
+
+function calculateDisplayBounds(model: UnityStagePathModel): WorldRect {
+  const points: Point[] = [
+    { x: model.visibleBounds.xMin, y: model.visibleBounds.yMin },
+    { x: model.visibleBounds.xMin + model.visibleBounds.width, y: model.visibleBounds.yMin + model.visibleBounds.height },
+    { x: model.boardBounds.xMin, y: model.boardBounds.yMin },
+    { x: model.boardBounds.xMin + model.boardBounds.width, y: model.boardBounds.yMin + model.boardBounds.height },
+    ...model.lines.flatMap((line) => line.points),
+  ];
+  const minimumX = Math.min(...points.map((point) => point.x));
+  const maximumX = Math.max(...points.map((point) => point.x));
+  const minimumY = Math.min(...points.map((point) => point.y));
+  const maximumY = Math.max(...points.map((point) => point.y));
+  const margin = 0.35;
+  return {
+    xMin: minimumX - margin,
+    yMin: minimumY - margin,
+    width: Math.max(1, maximumX - minimumX + margin * 2),
+    height: Math.max(1, maximumY - minimumY + margin * 2),
+  };
+}
+
+function projectRect(rect: WorldRect, project: Projector) {
+  const topLeft = project({ x: rect.xMin, y: rect.yMin + rect.height });
+  const bottomRight = project({ x: rect.xMin + rect.width, y: rect.yMin });
+  return {
+    x: topLeft.x,
+    y: topLeft.y,
+    width: bottomRight.x - topLeft.x,
+    height: bottomRight.y - topLeft.y,
+  };
+}
+
 export function pathLabel(stage: StageDefinition): string {
-  if ((stage.bottomLanePathKind ?? 0) === 2) return `평행 ${stage.parallelLaneCount ?? 1}개 레인`;
-  if ((stage.bottomLanePathKind ?? 0) === 1) return "트윈 뱀형 경로";
-  return ["수동 좌표 경로", "원형 나선", "사각 나선", "별 나선", "패턴 경로"][stage.battleMode ?? 0] ?? "알 수 없는 경로";
+  return unityPathLabel(stage);
 }
-
-function previewLines(stage: StageDefinition): Point[][] {
-  if ((stage.bottomLanePathKind ?? 0) === 2) {
-    const lanes = Math.max(2, stage.parallelLaneCount ?? 2);
-    return Array.from({ length: lanes }, (_, index) => {
-      const x = padding + (index + 0.5) * (width - padding * 2) / lanes;
-      return [{ x, y: padding }, { x, y: height - padding }];
-    });
-  }
-  const raw = rawPreviewPoints(stage);
-  const first = normalize(raw);
-  if (!stage.dualLaneEnabled || first.length === 0) return [first];
-  const offset = 7;
-  return [first.map((point) => ({ x: point.x - offset, y: point.y })), first.map((point) => ({ x: point.x + offset, y: point.y }))];
-}
-
-function rawPreviewPoints(stage: StageDefinition): Point[] {
-  const mode = stage.battleMode ?? 0;
-  if (mode === 0 && stage.waypoints.length > 1) {
-    return stage.waypoints.map((point) => ({ x: point.x, y: stage.gridHeight - point.y }));
-  }
-  if (mode === 1 && stage.spiralPath) {
-    const path = stage.spiralPath;
-    const samples = Math.min(360, Math.max(48, Math.ceil(path.turns * 32)));
-    return Array.from({ length: samples }, (_, index) => {
-      const t = index / Math.max(1, samples - 1);
-      const radius = path.outerRadiusWorld + (path.innerRadiusWorld - path.outerRadiusWorld) * t;
-      const direction = path.clockwise ? 1 : -1;
-      const angle = (path.startAngleDegrees * Math.PI / 180) + direction * t * path.turns * Math.PI * 2;
-      return { x: path.centerWorld.x + Math.cos(angle) * radius, y: path.centerWorld.y + Math.sin(angle) * radius };
-    });
-  }
-  if (mode === 2 && stage.rectangularSpiralPath) {
-    const path = stage.rectangularSpiralPath;
-    const points: Point[] = [];
-    for (let loop = 0; loop < path.loops; loop += 1) {
-      const scale = 1 - loop / Math.max(1, path.loops);
-      const x = path.outerHalfWidthWorld * scale;
-      const y = path.outerHalfHeightWorld * scale;
-      points.push({ x: -x, y: -y }, { x, y: -y }, { x, y }, { x: -x, y });
-    }
-    points.push({ x: 0, y: 0 });
-    return path.clockwise ? points : points.map((point) => ({ x: -point.x, y: point.y }));
-  }
-  if (mode === 3 && stage.starSpiralPath) {
-    const path = stage.starSpiralPath;
-    return Array.from({ length: 31 }, (_, index) => {
-      const t = index / 30;
-      const radius = (index % 2 === 0 ? 1 : path.innerScale) * (1 - t * 0.72);
-      const angle = path.startAngleDegrees * Math.PI / 180 + (path.clockwise ? 1 : -1) * index * Math.PI * 0.8;
-      return { x: Math.cos(angle) * path.outerHalfWidthWorld * radius, y: Math.sin(angle) * path.outerHalfHeightWorld * radius };
-    });
-  }
-  const pattern = stage.patternPath;
-  if (pattern) {
-    const samples = 96;
-    return Array.from({ length: samples }, (_, index) => {
-      const t = index / (samples - 1);
-      if (pattern.kind === 5) return { x: Math.sin(t * Math.PI * 8) * pattern.outerHalfWidthWorld, y: (t - 0.5) * pattern.outerHalfHeightWorld * 2 };
-      if (pattern.kind === 6) return { x: (Math.round(t * 6) % 2 ? 1 : -1) * pattern.outerHalfWidthWorld, y: (t - 0.5) * pattern.outerHalfHeightWorld * 2 };
-      const radius = 1 - t * 0.55;
-      const angle = t * Math.PI * (pattern.kind + 4) * (pattern.clockwise ? 1 : -1);
-      return { x: Math.cos(angle) * pattern.outerHalfWidthWorld * radius, y: Math.sin(angle) * pattern.outerHalfHeightWorld * radius };
-    });
-  }
-  return [];
-}
-
-function normalize(points: Point[]): Point[] {
-  if (points.length === 0) return [];
-  const xs = points.map((point) => point.x);
-  const ys = points.map((point) => point.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  const rangeX = Math.max(1, maxX - minX);
-  const rangeY = Math.max(1, maxY - minY);
-  return points.map((point) => ({
-    x: padding + (point.x - minX) / rangeX * (width - padding * 2),
-    y: padding + (point.y - minY) / rangeY * (height - padding * 2),
-  }));
-}
-
