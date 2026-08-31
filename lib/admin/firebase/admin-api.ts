@@ -10,6 +10,7 @@ import type {
   StageContentChannelSummary,
   StageContentReleaseSummary,
   StageContentResponse,
+  StageContentTesterSummary,
 } from "../stage-content/types";
 
 async function callAdminFunction<TRequest, TResponse>(
@@ -107,6 +108,23 @@ export function listStageContentReleases(): Promise<{ items: StageContentRelease
 
 export function listStageContentChannels(): Promise<{ items: StageContentChannelSummary[] }> {
   return callAdminFunction("adminListStageContentChannels", {});
+}
+
+export function listStageContentTesters(): Promise<{ items: StageContentTesterSummary[] }> {
+  return callAdminFunction("adminListStageContentTesters", {});
+}
+
+export function upsertStageContentTester(
+  targetUid: string,
+  note: string,
+): Promise<StageContentTesterSummary> {
+  return callAdminFunction("adminUpsertStageContentTester", { targetUid, note });
+}
+
+export function removeStageContentTester(
+  targetUid: string,
+): Promise<{ uid: string; removed: true }> {
+  return callAdminFunction("adminRemoveStageContentTester", { targetUid });
 }
 
 function mailboxPayload(draft: MailboxDraft) {

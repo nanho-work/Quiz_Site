@@ -33,11 +33,12 @@ import { AdminNotice } from "../../shared/AdminNotice";
 import { StageDefinitionForm } from "./StageDefinitionForm";
 import { StageProgressionForm } from "./StageProgressionForm";
 import { StageChannelCards, StageReleaseHistory } from "./StageReleasePanel";
+import { StageTestersPanel } from "./StageTestersPanel";
 
 const sections: Array<{ id: StageEditorSection; label: string }> = [
   { id: "stage", label: "스테이지 설정" },
   { id: "progression", label: "난이도 · 보상" },
-  { id: "releases", label: "릴리스 이력" },
+  { id: "releases", label: "배포 · TEST 계정" },
   { id: "json", label: "JSON 도구" },
 ];
 
@@ -158,7 +159,7 @@ export function StageContentManager() {
     setValidatedReleaseId(response.releaseId);
     setValidatedFingerprint(localBundleFingerprint(bundle));
     await refreshMetadata();
-    setSuccess("test 채널에 게시했습니다. production 승격 전에 새 AAB 또는 내부 테스트 빌드에서 확인하세요.");
+    setSuccess("test 채널에 게시했습니다. 등록한 TEST 실기기 계정에서 확인한 뒤 production으로 승격하세요.");
   });
 
   const handlePromote = () => run("promote", async () => {
@@ -229,7 +230,7 @@ export function StageContentManager() {
 
           {section === "progression" ? <StageProgressionForm bundle={bundle} onChange={updateBundle} /> : null}
 
-          {section === "releases" ? <div className="space-y-5"><ProductionPromotion testReleaseId={testReleaseId} productionReleaseId={productionReleaseId} checked={productionChecked} working={working === "promote"} onChecked={setProductionChecked} onPromote={() => void handlePromote()} /><StageReleaseHistory releases={releases} channels={channels} selectedReleaseId={selectedReleaseId} loading={working === "load"} onLoad={(releaseId) => { if (!dirty || window.confirm("저장하지 않은 편집 내용을 버리고 선택한 릴리스를 불러올까요?")) void loadRelease(releaseId); }} /></div> : null}
+          {section === "releases" ? <div className="space-y-5"><StageTestersPanel testReleaseId={testReleaseId} productionReleaseId={productionReleaseId} /><ProductionPromotion testReleaseId={testReleaseId} productionReleaseId={productionReleaseId} checked={productionChecked} working={working === "promote"} onChecked={setProductionChecked} onPromote={() => void handlePromote()} /><StageReleaseHistory releases={releases} channels={channels} selectedReleaseId={selectedReleaseId} loading={working === "load"} onLoad={(releaseId) => { if (!dirty || window.confirm("저장하지 않은 편집 내용을 버리고 선택한 릴리스를 불러올까요?")) void loadRelease(releaseId); }} /></div> : null}
 
           {section === "json" ? <JsonTools bundle={bundle} fileInputRef={fileInputRef} onImport={handleImport} onApply={updateBundle} /> : null}
 
@@ -247,7 +248,7 @@ export function StageContentManager() {
 
 function ProductionPromotion({ testReleaseId, productionReleaseId, checked, working, onChecked, onPromote }: { testReleaseId: string | null; productionReleaseId: string | null; checked: boolean; working: boolean; onChecked: (value: boolean) => void; onPromote: () => void }) {
   const same = testReleaseId !== null && testReleaseId === productionReleaseId;
-  return <AdminCard className="p-5"><div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"><div><div className="flex items-center gap-2"><Rocket className="h-5 w-5 text-amber-300" /><h2 className="font-bold text-white">Production 승격</h2></div><p className="mt-2 text-sm text-slate-400">test 릴리스를 실기기에서 검증한 뒤에만 production으로 이동합니다.</p><p className="mt-2 font-mono text-[10px] text-slate-600">TEST: {testReleaseId ?? "설정되지 않음"}</p></div><div className="space-y-3"><label className="flex items-center gap-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={checked} onChange={(event) => onChecked(event.target.checked)} disabled={!testReleaseId || same} className="h-4 w-4 accent-emerald-500" /> 내부/비공개 테스트 빌드에서 경로·난이도·보상을 확인했습니다.</label><button type="button" disabled={!testReleaseId || same || !checked || working} onClick={onPromote} className="w-full rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-30">{same ? "이미 Production 적용 중" : working ? "승격 중…" : "Production으로 승격"}</button></div></div></AdminCard>;
+  return <AdminCard className="p-5"><div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"><div><div className="flex items-center gap-2"><Rocket className="h-5 w-5 text-amber-300" /><h2 className="font-bold text-white">Production 승격</h2></div><p className="mt-2 text-sm text-slate-400">test 릴리스를 등록된 TEST 실기기 계정에서 검증한 뒤에만 production으로 이동합니다.</p><p className="mt-2 font-mono text-[10px] text-slate-600">TEST: {testReleaseId ?? "설정되지 않음"}</p></div><div className="space-y-3"><label className="flex items-center gap-2 text-xs font-semibold text-slate-300"><input type="checkbox" checked={checked} onChange={(event) => onChecked(event.target.checked)} disabled={!testReleaseId || same} className="h-4 w-4 accent-emerald-500" /> 등록한 TEST 계정의 실기기에서 경로·난이도·보상을 확인했습니다.</label><button type="button" disabled={!testReleaseId || same || !checked || working} onClick={onPromote} className="w-full rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-black text-slate-950 disabled:opacity-30">{same ? "이미 Production 적용 중" : working ? "승격 중…" : "Production으로 승격"}</button></div></div></AdminCard>;
 }
 
 function JsonTools({ bundle, fileInputRef, onImport, onApply }: { bundle: StageContentBundle; fileInputRef: React.RefObject<HTMLInputElement>; onImport: (file: File | undefined) => void; onApply: (bundle: StageContentBundle) => void }) {

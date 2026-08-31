@@ -152,5 +152,14 @@ export interface StageContentChannelSummary {
   previousUntilMillis: number | null;
 }
 
-export type StageEditorSection = "stage" | "progression" | "releases" | "json";
+export interface StageContentTesterSummary {
+  uid: string;
+  customerId: string;
+  note: string;
+  createdByUid: string;
+  createdAtMillis: number;
+  updatedByUid: string;
+  updatedAtMillis: number;
+}
 
+export type StageEditorSection = "stage" | "progression" | "releases" | "json";
