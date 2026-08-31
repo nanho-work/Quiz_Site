@@ -1,4 +1,4 @@
-import { BellRing, CreditCard, Gamepad2, History, LayoutDashboard, Search } from "lucide-react";
+import { BellRing, CreditCard, Gamepad2, History, LayoutDashboard, Map, Search } from "lucide-react";
 import type { ComponentType } from "react";
 
 export interface AdminNavigationItem {
@@ -36,6 +36,7 @@ export const adminProjects: AdminProject[] = [
       { label: "대시보드", href: slimeBase, icon: LayoutDashboard },
       { label: "계정 조회", href: `${slimeBase}/accounts`, icon: Search, requiredRole: "supportAdmin" },
       { label: "공지 · 우편", href: `${slimeBase}/mailbox`, icon: BellRing, requiredRole: "mailAdmin" },
+      { label: "스테이지 운영", href: `${slimeBase}/stages`, icon: Map, requiredRole: "superAdmin" },
       { label: "결제 정보", href: `${slimeBase}/purchases`, icon: CreditCard, requiredRole: "financeAdmin" },
       { label: "감사 로그", href: `${slimeBase}/audit`, icon: History, requiredRole: "superAdmin" },
     ],

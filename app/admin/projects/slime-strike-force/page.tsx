@@ -1,4 +1,4 @@
-import { BellRing, CreditCard, Search, ServerCog } from "lucide-react";
+import { BellRing, CreditCard, Map, Search, ServerCog } from "lucide-react";
 import Link from "next/link";
 import { AdminCard } from "../../../../components/admin/shared/AdminCard";
 import { AdminNotice } from "../../../../components/admin/shared/AdminNotice";
@@ -8,6 +8,7 @@ const base = "/admin/projects/slime-strike-force";
 const modules = [
   { href: `${base}/accounts`, title: "계정 조회", description: "고객번호, UID 또는 이메일로 계정과 진행 상태를 확인합니다.", icon: Search },
   { href: `${base}/mailbox`, title: "공지 · 우편", description: "전체 공지와 보상 우편, 개별 고객 우편을 발송합니다.", icon: BellRing },
+  { href: `${base}/stages`, title: "스테이지 운영", description: "스테이지 경로, 난이도와 보상을 검증 후 단계적으로 배포합니다.", icon: Map },
   { href: `${base}/purchases`, title: "결제 정보", description: "검증된 Google Play 구매 원장 연결 상태를 확인합니다.", icon: CreditCard },
 ];
 
@@ -22,7 +23,7 @@ export default function SlimeStrikeForceAdminPage() {
       <AdminNotice>
         현재 현금 상품은 비활성화되어 있습니다. 결제 메뉴는 Play 구매 검증 원장이 추가되기 전까지 조회·복구 작업을 실행하지 않습니다.
       </AdminNotice>
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {modules.map((module) => {
           const Icon = module.icon;
           return (

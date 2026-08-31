@@ -6,6 +6,11 @@ import type {
   AdminMailboxItem,
   MailboxDraft,
 } from "../types";
+import type {
+  StageContentChannelSummary,
+  StageContentReleaseSummary,
+  StageContentResponse,
+} from "../stage-content/types";
 
 async function callAdminFunction<TRequest, TResponse>(
   name: string,
@@ -58,6 +63,50 @@ export function listAdminAuditLogs(): Promise<{ items: AdminAuditLog[] }> {
     "adminListAuditLogs",
     {},
   );
+}
+
+export function initializeStageContent(): Promise<StageContentResponse> {
+  return callAdminFunction<Record<string, never>, StageContentResponse>(
+    "adminInitializeStageContent",
+    {},
+  );
+}
+
+export function validateStageContent(bundleJson: string): Promise<StageContentResponse> {
+  return callAdminFunction<{ bundleJson: string }, StageContentResponse>(
+    "adminValidateStageContent",
+    { bundleJson },
+  );
+}
+
+export function publishStageContentToTest(
+  bundleJson: string,
+  note: string,
+): Promise<StageContentReleaseSummary> {
+  return callAdminFunction("adminPublishStageContent", {
+    bundleJson,
+    channel: "test",
+    note,
+  });
+}
+
+export function promoteStageContentToProduction(releaseId: string): Promise<StageContentResponse> {
+  return callAdminFunction("adminPromoteStageContent", {
+    releaseId,
+    channel: "production",
+  });
+}
+
+export function getStageContentRelease(releaseId: string): Promise<StageContentResponse> {
+  return callAdminFunction("adminGetStageContent", { releaseId });
+}
+
+export function listStageContentReleases(): Promise<{ items: StageContentReleaseSummary[] }> {
+  return callAdminFunction("adminListStageContentReleases", {});
+}
+
+export function listStageContentChannels(): Promise<{ items: StageContentChannelSummary[] }> {
+  return callAdminFunction("adminListStageContentChannels", {});
 }
 
 function mailboxPayload(draft: MailboxDraft) {
