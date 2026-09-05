@@ -1,13 +1,16 @@
 "use client";
 
 import type { DifficultyProgression, RewardAmounts, StageContentBundle } from "../../../../lib/admin/stage-content/types";
-import { cloneStageBundle, stageNumberLabel } from "../../../../lib/admin/stage-content/editor";
+import { cloneStageBundle, newContentVersion, stageNumberLabel } from "../../../../lib/admin/stage-content/editor";
 import { FieldGroup, NumberField, TextField } from "./StageFields";
 
 const rewardKeys = [
   ["gold", "골드"], ["gems", "젬"], ["energy", "에너지"],
   ["green", "일반 조각"], ["blue", "희귀 조각"], ["red", "영웅 조각"],
 ] as const;
+
+const legacyCombatHealthMultiplier = (stageNumber: number) =>
+  1 + Math.max(0, stageNumber - 1) * 0.25;
 
 export function StageProgressionForm({ bundle, onChange }: {
   bundle: StageContentBundle;
@@ -18,6 +21,18 @@ export function StageProgressionForm({ bundle, onChange }: {
     work(draft);
     onChange(draft);
   };
+  const applyRecommendedDifficulty = () => update((draft) => {
+    const version = newContentVersion(draft.contentVersion.replace(/^stage_balance_v3/, "stage_balance_v4"));
+    draft.contentVersion = version;
+    draft.stageProgression.contentVersion = version;
+    draft.stageProgression.stages.forEach((entry) => {
+      entry.combatHealthMultiplier = legacyCombatHealthMultiplier(entry.stageNumber);
+      delete entry.baseHealthStep;
+    });
+    draft.stageProgression.difficulties.forEach((entry) => {
+      entry.healthMultiplier = entry.difficulty === 0 ? 1 : entry.difficulty === 1 ? 1.5 : 2.2;
+    });
+  });
   return (
     <div className="space-y-5">
       <FieldGroup title="릴리스 기본 설정" description="콘텐츠 버전은 이번 수정 묶음을 구분하는 운영용 이름입니다.">
@@ -29,15 +44,18 @@ export function StageProgressionForm({ bundle, onChange }: {
       </FieldGroup>
 
       <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950/45">
-        <div className="border-b border-slate-800 p-4 md:p-5"><h3 className="font-bold text-white">스테이지별 성장 배율</h3><p className="mt-1 text-xs text-slate-500">배율은 클리어·구간 보상 계산에 사용됩니다.</p></div>
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 p-4 md:p-5">
+          <div><h3 className="font-bold text-white">스테이지별 체력·보상 배율</h3><p className="mt-1 text-xs text-slate-500">보상 배율은 클리어·구간 보상에만, 전투 체력 배율은 몬스터의 시작·종료 체력에만 적용됩니다.</p></div>
+          <button type="button" onClick={applyRecommendedDifficulty} className="rounded-lg border border-emerald-700/70 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20">권장 완화값 적용</button>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] text-left text-sm">
-            <thead className="bg-slate-950 text-xs text-slate-600"><tr><th className="px-4 py-3">스테이지</th><th className="px-4 py-3">보상 배율</th><th className="px-4 py-3">체력 단계값</th><th className="px-4 py-3">미리보기 몬스터 ID</th></tr></thead>
+            <thead className="bg-slate-950 text-xs text-slate-600"><tr><th className="px-4 py-3">스테이지</th><th className="px-4 py-3">보상 배율</th><th className="px-4 py-3">전투 체력 배율</th><th className="px-4 py-3">미리보기 몬스터 ID</th></tr></thead>
             <tbody className="divide-y divide-slate-800">
               {bundle.stageProgression.stages.map((entry, index) => <tr key={entry.stageId}>
                 <td className="px-4 py-3 font-semibold text-white">{stageNumberLabel(entry.stageId)}</td>
                 <td className="px-4 py-3"><input type="number" min={0.01} max={1000} step={0.1} value={entry.multiplier} onChange={(event) => update((draft) => { draft.stageProgression.stages[index].multiplier = Number(event.target.value); })} className="w-28 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white" /></td>
-                <td className="px-4 py-3"><input type="number" min={0} step={1} value={entry.baseHealthStep ?? ""} placeholder="자동" onChange={(event) => update((draft) => { const value = event.target.value; if (value === "") delete draft.stageProgression.stages[index].baseHealthStep; else draft.stageProgression.stages[index].baseHealthStep = Number(value); })} className="w-28 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white" /></td>
+                <td className="px-4 py-3"><input type="number" min={0.01} max={1000} step={0.05} value={entry.combatHealthMultiplier ?? legacyCombatHealthMultiplier(entry.stageNumber)} onChange={(event) => update((draft) => { draft.stageProgression.stages[index].combatHealthMultiplier = Number(event.target.value); delete draft.stageProgression.stages[index].baseHealthStep; })} className="w-28 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white" /></td>
                 <td className="px-4 py-3"><input value={entry.previewMonsterVisualId} onChange={(event) => update((draft) => { draft.stageProgression.stages[index].previewMonsterVisualId = event.target.value; })} className="w-full min-w-56 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white" /></td>
               </tr>)}
             </tbody>
@@ -79,4 +97,3 @@ function RewardEditor({ title, value, onChange, compact = false }: { title: stri
     </div>
   );
 }
-

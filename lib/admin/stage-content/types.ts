@@ -92,6 +92,7 @@ export interface StageProgressionEntry {
   stageId: string;
   stageNumber: number;
   multiplier: number;
+  combatHealthMultiplier?: number;
   baseHealthStep?: number;
   previewMonsterVisualId: string;
 }
