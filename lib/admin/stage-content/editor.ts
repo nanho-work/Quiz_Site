@@ -1,5 +1,60 @@
 import type { StageContentBundle, StageDefinition } from "./types";
 
+const stageElevenToTwentyMonsterSequence: Record<
+  string,
+  { primary: string; secondary?: string }
+> = {
+  stage_11: { primary: "rice_ball_egg" },
+  stage_12: { primary: "rice_ball_flying_fish_roe" },
+  stage_13: { primary: "rice_ball_kimchi_fried_rice" },
+  stage_14: { primary: "rice_ball_pollock_roe_mayo" },
+  stage_15: { primary: "rice_ball_salmon" },
+  stage_16: { primary: "rice_ball_shrimp_mayo", secondary: "gunkan_avocado" },
+  stage_17: { primary: "gunkan_corn", secondary: "gunkan_crab" },
+  stage_18: { primary: "gunkan_egg", secondary: "gunkan_pollock_roe" },
+  stage_19: { primary: "gunkan_shrimp" },
+  stage_20: { primary: "gunkan_tuna", secondary: "pudding_blueberry" },
+};
+
+const monsterSequenceVersionSuffix = "_units_11_20_v1";
+
+function withMonsterSequenceVersion(current: string): string {
+  const base = current.endsWith(monsterSequenceVersionSuffix)
+    ? current.slice(0, -monsterSequenceVersionSuffix.length)
+    : current;
+  return `${base}${monsterSequenceVersionSuffix}`.slice(-64);
+}
+
+/**
+ * Converts the packaged 11-20 placeholder repeats into the first remote monster
+ * rotation. It only changes an in-memory admin draft; publishing remains an
+ * explicit validate -> TEST -> production operation.
+ */
+export function applyStageElevenToTwentyMonsterSequence(
+  source: StageContentBundle,
+  minimumAndroidBuild = 19,
+): StageContentBundle {
+  const bundle = cloneStageBundle(source);
+  bundle.contentVersion = withMonsterSequenceVersion(bundle.contentVersion);
+  bundle.stageProgression.contentVersion = bundle.contentVersion;
+  bundle.minimumAndroidBuild = Math.max(bundle.minimumAndroidBuild, minimumAndroidBuild);
+
+  for (const stage of bundle.stages) {
+    const visual = stageElevenToTwentyMonsterSequence[stage.id];
+    if (!visual) continue;
+    stage.monsterVisualId = visual.primary;
+    stage.contentVersion = withMonsterSequenceVersion(stage.contentVersion);
+    if (visual.secondary) stage.secondaryMonsterVisualId = visual.secondary;
+    else delete stage.secondaryMonsterVisualId;
+  }
+
+  for (const progression of bundle.stageProgression.stages) {
+    const visual = stageElevenToTwentyMonsterSequence[progression.stageId];
+    if (visual) progression.previewMonsterVisualId = visual.primary;
+  }
+  return bundle;
+}
+
 export function parseStageContentBundle(bundleJson: string): StageContentBundle {
   const parsed: unknown = JSON.parse(bundleJson);
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
@@ -71,4 +126,3 @@ export function newContentVersion(current: string): string {
   const base = current.replace(/_edit_\d{12}$/, "");
   return `${base}_edit_${stamp}`.slice(0, 64);
 }
-

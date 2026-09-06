@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { applyStageElevenToTwentyMonsterSequence } from "../lib/admin/stage-content/editor.ts";
 import { buildUnityStagePathModel } from "../lib/admin/stage-content/unity-path-engine.ts";
 
 const canonicalAspect = 9 / 20;
@@ -164,6 +165,61 @@ test("side entries follow the selected device aspect while authored routes remai
   assertNear(narrow.lines[0].points[0].x, -(10 * 1440 / 2960 + 1.5), "narrow left entry");
   assertNear(wide.lines[0].points[0].x, -(10 * 9 / 16 + 1.5), "wide left entry");
   assertPoint(narrow.lines[0].points[1], [wide.lines[0].points[1].x, wide.lines[0].points[1].y], "authored route");
+});
+
+test("packaged stage draft assigns the remote monster rotation to stages 11-20", () => {
+  const source = {
+    schemaVersion: 1,
+    contentVersion: "stage_balance_v4",
+    minimumAndroidBuild: 1,
+    tutorialStage: { id: "tutorial", contentVersion: "tutorial_v1" },
+    stages: Array.from({ length: 20 }, (_, index) => ({
+      id: `stage_${String(index + 1).padStart(2, "0")}`,
+      contentVersion: `stage_${String(index + 1).padStart(2, "0")}_v1`,
+      monsterVisualId: index < 10 ? "legacy" : "repeated",
+      secondaryMonsterVisualId: index >= 10 ? "old_secondary" : undefined,
+    })),
+    stageProgression: {
+      contentVersion: "stage_balance_v4",
+      freeRefreshPerChoice: 1,
+      optionAdRefreshLimit: 3,
+      acquireAllAdLimit: 1,
+      difficulties: [],
+      stages: Array.from({ length: 20 }, (_, index) => ({
+        stageId: `stage_${String(index + 1).padStart(2, "0")}`,
+        stageNumber: index + 1,
+        multiplier: 1,
+        previewMonsterVisualId: index < 10 ? "legacy" : "repeated",
+      })),
+    },
+  };
+
+  const draft = applyStageElevenToTwentyMonsterSequence(source, 19);
+  const expected = {
+    stage_11: ["rice_ball_egg", undefined],
+    stage_12: ["rice_ball_flying_fish_roe", undefined],
+    stage_13: ["rice_ball_kimchi_fried_rice", undefined],
+    stage_14: ["rice_ball_pollock_roe_mayo", undefined],
+    stage_15: ["rice_ball_salmon", undefined],
+    stage_16: ["rice_ball_shrimp_mayo", "gunkan_avocado"],
+    stage_17: ["gunkan_corn", "gunkan_crab"],
+    stage_18: ["gunkan_egg", "gunkan_pollock_roe"],
+    stage_19: ["gunkan_shrimp", undefined],
+    stage_20: ["gunkan_tuna", "pudding_blueberry"],
+  };
+
+  for (const [stageId, [primary, secondary]] of Object.entries(expected)) {
+    const stage = draft.stages.find((candidate) => candidate.id === stageId);
+    const progression = draft.stageProgression.stages.find((candidate) => candidate.stageId === stageId);
+    assert.equal(stage.monsterVisualId, primary, `${stageId} primary`);
+    assert.equal(stage.secondaryMonsterVisualId, secondary, `${stageId} secondary`);
+    assert.equal(progression.previewMonsterVisualId, primary, `${stageId} preview`);
+    assert.match(stage.contentVersion, /_units_11_20_v1$/);
+  }
+  assert.equal(draft.minimumAndroidBuild, 19);
+  assert.equal(draft.stageProgression.contentVersion, draft.contentVersion);
+  assert.equal(draft.stages[0].monsterVisualId, "legacy", "stages 1-10 must stay unchanged");
+  assert.equal(source.stages[10].monsterVisualId, "repeated", "source bundle must not be mutated");
 });
 
 function assertPoint(actual, [expectedX, expectedY], label) {
