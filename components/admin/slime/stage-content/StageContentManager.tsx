@@ -1,9 +1,10 @@
 "use client";
 
-import { CheckCircle2, Download, FileJson, FlaskConical, LoaderCircle, RefreshCw, Rocket, Save, ShieldAlert, Upload } from "lucide-react";
+import { CheckCircle2, Download, FileJson, FlaskConical, LoaderCircle, PackageOpen, RefreshCw, Rocket, Save, ShieldAlert, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   adminErrorMessage,
+  getPackagedStageContent,
   getStageContentRelease,
   initializeStageContent,
   listStageContentChannels,
@@ -138,7 +139,22 @@ export function StageContentManager() {
     const response = await initializeStageContent();
     await refreshMetadata();
     await loadRelease(response.releaseId);
-    setSuccess("패키지에 포함된 스테이지 1~10을 최초 production 기준으로 생성했습니다.");
+    setSuccess("패키지에 포함된 스테이지 1~20을 최초 production 기준으로 생성했습니다.");
+  });
+
+  const handleLoadPackaged = () => run("packaged", async () => {
+    const response = await getPackagedStageContent();
+    const parsed = parseStageContentBundle(response.bundleJson);
+    const expectedIds = Array.from({ length: 20 }, (_, index) =>
+      `stage_${String(index + 1).padStart(2, "0")}`,
+    );
+    if (parsed.stages.length !== expectedIds.length ||
+        expectedIds.some((id) => !parsed.stages.some((stage) => stage.id === id))) {
+      throw new Error("서버 패키지에 스테이지 1~20 전체가 들어 있지 않습니다.");
+    }
+    updateBundle(parsed);
+    setSelectedStageId("stage_11");
+    setSuccess("서버 패키지의 스테이지 1~20을 편집기에 불러왔습니다. 아직 TEST 또는 Production에는 게시되지 않았습니다.");
   });
 
   const handleValidate = () => bundle && run("validate", async () => {
@@ -199,7 +215,7 @@ export function StageContentManager() {
         <AdminCard className="p-8 text-center">
           <ShieldAlert className="mx-auto h-10 w-10 text-amber-300" />
           <h2 className="mt-4 text-lg font-bold text-white">스테이지 콘텐츠가 초기화되지 않았습니다</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-400">앱에 포함된 스테이지 1~10을 변경 없이 최초 production 릴리스로 생성합니다. 이 작업은 한 번만 가능합니다.</p>
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-400">앱에 포함된 스테이지 1~20을 변경 없이 최초 production 릴리스로 생성합니다. 이 작업은 한 번만 가능합니다.</p>
           <button type="button" disabled={working !== null} onClick={() => void handleInitialize()} className="mt-5 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:opacity-50">{working === "initialize" ? "생성 중…" : "초기 스테이지 생성"}</button>
         </AdminCard>
       ) : (
@@ -208,6 +224,7 @@ export function StageContentManager() {
             <div className="flex flex-col gap-4 border-b border-slate-800 p-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold text-white">{bundle.contentVersion}</h2>{dirty ? <Status tone="changed">수정 중</Status> : <Status tone="saved">불러온 상태</Status>}{validated ? <Status tone="valid">검증 완료</Status> : null}</div><p className="mt-1 truncate font-mono text-[10px] text-slate-600">기준 릴리스: {selectedReleaseId ?? "가져온 JSON"}</p></div>
               <div className="flex flex-wrap gap-2">
+                <button type="button" disabled={working !== null} onClick={() => void handleLoadPackaged()} className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-200 disabled:opacity-40"><PackageOpen className="h-4 w-4" /> {working === "packaged" ? "불러오는 중" : "패키지 스테이지 1~20 불러오기"}</button>
                 <button type="button" onClick={() => updateBundle({ ...bundle, contentVersion: newContentVersion(bundle.contentVersion), stageProgression: { ...bundle.stageProgression, contentVersion: newContentVersion(bundle.contentVersion) } })} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800">새 편집 버전명</button>
                 <button type="button" disabled={working !== null} onClick={() => void handleValidate()} className="flex items-center gap-2 rounded-lg border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-xs font-bold text-sky-200 disabled:opacity-40"><FlaskConical className="h-4 w-4" /> {working === "validate" ? "검증 중" : "서버 검증"}</button>
                 <button type="button" disabled={working !== null || !validated} onClick={() => void handlePublishTest()} className="flex items-center gap-2 rounded-lg bg-emerald-500 px-3 py-2 text-xs font-bold text-slate-950 disabled:opacity-40"><Save className="h-4 w-4" /> {working === "publish" ? "게시 중" : "TEST 게시"}</button>

@@ -73,6 +73,13 @@ export function initializeStageContent(): Promise<StageContentResponse> {
   );
 }
 
+export function getPackagedStageContent(): Promise<StageContentResponse> {
+  return callAdminFunction<Record<string, never>, StageContentResponse>(
+    "adminGetPackagedStageContent",
+    {},
+  );
+}
+
 export function validateStageContent(bundleJson: string): Promise<StageContentResponse> {
   return callAdminFunction<{ bundleJson: string }, StageContentResponse>(
     "adminValidateStageContent",
