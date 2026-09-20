@@ -5,10 +5,10 @@ import { FileUp, Plus, RefreshCw } from 'lucide-react';
 import { deleteReaderContent, listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent, type ReaderKind, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 import { AdminCard } from '../shared/AdminCard';
 
-const empty: ReaderMetadata = { title: '', author: '', description: '', license: '' };
+const empty: ReaderMetadata = { title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { title: item.title, author: item.author, description: item.description, license: item.license }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '' }; }
 
 export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
   const [items, setItems] = useState<ReaderContent[]>([]);
@@ -99,6 +99,8 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
           <fieldset disabled={busy || !!selected?.deleting} className="space-y-4">
             <label className="block text-sm text-slate-300">{label} 이름<input required maxLength={160} className={inputClass} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
             <label className="block text-sm text-slate-300">{kind === 'book' ? '저자 · 출판사' : '제작자'}<input required maxLength={120} className={inputClass} value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} /></label>
+            {kind === 'book' && <label className="block text-sm text-slate-300">도서 분류<select className={inputClass} value={form.category || '기타'} onChange={e => setForm({ ...form, category: e.target.value })}>{['시', '소설', '에세이', '기타'].map(category => <option key={category} value={category}>{category}</option>)}</select></label>}
+            <label className="block text-sm text-slate-300">출처<input maxLength={500} className={inputClass} placeholder="원문 페이지 주소 또는 제공 기관" value={form.source || ''} onChange={e => setForm({ ...form, source: e.target.value })} /></label>
             <label className="block text-sm text-slate-300">설명<textarea rows={3} maxLength={2000} className={inputClass} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
             <label className="block text-sm text-slate-300">배포 권한 · 이용 조건<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>
             <button type="submit" className={buttonClass} disabled={busy || !valid || (!!selected && !dirty)}>{busy ? '처리 중…' : selected ? '초안 저장' : '초안 만들기'}</button>

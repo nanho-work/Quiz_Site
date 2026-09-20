@@ -1,7 +1,7 @@
 import { getAdminFirebaseServices } from './client';
 import { koofyReaderFirebaseConfig } from './koofy-reader';
 export type ReaderKind = 'book' | 'font';
-export interface ReaderMetadata { title: string; author: string; description: string; license: string }
+export interface ReaderMetadata { title: string; author: string; description: string; license: string; category?: string; source?: string }
 export interface ReaderAsset { path: string; sha256: string; size: number; extension: string; contentType: string; weight?: number }
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;
