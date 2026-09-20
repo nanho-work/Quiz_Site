@@ -1,4 +1,4 @@
-import { FirebaseApp, getApps, initializeApp } from "firebase/app";
+import { FirebaseApp, getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import {
   ReCaptchaEnterpriseProvider,
@@ -15,7 +15,7 @@ function requiredEnvironment(name: string, value: string | undefined): string {
 }
 
 export function getAdminFirebaseApp(): FirebaseApp {
-  if (getApps().length > 0) return getApps()[0];
+  if (getApps().some((app) => app.name === "[DEFAULT]")) return getApp();
   return initializeApp({
     apiKey: requiredEnvironment("NEXT_PUBLIC_SLIME_FIREBASE_API_KEY", process.env.NEXT_PUBLIC_SLIME_FIREBASE_API_KEY),
     authDomain: requiredEnvironment("NEXT_PUBLIC_SLIME_FIREBASE_AUTH_DOMAIN", process.env.NEXT_PUBLIC_SLIME_FIREBASE_AUTH_DOMAIN),

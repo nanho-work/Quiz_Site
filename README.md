@@ -68,3 +68,10 @@ App-Check-protected, role-checked Cloud Functions in `asia-northeast3`.
 Add its descriptor and navigation to `lib/admin/projects.ts`, then add isolated pages and feature
 components beneath `app/admin/projects/<project-id>` and `components/admin/<project-id>`. Keep
 authentication, shell layout, shared cards/notices, and project selection reusable.
+
+
+### 쿠피리더 운영
+
+`/admin/projects/koofy-reader/books`와 `/admin/projects/koofy-reader/fonts`에서 책·표지·글꼴 초안을 등록하고 공개/비공개로 전환합니다. 기존 Slime Firebase 로그인 토큰을 Koofy-Reader 프로젝트의 HTTP API가 발급 프로젝트와 `superAdmin` 권한까지 검증합니다. 별도 로그인이 필요하지 않습니다.
+
+서버·규칙은 Koofy-Reader 저장소의 `functions/`, `firestore.rules`, `storage.rules`에 있습니다. 배포 순서와 전용 서비스 계정의 Firestore/Storage/서명 권한은 해당 저장소의 `docs/reader-content-admin.md`를 따릅니다. 관리자 화면만 배포하면 다운로드 기능이 동작하지 않으므로 서버 반영을 먼저 완료해야 합니다. 운영 API 기본 주소는 `.env.example`의 `NEXT_PUBLIC_READER_ADMIN_URL`을 참고합니다.
