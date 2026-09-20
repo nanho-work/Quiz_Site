@@ -5,6 +5,7 @@ export interface ReaderMetadata { title: string; author: string; description: st
 export interface ReaderAsset { path: string; sha256: string; size: number; extension: string; contentType: string; weight?: number }
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;
+  deleting?: boolean;
   published: boolean; publishedContent: (ReaderMetadata & { assets: Record<string, ReaderAsset>; version: number }) | null; updatedAt: string;
 }
 const endpoint = process.env.NEXT_PUBLIC_READER_ADMIN_URL || `https://asia-northeast3-${koofyReaderFirebaseConfig.projectId}.cloudfunctions.net/readerAdmin`;
@@ -42,4 +43,11 @@ export function uploadReaderAsset(item: ReaderContent, slot: string, file: File)
   const maximum = slot === 'epub' || slot === 'txt' ? 20 : slot === 'cover' ? 5 : 10;
   if (file.size <= 0 || file.size > maximum * 1024 * 1024) throw new Error(`파일은 ${maximum}MB 이하여야 합니다.`);
   return request<ReaderContent>({ action: 'upload', id: item.id, revision: String(item.revision), slot }, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
+}
+
+export function deleteReaderContent(item: ReaderContent) {
+  return request<{ id: string; deleted: boolean }>({}, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'delete', id: item.id, revision: item.revision }),
+  });
 }
