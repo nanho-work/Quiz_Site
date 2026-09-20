@@ -109,7 +109,7 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
         <div className="mt-8 space-y-3 border-t border-slate-800 pt-6">
           <h3 className="font-semibold text-white">파일 등록</h3>
           {(!selected || dirty) && <p className="text-sm text-amber-300">입력한 정보를 먼저 저장한 뒤 파일을 등록해 주세요.</p>}
-          {kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', '책 파일', '.epub,.txt', 'EPUB 또는 TXT · 최대 20MB. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', '책 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
+          {kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', '책 파일', '.epub,.txt', 'EPUB 또는 TXT · 최대 20MB. TXT는 각 제목 줄을 [장] 제목으로 작성하면 새 앱에서 목차와 페이지 구분을 만듭니다. [장]은 줄 맨 앞에, 제목은 공백 뒤에 작성하세요. 표식은 숨겨지고 제목만 표시됩니다. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', '책 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
             <label className="block text-sm text-slate-300">글꼴 굵기<select disabled={busy || !!selected?.deleting} className={inputClass} value={weight} onChange={e => setWeight(e.target.value)}>{[100,200,300,400,500,600,700,800,900].map(w => <option value={w} key={w}>{w}{w === 300 ? ' · Light' : w === 400 ? ' · Regular' : w === 700 ? ' · Bold' : ''}</option>)}</select></label>
             {fileControl(`font${weight}`, '선택한 굵기의 글꼴 파일', '.otf,.ttf', '정적 OTF · TTF · 파일당 최대 10MB. 다른 굵기는 차례로 추가하세요.')}
             <p className="text-xs leading-5 text-slate-400">공개할 때 등록한 글꼴로 이름 미리보기를 자동 생성합니다. 보통 굵기(400)를 우선 사용하며 없으면 가장 가까운 굵기를 사용합니다. 기존 글꼴은 ‘수정 내용 공개’를 누르면 생성됩니다. 글꼴에 이름의 문자가 없으면 앱 기본 글꼴로 표시됩니다.</p>
