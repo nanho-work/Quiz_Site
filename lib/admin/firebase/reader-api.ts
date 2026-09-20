@@ -34,7 +34,12 @@ export function mutateReaderContent(input: { action: 'create'; kind: ReaderKind;
   return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
 }
 export function uploadReaderAsset(item: ReaderContent, slot: string, file: File) {
-  const maximum = slot === 'epub' ? 20 : slot === 'cover' ? 5 : 10;
+  if (slot === 'book') {
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (extension !== 'epub' && extension !== 'txt') throw new Error('EPUB 또는 TXT 파일을 선택해 주세요.');
+    slot = extension;
+  }
+  const maximum = slot === 'epub' || slot === 'txt' ? 20 : slot === 'cover' ? 5 : 10;
   if (file.size <= 0 || file.size > maximum * 1024 * 1024) throw new Error(`파일은 ${maximum}MB 이하여야 합니다.`);
   return request<ReaderContent>({ action: 'upload', id: item.id, revision: String(item.revision), slot }, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
 }

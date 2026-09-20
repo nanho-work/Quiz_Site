@@ -48,7 +48,7 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
     if (!selected || !file) return;
     void run(() => uploadReaderAsset(selected, slot, file), '파일을 초안에 저장했습니다. 확인 후 공개해 주세요.');
   };
-  const publishReady = selected && (kind === 'book' ? selected.assets.epub && selected.assets.cover : Object.keys(selected.assets).length > 0);
+  const publishReady = selected && (kind === 'book' ? (Boolean(selected.assets.epub) !== Boolean(selected.assets.txt)) && selected.assets.cover : Object.keys(selected.assets).length > 0);
   const fileControl = (slot: string, title: string, accept: string, hint: string) => (
     <label className={`block rounded-xl border border-dashed border-slate-700 p-4 ${busy || dirty || !selected ? 'opacity-40' : 'hover:border-emerald-500'}`}>
       <span className="flex items-center gap-2 text-sm font-medium text-slate-100"><FileUp className="h-4 w-4" />{title}</span>
@@ -88,11 +88,11 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
         <div className="mt-8 space-y-3 border-t border-slate-800 pt-6">
           <h3 className="font-semibold text-white">파일 등록</h3>
           {(!selected || dirty) && <p className="text-sm text-amber-300">입력한 정보를 먼저 저장한 뒤 파일을 등록해 주세요.</p>}
-          {kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('epub', '책 파일', '.epub', '암호화하지 않은 가변 레이아웃 EPUB · 최대 20MB')}{fileControl('cover', '책 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
+          {kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', '책 파일', '.epub,.txt', 'EPUB 또는 TXT · 최대 20MB. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', '책 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
             <label className="block text-sm text-slate-300">글꼴 굵기<select disabled={busy} className={inputClass} value={weight} onChange={e => setWeight(e.target.value)}>{[100,200,300,400,500,600,700,800,900].map(w => <option value={w} key={w}>{w}{w === 300 ? ' · Light' : w === 400 ? ' · Regular' : w === 700 ? ' · Bold' : ''}</option>)}</select></label>
             {fileControl(`font${weight}`, '선택한 굵기의 글꼴 파일', '.otf,.ttf', '정적 OTF · TTF · 파일당 최대 10MB. 다른 굵기는 차례로 추가하세요.')}
           </>}
-          {selected && <ul className="space-y-2">{Object.entries(selected.assets).map(([slot, asset]) => <li key={slot} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-950 p-3 text-sm text-slate-300"><span>{slot === 'cover' ? '표지' : slot === 'epub' ? 'EPUB' : `글꼴 ${asset.weight}`} · {(asset.size / 1024 / 1024).toFixed(1)}MB · 등록됨</span><button className="text-xs text-rose-300 disabled:opacity-40" disabled={busy || dirty} onClick={() => void run(() => mutateReaderContent({ action: 'removeAsset', id: selected.id, revision: selected.revision, slot }), '초안에서 파일을 제외했습니다. 공개 중인 파일은 다음 공개까지 유지됩니다.')}>초안에서 제외</button></li>)}</ul>}
+          {selected && <ul className="space-y-2">{Object.entries(selected.assets).map(([slot, asset]) => <li key={slot} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-950 p-3 text-sm text-slate-300"><span>{slot === 'cover' ? '표지' : slot === 'epub' ? 'EPUB' : slot === 'txt' ? 'TXT' : `글꼴 ${asset.weight}`} · {(asset.size / 1024 / 1024).toFixed(1)}MB · 등록됨</span><button className="text-xs text-rose-300 disabled:opacity-40" disabled={busy || dirty} onClick={() => void run(() => mutateReaderContent({ action: 'removeAsset', id: selected.id, revision: selected.revision, slot }), '초안에서 파일을 제외했습니다. 공개 중인 파일은 다음 공개까지 유지됩니다.')}>초안에서 제외</button></li>)}</ul>}
         </div>
         {selected && <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-6">
           <button disabled={busy || dirty || !publishReady} className={`${buttonClass} border-emerald-600 bg-emerald-700 hover:bg-emerald-600`} onClick={() => void run(() => mutateReaderContent({ action: 'publish', id: selected.id, revision: selected.revision }), '공개했습니다. 앱에서 목록을 새로고침하면 확인할 수 있습니다.')}>{selected.published ? '수정 내용 공개' : '앱에 공개'}</button>
