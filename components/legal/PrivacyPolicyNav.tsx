@@ -8,7 +8,8 @@ type PrivacyPolicyKey =
   | "website"
   | "bus-pop"
   | "honeybee"
-  | "slime-strike-force";
+  | "slime-strike-force"
+  | "koofy-reader";
 
 const copy = {
   ko: {
@@ -18,6 +19,7 @@ const copy = {
     busPop: ["Bus Pop", "모바일 퍼즐 게임"],
     honeybee: ["허니비(Honeybee)", "모바일 머지 게임"],
     slimeStrikeForce: ["슬라임특공대", "모바일 디펜스 게임"],
+    koofyReader: ["쿠피리더", "TXT·EPUB 독서 앱"],
   },
   en: {
     title: "Privacy policies by service",
@@ -26,6 +28,7 @@ const copy = {
     busPop: ["Bus Pop", "Mobile puzzle game"],
     honeybee: ["Honeybee", "Mobile merge game"],
     slimeStrikeForce: ["Slime Strike Force", "Mobile defense game"],
+    koofyReader: ["Koofy Reader", "TXT & EPUB reader"],
   },
   ja: {
     title: "サービス別プライバシーポリシー",
@@ -34,6 +37,7 @@ const copy = {
     busPop: ["Bus Pop", "モバイルパズルゲーム"],
     honeybee: ["Honeybee", "モバイルマージゲーム"],
     slimeStrikeForce: ["スライム特攻隊", "モバイル防衛ゲーム"],
+    koofyReader: ["Koofy Reader", "TXT・EPUBリーダー"],
   },
   zh: {
     title: "各服务隐私政策",
@@ -42,6 +46,7 @@ const copy = {
     busPop: ["Bus Pop", "移动益智游戏"],
     honeybee: ["Honeybee", "移动合并游戏"],
     slimeStrikeForce: ["史莱姆特攻队", "手机塔防游戏"],
+    koofyReader: ["Koofy Reader", "TXT·EPUB阅读器"],
   },
 } as const;
 
@@ -77,6 +82,7 @@ export default function PrivacyPolicyNav({
       label: labels.slimeStrikeForce[0],
       description: labels.slimeStrikeForce[1],
     },
+    { key: "koofy-reader" as const, href: "/koofy-reader/privacy", label: labels.koofyReader[0], description: labels.koofyReader[1] },
   ];
 
   return (
