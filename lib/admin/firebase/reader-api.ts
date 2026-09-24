@@ -6,7 +6,7 @@ export interface ReaderAsset { path: string; sha256: string; size: number; exten
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;
   deleting?: boolean;
-  published: boolean; publishedContent: (ReaderMetadata & { assets: Record<string, ReaderAsset>; version: number }) | null; updatedAt: string;
+  published: boolean; publishedContent: (ReaderMetadata & { assets: Record<string, ReaderAsset>; version: number; preview?: ReaderAsset }) | null; updatedAt: string;
 }
 const endpoint = process.env.NEXT_PUBLIC_READER_ADMIN_URL || `https://asia-northeast3-${koofyReaderFirebaseConfig.projectId}.cloudfunctions.net/readerAdmin`;
 async function request<T>(query: Record<string, string>, init: RequestInit = {}): Promise<T> {
@@ -49,5 +49,15 @@ export function deleteReaderContent(item: ReaderContent) {
   return request<{ id: string; deleted: boolean }>({}, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'delete', id: item.id, revision: item.revision }),
+  });
+}
+
+export function listReaderCategories() {
+  return request<{ categories: string[] }>({ action: 'categories' });
+}
+export function addReaderCategory(name: string) {
+  return request<{ categories: string[] }>({}, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'addCategory', name }),
   });
 }

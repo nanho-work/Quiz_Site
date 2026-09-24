@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { FileUp, Plus, RefreshCw } from 'lucide-react';
-import { deleteReaderContent, listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent, type ReaderKind, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
+import { addReaderCategory, listReaderCategories, deleteReaderContent, listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent, type ReaderKind, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 import { AdminCard } from '../shared/AdminCard';
 
 const empty: ReaderMetadata = { title: '', author: '', description: '', license: '', category: '기타', source: '' };
@@ -20,6 +20,9 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [weight, setWeight] = useState('400');
+  const [categories, setCategories] = useState<string[]>(['시', '소설', '에세이', '기타']);
+  const [newCategory, setNewCategory] = useState('');
+  const categoryOptions = Array.from(new Set([...categories, ...items.map(item => item.category || '기타'), form.category || '기타']));
   const dirty = JSON.stringify(form) !== JSON.stringify(selected ? fields(selected) : empty);
   const valid = form.title.trim() && form.author.trim() && form.license.trim();
   const label = kind === 'book' ? '책' : '글꼴';
@@ -30,7 +33,11 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
   const load = useCallback(async (after?: string) => {
     setLoading(true); setError(null);
     try {
-      const page = await listReaderContent(kind, after);
+      const [page, categoryResult] = await Promise.all([
+        listReaderContent(kind, after),
+        kind === 'book' ? listReaderCategories() : Promise.resolve(null),
+      ]);
+      if (categoryResult) setCategories(categoryResult.categories);
       setItems(current => after ? Array.from(new Map([...current, ...page.items].map(item => [item.id, item])).values()) : page.items); setCursor(page.nextCursor);
     } catch (error) { setError(error instanceof Error ? error.message : '목록을 불러오지 못했습니다.'); }
     finally { setLoading(false); }
@@ -62,6 +69,19 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
       await load();
       setError(error instanceof Error ? error.message : '삭제를 완료하지 못했습니다. 목록에서 확인 후 다시 시도해 주세요.');
     } finally { setBusy(false); }
+  };
+  const addCategory = async () => {
+    if (busy || !newCategory.trim()) return;
+    setBusy(true); setError(null); setNotice(null);
+    try {
+      const name = newCategory.normalize('NFC').trim();
+      const result = await addReaderCategory(name);
+      setCategories(result.categories);
+      setForm(current => ({ ...current, category: name }));
+      setNewCategory('');
+      setNotice(`“${name}” 분류를 등록했습니다. 도서 정보도 저장해 주세요.`);
+    } catch (error) { setError(error instanceof Error ? error.message : '분류를 등록하지 못했습니다.'); }
+    finally { setBusy(false); }
   };
   const upload = (slot: string, file: File | undefined) => {
     if (!selected || !file) return;
@@ -99,7 +119,14 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
           <fieldset disabled={busy || !!selected?.deleting} className="space-y-4">
             <label className="block text-sm text-slate-300">{label} 이름<input required maxLength={160} className={inputClass} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
             <label className="block text-sm text-slate-300">{kind === 'book' ? '저자 · 출판사' : '제작자'}<input required maxLength={120} className={inputClass} value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} /></label>
-            {kind === 'book' && <label className="block text-sm text-slate-300">도서 분류<select className={inputClass} value={form.category || '기타'} onChange={e => setForm({ ...form, category: e.target.value })}>{['시', '소설', '에세이', '기타'].map(category => <option key={category} value={category}>{category}</option>)}</select></label>}
+            {kind === 'book' && <div className="space-y-2">
+              <label className="block text-sm text-slate-300">도서 분류<select className={inputClass} value={form.category || '기타'} onChange={e => setForm({ ...form, category: e.target.value })}>{categoryOptions.map(category => <option key={category} value={category}>{category}</option>)}</select></label>
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="min-w-0 flex-1 text-xs text-slate-400">새 분류 이름<input className={inputClass} maxLength={40} placeholder="예: 인문, 역사, 동화" value={newCategory} onChange={e => setNewCategory(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); void addCategory(); } }} /></label>
+                <button type="button" className={buttonClass} disabled={busy || !newCategory.trim()} onClick={() => void addCategory()}><Plus className="h-4 w-4" />분류 추가</button>
+              </div>
+              <p className="text-xs text-slate-400">등록한 분류는 다음에도 선택할 수 있습니다. 해당 도서를 공개하면 앱 검색 필터에도 표시됩니다.</p>
+            </div>}
             <label className="block text-sm text-slate-300">출처<input maxLength={500} className={inputClass} placeholder="원문 페이지 주소 또는 제공 기관" value={form.source || ''} onChange={e => setForm({ ...form, source: e.target.value })} /></label>
             <label className="block text-sm text-slate-300">설명<textarea rows={3} maxLength={2000} className={inputClass} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
             <label className="block text-sm text-slate-300">배포 권한 · 이용 조건<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>
@@ -114,6 +141,7 @@ export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
             {fileControl(`font${weight}`, '선택한 굵기의 글꼴 파일', '.otf,.ttf', '정적 OTF · TTF · 파일당 최대 10MB. 다른 굵기는 차례로 추가하세요.')}
             <p className="text-xs leading-5 text-slate-400">공개할 때 등록한 글꼴로 이름 미리보기를 자동 생성합니다. 보통 굵기(400)를 우선 사용하며 없으면 가장 가까운 굵기를 사용합니다. 기존 글꼴은 ‘수정 내용 공개’를 누르면 생성됩니다. 글꼴에 이름의 문자가 없으면 앱 기본 글꼴로 표시됩니다.</p>
           </>}
+          {kind === 'font' && selected?.published && !selected.publishedContent?.preview && <p role="status" className="text-sm text-amber-300">이 글꼴은 아직 이름 미리보기가 없습니다. 서버를 최신 버전으로 배포한 뒤 ‘수정 내용 공개’를 눌러 생성하세요. 글꼴에 이름의 문자가 없으면 기본 글꼴로 표시됩니다.</p>}
           {selected && <ul className="space-y-2">{Object.entries(selected.assets).map(([slot, asset]) => <li key={slot} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-950 p-3 text-sm text-slate-300"><span>{slot === 'cover' ? '표지' : slot === 'epub' ? 'EPUB' : slot === 'txt' ? 'TXT' : `글꼴 ${asset.weight}`} · {(asset.size / 1024 / 1024).toFixed(1)}MB · 등록됨</span><button className="text-xs text-rose-300 disabled:opacity-40" disabled={busy || dirty || !!selected?.deleting} onClick={() => void run(() => mutateReaderContent({ action: 'removeAsset', id: selected.id, revision: selected.revision, slot }), '초안에서 파일을 제외했습니다. 공개 중인 파일은 다음 공개까지 유지됩니다.')}>초안에서 제외</button></li>)}</ul>}
         </div>
         {selected && <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-6">
