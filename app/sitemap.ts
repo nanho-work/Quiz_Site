@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { productSlugs } from "../lib/marketing";
+
 const SITE_URL = "https://www.koofy.co.kr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -31,6 +33,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  routes.push(
+    ...[
+      "/products",
+      "/koofy-reader",
+      "/support",
+      "/policies",
+      ...productSlugs.map((slug) => `/products/${slug}`),
+    ].map((path) => ({
+      path,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+  );
   return routes.map((route) => ({
     url: new URL(route.path, SITE_URL).toString(),
     lastModified: now,

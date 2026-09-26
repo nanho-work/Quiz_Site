@@ -14,7 +14,7 @@ export function RootChrome({ children, header, footer }: RootChromeProps) {
   if (pathname.startsWith("/admin")) return children;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#f7f8fa]">
       {header}
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
         {children}

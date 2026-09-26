@@ -1,49 +1,41 @@
 "use client";
-
+import Image from "next/image";
 import Link from "next/link";
-
 import { useLanguage } from "./LanguageProvider";
-
+import { copy } from "../lib/marketing";
 export default function Footer() {
-  const { text } = useLanguage();
-  const footerLinks = [
-    { href: "/privacy", label: text.common.footer.privacy },
-    { href: "/terms", label: text.common.footer.terms },
-  ];
-
+  const { language } = useLanguage();
+  const t = copy[language];
   return (
-    <footer className="mt-16 border-t border-border bg-card">
-      <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 text-sm text-muted-foreground sm:px-6 md:grid-cols-[1fr_auto] md:items-center lg:px-8">
+    <footer className="brand-footer">
+      <div className="footer-top">
         <div>
-          <p className="font-bold text-foreground">
-            {text.common.footer.tagline}
-          </p>
-          <p className="mt-2">
-            {text.common.footer.contact}:{" "}
-            <a
-              href="mailto:koofylab@gmail.com"
-              className="font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline"
-            >
-            koofylab@gmail.com
-          </a>
-          </p>
-          <p className="mt-2">
-            © {new Date().getFullYear()} Koofy Lab.{" "}
-            {text.common.footer.rights}
-          </p>
+          <Link className="brand-logo" href="/">
+            <Image src="/KoofyLab2.png" alt="" width={32} height={32} />
+            <span>Koofy Lab.</span>
+          </Link>
+          <p>{t.intro}</p>
+          <a href="mailto:koofylab@gmail.com">koofylab@gmail.com</a>
         </div>
-
-        <nav className="flex flex-wrap gap-4 md:justify-end">
-          {footerLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="font-semibold transition-colors hover:text-primary"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav aria-label={t.products}>
+          <h2>{t.products}</h2>
+          <Link href="/koofy-reader">{t.reader}</Link>
+          <Link href="/products/bus-pop">Bus Pop</Link>
+          <Link href="/products">{t.all}</Link>
         </nav>
+        <nav aria-label={t.support}>
+          <h2>{t.support}</h2>
+          <Link href="/about">{t.about}</Link>
+          <Link href="/support">{t.contact}</Link>
+          <Link href="/policies">{t.policies}</Link>
+        </nav>
+      </div>
+      <div className="footer-bottom">
+        <span>© {new Date().getFullYear()} Koofy Lab.</span>
+        <div>
+          <Link href="/privacy">{t.privacy}</Link>
+          <Link href="/terms">{t.terms}</Link>
+        </div>
       </div>
     </footer>
   );

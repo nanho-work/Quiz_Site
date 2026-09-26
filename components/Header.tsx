@@ -1,54 +1,152 @@
 "use client";
-
 import Image from "next/image";
 import Link from "next/link";
-
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
+import { copy, getProducts } from "../lib/marketing";
 
 export default function Header() {
-  const { text } = useLanguage();
-  const navItems = [
-    { href: "/#products", label: text.common.nav.products },
-    { href: "/about", label: text.common.nav.about },
-    { href: "/contact", label: text.common.nav.contact },
-  ];
-
+  const { language } = useLanguage();
+  const t = copy[language];
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [mobile, setMobile] = useState(false);
+  const root = useRef<HTMLElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const mobileTrigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    setOpen(false);
+    setMobile(false);
+  }, [pathname]);
+  useEffect(() => {
+    function outside(e: PointerEvent) {
+      if (!root.current?.contains(e.target as Node)) {
+        setOpen(false);
+        setMobile(false);
+      }
+    }
+    function escape(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        if (open) {
+          setOpen(false);
+          trigger.current?.focus();
+        } else if (mobile) {
+          setMobile(false);
+          mobileTrigger.current?.focus();
+        }
+      }
+    }
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [open, mobile]);
+  const close = () => {
+    setOpen(false);
+    setMobile(false);
+  };
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="flex min-w-0 items-center gap-2 text-primary transition-colors hover:text-primary/80"
+    <header ref={root} className="brand-header">
+      <div className="brand-header-inner">
+        <Link href="/" className="brand-logo" onClick={close}>
+          <Image src="/KoofyLab2.png" alt="" width={36} height={36} />
+          <span>
+            Koofy Lab<span className="logo-period">.</span>
+          </span>
+        </Link>
+        <div className="header-actions">
+          <nav
+            id="mobile-navigation"
+            className={`brand-nav ${mobile ? "is-open" : ""}`}
+            aria-label={t.menu}
           >
-            <Image
-              src="/KoofyLab2.png"
-              alt="Koofy Lab logo"
-              width={34}
-              height={34}
-              className="h-8 w-8 shrink-0 rounded-md object-contain"
-              priority
-            />
-            <span className="truncate text-base font-black tracking-normal text-foreground sm:text-lg">
-              {text.common.brand}
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-2 sm:gap-4">
-            <nav className="flex items-center gap-2 text-xs font-bold sm:gap-4 sm:text-sm">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-muted-foreground transition-colors hover:text-primary"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-            <LanguageSelect />
-          </div>
+            <div className="products-nav">
+              <button
+                ref={trigger}
+                type="button"
+                aria-expanded={open}
+                aria-controls="products-panel"
+                onClick={() => setOpen(!open)}
+                className={
+                  pathname.startsWith("/products") ||
+                  pathname === "/koofy-reader"
+                    ? "active"
+                    : ""
+                }
+              >
+                {t.products}
+                <ChevronDown size={15} aria-hidden="true" />
+              </button>
+              {open && (
+                <div id="products-panel" className="products-panel">
+                  <Link
+                    href="/products"
+                    className="products-all"
+                    onClick={close}
+                  >
+                    {t.all}
+                    <ArrowUpRight size={18} />
+                  </Link>
+                  <p>{t.apps}</p>
+                  {getProducts(language)
+                    .filter((p) => p.kind === "app")
+                    .map((p) => (
+                      <Link
+                        key={p.slug}
+                        href={p.href}
+                        onClick={close}
+                        aria-current={pathname === p.href ? "page" : undefined}
+                      >
+                        {p.name}
+                        <ArrowUpRight size={14} aria-hidden="true" />
+                      </Link>
+                    ))}
+                  <Link
+                    href="/products#projects"
+                    className="products-all"
+                    onClick={close}
+                  >
+                    {t.cases}
+                    <ArrowUpRight size={16} />
+                  </Link>
+                </div>
+              )}
+            </div>
+            <Link
+              href="/about"
+              onClick={close}
+              aria-current={pathname === "/about" ? "page" : undefined}
+            >
+              {t.about}
+            </Link>
+            <Link
+              href="/support"
+              onClick={close}
+              aria-current={pathname === "/support" ? "page" : undefined}
+            >
+              {t.support}
+            </Link>
+          </nav>
+          <LanguageSelect />
+          <button
+            ref={mobileTrigger}
+            className="mobile-nav-toggle"
+            type="button"
+            aria-label={mobile ? t.close : t.menu}
+            aria-expanded={mobile}
+            aria-controls="mobile-navigation"
+            onClick={() => {
+              setMobile(!mobile);
+              setOpen(false);
+            }}
+          >
+            {mobile ? <X size={23} /> : <Menu size={23} />}
+          </button>
         </div>
       </div>
     </header>
