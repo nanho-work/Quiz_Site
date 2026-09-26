@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-21",
+  "updatedAt": "2026-09-26",
   "email": "koofylab@gmail.com",
   "translations": {
     "ko": {
@@ -23,15 +23,16 @@
           "heading": "3. 도서·글꼴 다운로드와 서버 기록",
           "paragraphs": [
             "공개된 도서·표지·글꼴 목록 조회와 파일 다운로드에 Firebase Cloud Functions, Cloud Firestore 및 Cloud Storage를 사용합니다. 이 과정에서 요청한 콘텐츠 식별자, IP 주소, 요청 시각, 응답·오류 등 서버 접속 정보가 서비스 제공·보안·장애 대응을 위해 처리될 수 있습니다.",
-            "현재 앱에는 Firebase Authentication, Analytics 또는 Crashlytics SDK를 이용한 사용자 계정·행동 분석·충돌 수집 기능이 포함되어 있지 않습니다. 광고 SDK 자체의 통계·진단 처리는 별개입니다."
+            "현재 앱에는 Firebase Authentication, Analytics 또는 Crashlytics SDK를 이용한 사용자 계정·행동 분석·충돌 수집 기능이 포함되어 있지 않습니다. 광고 SDK 자체의 통계·진단 처리는 별개입니다.",
+            "앱 시작 시 업데이트 안내를 확인하기 위해 Firebase Remote Config를 사용합니다. 이 과정에서 Firebase 설치 식별자, 앱 버전과 기기·운영체제 정보 등이 설정 제공을 위해 처리될 수 있습니다. 이 기능에 독서 본문·기록을 전송하지 않으며 Analytics 기반 개인화나 A/B 테스트를 사용하지 않습니다."
           ]
         },
         {
           "heading": "4. 광고와 선택권",
           "paragraphs": [
             "Unity LevelPlay를 통해 ironSource Ads 및 Unity Ads의 배너·선택형 리워드 광고를 제공합니다. 광고 제공, 성과 측정, 부정 이용 방지 및 진단을 위해 광고 사업자가 IP 주소, 기기·운영체제·앱 정보, 광고 노출·클릭·보상·오류 정보 등을 처리할 수 있습니다. 광고 식별자와 개인화에 사용되는 정보는 OS 권한과 이용자의 선택, 제공자 정책에 따라 처리됩니다.",
-            "첫 실행에서 광고 관련 선택을 안내하며 선택 전에는 광고 SDK를 초기화하지 않습니다. 선택은 설정 > 개인정보 및 광고에서 다시 확인·변경할 수 있습니다. 맞춤형 광고를 거부하더라도 독서는 이용할 수 있으며 광고 제공·보안에 필요한 제한된 정보가 처리되는 비맞춤형 광고가 표시될 수 있습니다.",
-            "iOS에서는 앱의 광고 선택과 별개로 Apple의 추적 허가가 적용됩니다. 추적 허가를 거부하거나 제한한 경우 맞춤형 광고 허용 선택만으로 추적을 허용하지 않습니다. OS 추적 권한은 기기 설정에서 변경할 수 있습니다.",
+            "첫 실행에서 광고와 개인정보 처리를 안내하며 안내 절차가 끝나기 전에는 광고 SDK를 초기화하지 않습니다. Android에서는 앱에서 광고 방식을 선택합니다. 맞춤형 광고를 거부하더라도 독서는 이용할 수 있으며 광고 제공·보안에 필요한 제한된 정보가 처리되는 비맞춤형 광고가 표시될 수 있습니다.",
+            "iOS에서는 안내 화면의 계속 버튼을 누른 뒤 아직 결정하지 않은 Apple 추적 권한을 시스템 창에서 선택합니다. 계속 버튼 자체는 추적 동의가 아닙니다. 거부·제한·미결정 상태에서는 비맞춤형 광고를 적용합니다. 설정 > 개인정보 및 광고에서 현재 상태를 확인하고 비맞춤형 광고만 사용하도록 제한할 수 있으며, OS 추적 권한은 기기 설정에서 변경할 수 있습니다. 기존에 선택한 비맞춤형 광고 설정은 유지합니다.",
             "리워드 광고는 이용자가 버튼을 눌러 선택했을 때만 표시됩니다. 시청 완료 보상은 배너를 2시간 숨기는 기능이며, 추적 허가에 대한 대가가 아닙니다."
           ]
         },
@@ -105,15 +106,16 @@
           "heading": "3. Downloads and infrastructure logs",
           "paragraphs": [
             "Firebase Cloud Functions, Cloud Firestore, and Cloud Storage provide the public catalog and book, cover, and font downloads. Content identifiers, IP addresses, request times, responses, and error information may be processed to deliver and secure these services and diagnose problems.",
-            "The app currently does not include user accounts through Firebase Authentication or user analytics/crash collection through Firebase Analytics or Crashlytics. Advertising SDK statistics and diagnostics are separate."
+            "The app currently does not include user accounts through Firebase Authentication or user analytics/crash collection through Firebase Analytics or Crashlytics. Advertising SDK statistics and diagnostics are separate.",
+            "Firebase Remote Config checks for update notices at app startup. Firebase installation identifiers, app version and device or operating system information may be processed to deliver configuration values. Reading content and history are not sent for this feature. Analytics-based personalization and A/B testing are not used."
           ]
         },
         {
           "heading": "4. Advertising and your choices",
           "paragraphs": [
             "Unity LevelPlay mediates banner and optional rewarded ads from ironSource Ads and Unity Ads. Advertising providers may process IP addresses, device, operating-system and app details, and ad impressions, interactions, rewards, and errors for ad delivery, measurement, fraud prevention, and diagnostics. Advertising identifiers and personalization data depend on your choices, OS permissions, and provider policies.",
-            "Advertising choices are presented at first launch; the advertising SDK is not initialized before a choice. You can review and change your choice in Settings > Privacy and advertising. Declining personalized ads does not prevent reading. Non-personalized ads may still be shown and process limited information needed for delivery and security.",
-            "On iOS, Apple tracking permission is separate from your in-app advertising choice. An in-app choice does not override denied or restricted tracking permission. OS tracking permission can be changed in device settings.",
+            "Advertising and privacy information is presented at first launch. The advertising SDK is not initialized before this flow is completed. On Android, you select an advertising preference in the app. Declining personalized ads does not prevent reading. Non-personalized ads may still process limited information needed for delivery and security.",
+            "On iOS, Continue leads to the Apple tracking permission prompt if permission has not been determined. Continue itself does not grant tracking permission. Denied, restricted or undetermined permission results in non-personalized ads. In Settings > Privacy and advertising you can review the status and restrict ads to non-personalized ads. OS tracking permission can be changed in device settings. Existing non-personalized advertising preferences are preserved.",
             "Rewarded ads play only after you choose to watch. A completed reward hides banners for two hours; it is not a reward for granting tracking permission."
           ]
         },
