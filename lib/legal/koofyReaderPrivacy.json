@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-26",
+  "updatedAt": "2026-09-27",
   "email": "koofylab@gmail.com",
   "translations": {
     "ko": {
@@ -81,6 +81,19 @@
           "paragraphs": [
             "처리 목적·서비스 구성·관련 규정이 바뀌면 방침과 업데이트 일자를 변경하며 중요한 변경은 앱 또는 웹페이지로 안내합니다.",
             "운영자 및 개인정보 문의: Koofy Lab / koofylab@gmail.com"
+          ]
+        },
+        {
+          "heading": "선택 번역과 발음 듣기",
+          "paragraphs": [
+            "선택 번역은 Google ML Kit를 이용해 기기 안에서 처리합니다. 선택한 본문과 번역 결과를 Google 번역 서버나 운영자 서버로 전송하지 않으며 앱에서 번역 기록으로 저장하지 않습니다. 발음 듣기는 기기의 음성 합성을 이용합니다.",
+            "번역 언어 데이터 다운로드·갱신 및 SDK 운영을 위해 Google 서버와 통신할 수 있으며 API의 성능·사용 통계가 Google에 전송될 수 있습니다. 자세한 처리 내용은 Google ML Kit 안내를 참고해 주세요."
+          ],
+          "links": [
+            {
+              "label": "Google ML Kit 개인정보 안내",
+              "href": "https://developers.google.com/ml-kit/terms"
+            }
           ]
         }
       ]
@@ -164,6 +177,19 @@
           "paragraphs": [
             "We update this policy and its date when our processing, services or relevant requirements change. Material changes are communicated through the app or website.",
             "Operator and privacy contact: Koofy Lab / koofylab@gmail.com"
+          ]
+        },
+        {
+          "heading": "Selected-text translation and pronunciation",
+          "paragraphs": [
+            "Selected text is translated on the device using Google ML Kit. The source text and translation are not sent to Google translation servers or our servers, and the app does not save a translation history. Pronunciation uses the device speech engine.",
+            "The SDK may contact Google to download or update language models and send API performance and usage metrics. See the Google ML Kit privacy information for details."
+          ],
+          "links": [
+            {
+              "label": "Google ML Kit privacy information",
+              "href": "https://developers.google.com/ml-kit/terms"
+            }
           ]
         }
       ]
