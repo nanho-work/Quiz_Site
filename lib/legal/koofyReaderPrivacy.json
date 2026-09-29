@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-27",
+  "updatedAt": "2026-09-29",
   "email": "koofylab@gmail.com",
   "translations": {
     "ko": {
@@ -30,10 +30,11 @@
         {
           "heading": "4. 광고와 선택권",
           "paragraphs": [
-            "Unity LevelPlay를 통해 ironSource Ads 및 Unity Ads의 배너·선택형 리워드 광고를 제공합니다. 광고 제공, 성과 측정, 부정 이용 방지 및 진단을 위해 광고 사업자가 IP 주소, 기기·운영체제·앱 정보, 광고 노출·클릭·보상·오류 정보 등을 처리할 수 있습니다. 광고 식별자와 개인화에 사용되는 정보는 OS 권한과 이용자의 선택, 제공자 정책에 따라 처리됩니다.",
+            "Unity LevelPlay를 통해 ironSource Ads, Unity Ads 및 Google AdMob의 배너·선택형 리워드 광고를 제공합니다. 광고 제공, 성과 측정, 부정 이용 방지 및 진단을 위해 광고 사업자가 IP 주소, 기기·운영체제·앱 정보, 광고 노출·클릭·보상·오류 정보 등을 처리할 수 있습니다. 광고 식별자와 개인화에 사용되는 정보는 OS 권한과 이용자의 선택, 제공자 정책에 따라 처리됩니다.",
             "첫 실행에서 광고와 개인정보 처리를 안내하며 안내 절차가 끝나기 전에는 광고 SDK를 초기화하지 않습니다. Android에서는 앱에서 광고 방식을 선택합니다. 맞춤형 광고를 거부하더라도 독서는 이용할 수 있으며 광고 제공·보안에 필요한 제한된 정보가 처리되는 비맞춤형 광고가 표시될 수 있습니다.",
             "iOS에서는 안내 화면의 계속 버튼을 누른 뒤 아직 결정하지 않은 Apple 추적 권한을 시스템 창에서 선택합니다. 계속 버튼 자체는 추적 동의가 아닙니다. 거부·제한·미결정 상태에서는 비맞춤형 광고를 적용합니다. 설정 > 개인정보 및 광고에서 현재 상태를 확인하고 비맞춤형 광고만 사용하도록 제한할 수 있으며, OS 추적 권한은 기기 설정에서 변경할 수 있습니다. 기존에 선택한 비맞춤형 광고 설정은 유지합니다.",
-            "리워드 광고는 이용자가 버튼을 눌러 선택했을 때만 표시됩니다. 시청 완료 보상은 배너를 2시간 숨기는 기능이며, 추적 허가에 대한 대가가 아닙니다."
+            "리워드 광고는 이용자가 버튼을 눌러 선택했을 때만 표시됩니다. 시청 완료 보상은 배너를 2시간 숨기는 기능이며, 추적 허가에 대한 대가가 아닙니다.",
+            "Google User Messaging Platform(UMP)을 통해 앱 실행 시 지역별 광고 개인정보 요건을 확인하고 필요한 동의 화면을 표시합니다. 동의 화면 처리가 끝났다는 사실만으로 맞춤형 광고에 동의한 것으로 해석하지 않습니다. 지역별 동의 관리가 필요한 경우 비맞춤형 광고로 제한하며, SDK가 광고 요청을 허용하지 않으면 광고를 요청하지 않습니다. 확인 실패 시에도 독서는 이용할 수 있습니다. 해당되는 경우 설정 > 개인정보 및 광고 > 광고 개인정보 선택 관리에서 선택을 변경할 수 있습니다. SDK는 동의 상태를 기기에 저장하고 IP 주소와 앱·기기 정보 등을 동의 안내 제공에 사용할 수 있습니다."
           ]
         },
         {
@@ -47,7 +48,8 @@
           "heading": "6. 외부 서비스 및 국외 처리",
           "paragraphs": [
             "Firebase의 서버·파일 제공과 Google의 이메일 서비스, Unity·ironSource의 광고 서비스가 각 역할에 필요한 정보를 처리합니다. 서비스 제공자의 서버와 광고 파트너가 위치한 미국 등 국외에서 정보가 처리될 수 있습니다.",
-            "콘텐츠 메타데이터와 Cloud Functions는 서울 리전, 도서·글꼴 파일의 Cloud Storage는 미국 리전을 사용합니다. 각 제공자의 처리·보유·삭제 정책은 아래 공식 안내에서 확인할 수 있습니다."
+            "콘텐츠 메타데이터와 Cloud Functions는 서울 리전, 도서·글꼴 파일의 Cloud Storage는 미국 리전을 사용합니다. 각 제공자의 처리·보유·삭제 정책은 아래 공식 안내에서 확인할 수 있습니다.",
+            "Google은 AdMob 광고와 UMP 동의 관리 서비스를 제공합니다."
           ],
           "links": [
             {
@@ -57,6 +59,10 @@
             {
               "label": "Unity·ironSource 앱 이용자 개인정보처리방침",
               "href": "https://unity.com/legal/game-player-and-app-user-privacy-policy"
+            },
+            {
+              "label": "Google 개인정보처리방침",
+              "href": "https://policies.google.com/privacy"
             }
           ]
         },
@@ -126,10 +132,11 @@
         {
           "heading": "4. Advertising and your choices",
           "paragraphs": [
-            "Unity LevelPlay mediates banner and optional rewarded ads from ironSource Ads and Unity Ads. Advertising providers may process IP addresses, device, operating-system and app details, and ad impressions, interactions, rewards, and errors for ad delivery, measurement, fraud prevention, and diagnostics. Advertising identifiers and personalization data depend on your choices, OS permissions, and provider policies.",
+            "Unity LevelPlay mediates banner and optional rewarded ads from ironSource Ads, Unity Ads and Google AdMob. Advertising providers may process IP addresses, device, operating-system and app details, and ad impressions, interactions, rewards, and errors for ad delivery, measurement, fraud prevention, and diagnostics. Advertising identifiers and personalization data depend on your choices, OS permissions, and provider policies.",
             "Advertising and privacy information is presented at first launch. The advertising SDK is not initialized before this flow is completed. On Android, you select an advertising preference in the app. Declining personalized ads does not prevent reading. Non-personalized ads may still process limited information needed for delivery and security.",
             "On iOS, Continue leads to the Apple tracking permission prompt if permission has not been determined. Continue itself does not grant tracking permission. Denied, restricted or undetermined permission results in non-personalized ads. In Settings > Privacy and advertising you can review the status and restrict ads to non-personalized ads. OS tracking permission can be changed in device settings. Existing non-personalized advertising preferences are preserved.",
-            "Rewarded ads play only after you choose to watch. A completed reward hides banners for two hours; it is not a reward for granting tracking permission."
+            "Rewarded ads play only after you choose to watch. A completed reward hides banners for two hours; it is not a reward for granting tracking permission.",
+            "Google User Messaging Platform (UMP) checks regional advertising privacy requirements at app launch and presents required messages. Completing a form is not treated as agreement to personalized advertising. We restrict advertising to non-personalized ads where regional consent management is required, and do not request ads unless the SDK permits it. Reading remains available if the check fails. Where applicable, you can change choices in Settings > Privacy and advertising > Manage advertising privacy choices. The SDK stores consent status on the device and may use IP addresses and app/device information to provide the consent flow."
           ]
         },
         {
@@ -142,7 +149,7 @@
         {
           "heading": "6. Providers and international processing",
           "paragraphs": [
-            "Google/Firebase provides hosting and downloads, Google provides email, and Unity/ironSource provides advertising. Data may be processed in the United States and other countries where providers and their partners operate.",
+            "Google/Firebase provides hosting and downloads, Google provides email, and Unity/ironSource and Google AdMob provide advertising; Google UMP provides consent management. Data may be processed in the United States and other countries where providers and their partners operate.",
             "Catalog metadata and Cloud Functions use the Seoul region. Cloud Storage for downloadable files uses a US region. Please consult the linked provider policies for their processing, retention and deletion practices."
           ],
           "links": [
@@ -153,6 +160,10 @@
             {
               "label": "Unity / ironSource app user privacy policy",
               "href": "https://unity.com/legal/game-player-and-app-user-privacy-policy"
+            },
+            {
+              "label": "Google privacy policy",
+              "href": "https://policies.google.com/privacy"
             }
           ]
         },
