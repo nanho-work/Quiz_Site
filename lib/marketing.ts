@@ -1,5 +1,7 @@
 import type { LanguageCode } from "./i18n";
 
+export const readerAppStoreUrl = "https://apps.apple.com/app/id6814514729";
+
 export const copy = {
   ko: {
     products: "제품",
@@ -63,7 +65,7 @@ export const copy = {
       "기기에 제공되는 음성을 선택해 책을 들으세요. 사용 가능한 음성과 품질은 기기에 따라 다릅니다.",
     ],
     releaseNote:
-      "iOS는 심사 준비 중이며 Android는 비공개 테스트 중입니다. 정식 출시 후 다운로드 링크를 안내합니다.",
+      "iPhone·iPad용 앱은 App Store에서 다운로드할 수 있습니다. Android는 비공개 테스트 중입니다.",
     screenshots: "앱 화면 · 예시 도서 사용",
     overview: "제품 소개",
     related: "다른 제품 둘러보기",
@@ -130,7 +132,7 @@ export const copy = {
       "Listen with voices available on your device. Voice availability and quality vary by device.",
     ],
     releaseNote:
-      "iOS is being prepared for review and Android is in closed testing. Download links will be available after release.",
+      "Download for iPhone and iPad on the App Store. Android is currently in closed testing.",
     screenshots: "App screens · sample books",
     overview: "About this product",
     related: "Explore other products",
@@ -197,7 +199,7 @@ export const copy = {
       "端末に用意された音声で読み上げます。音声の種類と品質は端末によって異なります。",
     ],
     releaseNote:
-      "iOSは審査準備中、Androidはクローズドテスト中です。公開後にダウンロードリンクをご案内します。",
+      "iPhone・iPad版はApp Storeからダウンロードできます。Android版はクローズドテスト中です。",
     screenshots: "アプリ画面・サンプル書籍",
     overview: "製品について",
     related: "ほかの製品を見る",
@@ -262,7 +264,7 @@ export const copy = {
       "使用设备提供的语音朗读。可用语音与品质因设备而异。",
     ],
     releaseNote:
-      "iOS 正在准备审核，Android 正在封闭测试。正式发布后将提供下载链接。",
+      "iPhone 和 iPad 版可在 App Store 下载。Android 版正在封闭测试。",
     screenshots: "应用画面 · 示例书籍",
     overview: "产品介绍",
     related: "探索其他产品",
@@ -332,7 +334,7 @@ export function getProducts(language: LanguageCode): Product[] {
       kind: "app",
       name: t.reader,
       description: t.readerBody,
-      status: t.upcoming,
+      status: "App Store",
       image: "/products/reader-library.webp",
       imageAlt: t.readerFeatures[0],
       privacy: "/koofy-reader/privacy",

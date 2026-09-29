@@ -9,6 +9,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { usePathname } from "next/navigation";
+
 import {
   defaultLanguage,
   getHtmlLang,
@@ -52,7 +54,12 @@ function detectBrowserLanguage(): LanguageCode {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<LanguageCode>(defaultLanguage);
+  const pathname = usePathname();
+  // Match the reader landing page's Korean search metadata in the server HTML.
+  // Existing language preferences still apply after hydration.
+  const [language, setLanguageState] = useState<LanguageCode>(
+    pathname === "/koofy-reader" ? "ko" : defaultLanguage
+  );
 
   useEffect(() => {
     setLanguageState(detectBrowserLanguage());

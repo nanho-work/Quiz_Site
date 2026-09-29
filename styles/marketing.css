@@ -1089,3 +1089,12 @@
   overflow-wrap: normal;
   line-break: strict;
 }
+
+.reader-download { margin: 24px 0; }
+.reader-download a { min-height: 48px; }
+
+.reader-guide { padding: 32px; background: #f7f5ee; border-radius: 20px; margin: 32px 0; }
+.reader-guide h2 { font-size: clamp(22px, 3vw, 30px); margin-bottom: 20px; }
+.reader-guide ol { list-style: decimal; padding-left: 24px; line-height: 1.8; }
+.reader-guide li + li { margin-top: 10px; }
+.reader-guide p { margin-top: 20px; font-size: 14px; line-height: 1.8; color: #526052; }
