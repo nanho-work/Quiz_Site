@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/", changeFrequency: "weekly", priority: 1 },
     { path: "/about", changeFrequency: "monthly", priority: 0.7 },
     { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/koofy-reader/guide", changeFrequency: "monthly", priority: 0.8 },
     { path: "/koofy-reader/privacy", changeFrequency: "yearly", priority: 0.5 },
     { path: "/koofy-reader/support", changeFrequency: "yearly", priority: 0.5 },
     { path: "/privacy", changeFrequency: "yearly", priority: 0.4 },

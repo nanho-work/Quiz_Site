@@ -278,6 +278,7 @@ export function ReaderPage() {
     ja: "App Storeからダウンロード",
     zh: "在 App Store 下载",
   }[language];
+  const guideLabel = {ko: "화면으로 보는 사용 가이드", en: "Visual user guide (Korean)", ja: "画面で見る使い方（韓国語）", zh: "图解使用指南（韩文）"}[language];
   const features = [
     { image: "/products/reader-library.webp", icon: Library },
     { image: "/products/reader-wide.webp", icon: BookOpen },
@@ -305,6 +306,7 @@ export function ReaderPage() {
               {downloadLabel}<ArrowUpRight size={18} aria-hidden="true" />
             </a>
           </div>
+          <Link href="/koofy-reader/guide" className="reader-guide-link">{guideLabel}<ArrowRight size={18} aria-hidden="true" /></Link>
           <div className="release-notice">
 
             <span className="status-dot" />
@@ -336,6 +338,7 @@ export function ReaderPage() {
             <p className="eyebrow">0{i + 1}</p>
             <h2>{t.readerFeatures[i]}</h2>
             <p>{t.readerFeatureBodies[i]}</p>
+            <Link className="reader-guide-link" href={`/koofy-reader/guide#${["import", "reading", "fonts", "listening"][i]}`}>{guideLabel}<ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
           <figure className="story-image">
             <Image
@@ -353,6 +356,7 @@ export function ReaderPage() {
         <h2 id="reader-guide-title">{guide.title}</h2>
         <ol>{guide.steps.map((step) => <li key={step}>{step}</li>)}</ol>
         <p>{guide.note}</p>
+        <Link className="reader-guide-link" href="/koofy-reader/guide">{guideLabel}<ArrowRight size={18} aria-hidden="true" /></Link>
       </section>
       <div className="store-links reader-download">
         <a href={readerAppStoreUrl} className="brand-button">

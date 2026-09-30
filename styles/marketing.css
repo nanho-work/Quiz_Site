@@ -1098,3 +1098,6 @@
 .reader-guide ol { list-style: decimal; padding-left: 24px; line-height: 1.8; }
 .reader-guide li + li { margin-top: 10px; }
 .reader-guide p { margin-top: 20px; font-size: 14px; line-height: 1.8; color: #526052; }
+
+/* Reader feature instructions beside the existing product images. */
+.reader-guide-link{display:inline-flex;align-items:center;gap:10px;margin:18px 0;padding:13px 18px;border:1px solid #a9bbaa;border-radius:10px;background:#edf2e9;color:#294e38;font-weight:650;font-size:14px;line-height:1.5}.reader-guide-link:hover{background:#dfe9da}.reader-guide-link:focus-visible{outline:3px solid #c77c39;outline-offset:4px}
