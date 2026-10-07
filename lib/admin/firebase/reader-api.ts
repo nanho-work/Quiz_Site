@@ -1,7 +1,7 @@
 import { getAdminFirebaseServices } from './client';
 import { koofyReaderFirebaseConfig } from './koofy-reader';
-export type ReaderKind = 'book' | 'font';
-export interface ReaderMetadata { title: string; author: string; description: string; license: string; category?: string; source?: string }
+export type ReaderKind = 'book' | 'font' | 'series';
+export interface ReaderMetadata { title: string; author: string; description: string; license: string; category?: string; source?: string; seriesId?: string; seriesTitle?: string; episodeNumber?: number; seriesStatus?: 'ongoing' | 'completed' }
 export interface ReaderAsset { path: string; sha256: string; size: number; extension: string; contentType: string; weight?: number }
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;
@@ -28,10 +28,10 @@ async function request<T>(query: Record<string, string>, init: RequestInit = {})
     throw error;
   } finally { clearTimeout(timer); }
 }
-export function listReaderContent(kind: ReaderKind, after?: string) {
-  return request<{ items: ReaderContent[]; nextCursor: string | null }>({ kind, ...(after ? { after } : {}) });
+export function listReaderContent(kind: ReaderKind, after?: string, seriesId?: string) {
+  return request<{ items: ReaderContent[]; nextCursor: string | null }>({ kind, ...(seriesId ? { seriesId } : kind === 'book' ? { topLevel: '1' } : {}), ...(after ? { after } : {}) });
 }
-export function mutateReaderContent(input: { action: 'create'; kind: ReaderKind; metadata: ReaderMetadata } | { action: 'save' | 'publish' | 'unpublish' | 'removeAsset'; id: string; revision: number; metadata?: ReaderMetadata; slot?: string }) {
+export function mutateReaderContent(input: { action: 'create'; kind: ReaderKind; seriesId?: string; metadata: ReaderMetadata } | { action: 'save' | 'publish' | 'unpublish' | 'removeAsset'; id: string; revision: number; metadata?: ReaderMetadata; slot?: string }) {
   return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
 }
 export function uploadReaderAsset(item: ReaderContent, slot: string, file: File) {
