@@ -124,22 +124,22 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
     </label>
   );
   return <div className="space-y-5">
-    {kind !== 'font' && <div className="flex flex-wrap items-center gap-3">
+    {error && <div role="alert" className="rounded-xl border border-rose-900 bg-rose-950/40 p-4 text-sm text-rose-200">{error}</div>}
+    {notice && <div role="status" className="rounded-xl border border-emerald-900 bg-emerald-950/40 p-4 text-sm text-emerald-200">{notice}</div>}
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)]">
+      <AdminCard className="p-5">
+    {kind !== 'font' && <div className="mb-5 flex flex-wrap items-center gap-2">
       {series ? <><button disabled={busy} className={buttonClass} onClick={() => navigate('series', null, series)}>← 작품 정보</button><h2 className="text-lg font-semibold text-white">{series.title} · 회차 관리</h2></> : <>
         <button disabled={busy} aria-pressed={kind === 'book'} className={`${buttonClass} ${kind === 'book' ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate('book')}>단권 도서</button>
         <button disabled={busy} aria-pressed={kind === 'series'} className={`${buttonClass} ${kind === 'series' ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate('series')}>연재 작품</button>
       </>}
     </div>}
-    {series && <p className="text-sm leading-6 text-slate-400">저자·분류·출처·이용 조건과 대표 표지는 작품에서 이어받습니다. 회차를 공개할 때 작품의 공개된 정보를 사용합니다. 회차 표지는 필요할 때만 추가하세요.</p>}
-    {kind === 'series' && <p className="text-sm leading-6 text-slate-400">작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.</p>}
-    {error && <div role="alert" className="rounded-xl border border-rose-900 bg-rose-950/40 p-4 text-sm text-rose-200">{error}</div>}
-    {notice && <div role="status" className="rounded-xl border border-emerald-900 bg-emerald-950/40 p-4 text-sm text-emerald-200">{notice}</div>}
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)]">
-      <AdminCard className="p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-white">{label} 목록</h2><div className="flex gap-2">
           <button className={buttonClass} disabled={busy || loading} onClick={() => { if (dirty && !window.confirm('저장하지 않은 입력을 닫고 새로고침할까요?')) return; setSelected(null); setForm(newForm()); void load(); }} aria-label="목록 새로고침"><RefreshCw className="h-4 w-4" /></button>
           <button className={buttonClass} disabled={busy || loading} onClick={() => select(null)}><Plus className="h-4 w-4" />추가</button>
         </div></div>
+    {series && <p className="mb-5 text-sm leading-6 text-slate-400">저자·분류·출처·이용 조건과 대표 표지는 작품에서 이어받습니다. 회차를 공개할 때 작품의 공개된 정보를 사용합니다. 회차 표지는 필요할 때만 추가하세요.</p>}
+    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.</p>}
         {loading && <p role="status" className="py-4 text-sm text-slate-400">목록을 불러오는 중…</p>}
         {!loading && items.length === 0 && !error && <p className="py-6 text-sm text-slate-400">등록한 {label}이 없습니다. 오른쪽에서 첫 항목을 추가해 주세요.</p>}
         {series && <label className="mb-4 block text-sm text-slate-300">회차 찾기 · {items.length}개<input className={inputClass} placeholder="번호 또는 제목" value={episodeQuery} onChange={e => setEpisodeQuery(e.target.value)} /></label>}
