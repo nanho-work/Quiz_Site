@@ -13,7 +13,7 @@ import {
   Library,
 } from "lucide-react";
 import { useLanguage } from "../LanguageProvider";
-import { copy, getProducts, readerAppStoreUrl, type Product } from "../../lib/marketing";
+import { copy, getProducts, readerAppStoreUrl, readerGooglePlayUrl, type Product } from "../../lib/marketing";
 
 export function ProductCard({ product }: { product: Product }) {
   const { language } = useLanguage();
@@ -149,7 +149,7 @@ export function HomePage() {
               width={56}
               height={56}
             />
-            <span className="eyebrow">KOOFY READER / {t.upcoming}</span>
+            <span className="eyebrow">KOOFY READER / App Store · Google Play</span>
             <h3>{t.readerTitle}</h3>
             <p>{t.readerBody}</p>
             <span className="text-link">
@@ -267,10 +267,10 @@ export function ReaderPage() {
   const { language } = useLanguage();
   const t = copy[language];
   const guide = {
-    ko: { title: "TXT·EPUB 파일, 이렇게 읽으세요", steps: ["App Store에서 쿠피리더를 설치합니다.", "서재에서 책 가져오기를 눌러 기기에 있는 TXT·EPUB 파일을 선택합니다.", "책을 열고 보기에서 글꼴·크기를 조절하세요. 다음에는 읽던 위치에서 이어 읽을 수 있습니다."], note: "일반 텍스트 중심의 EPUB을 지원합니다. DRM 보호·고정 레이아웃 EPUB은 지원하지 않습니다. 다운로드는 무료이며 광고가 포함됩니다." },
-    en: { title: "How to read your TXT and EPUB files", steps: ["Install Koofy Reader from the App Store.", "Choose Import books in your library and select TXT or EPUB files on your device.", "Open a book and adjust fonts and text size in View. Continue from your saved position next time."], note: "Supports text-based, reflowable EPUB. DRM-protected and fixed-layout EPUB are not supported. Free to download; contains ads." },
-    ja: { title: "TXT・EPUBファイルの読み方", steps: ["App StoreからKoofy Readerをインストールします。", "本棚から本を取り込み、端末のTXT・EPUBファイルを選びます。", "本を開いてフォントや文字サイズを調整します。次回は保存された位置から読めます。"], note: "テキスト中心のリフロー型EPUBに対応。DRM保護・固定レイアウトEPUBは非対応です。無料ダウンロード・広告あり。" },
-    zh: { title: "如何阅读 TXT 和 EPUB 文件", steps: ["从 App Store 安装 Koofy Reader。", "在书架中选择导入书籍，再选择设备上的 TXT 或 EPUB 文件。", "打开书籍，调整字体和字号。下次可从已保存的位置继续阅读。"], note: "支持以文本为主的流式 EPUB，不支持 DRM 保护和固定版式 EPUB。免费下载，包含广告。" },
+    ko: { title: "TXT·EPUB 파일, 이렇게 읽으세요", steps: ["App Store 또는 Google Play에서 쿠피리더를 설치합니다.", "서재에서 책 가져오기를 눌러 기기에 있는 TXT·EPUB 파일을 선택합니다.", "책을 열고 보기에서 글꼴·크기를 조절하세요. 다음에는 읽던 위치에서 이어 읽을 수 있습니다."], note: "일반 텍스트 중심의 EPUB을 지원합니다. DRM 보호·고정 레이아웃 EPUB은 지원하지 않습니다. 다운로드는 무료이며 광고가 포함됩니다." },
+    en: { title: "How to read your TXT and EPUB files", steps: ["Install Koofy Reader from the App Store or Google Play.", "Choose Import books in your library and select TXT or EPUB files on your device.", "Open a book and adjust fonts and text size in View. Continue from your saved position next time."], note: "Supports text-based, reflowable EPUB. DRM-protected and fixed-layout EPUB are not supported. Free to download; contains ads." },
+    ja: { title: "TXT・EPUBファイルの読み方", steps: ["App StoreまたはGoogle PlayからKoofy Readerをインストールします。", "本棚から本を取り込み、端末のTXT・EPUBファイルを選びます。", "本を開いてフォントや文字サイズを調整します。次回は保存された位置から読めます。"], note: "テキスト中心のリフロー型EPUBに対応。DRM保護・固定レイアウトEPUBは非対応です。無料ダウンロード・広告あり。" },
+    zh: { title: "如何阅读 TXT 和 EPUB 文件", steps: ["从 App Store 或 Google Play 安装 Koofy Reader。", "在书架中选择导入书籍，再选择设备上的 TXT 或 EPUB 文件。", "打开书籍，调整字体和字号。下次可从已保存的位置继续阅读。"], note: "支持以文本为主的流式 EPUB，不支持 DRM 保护和固定版式 EPUB。免费下载，包含广告。" },
   }[language];
   const downloadLabel = {
     ko: "App Store에서 다운로드",
@@ -278,6 +278,7 @@ export function ReaderPage() {
     ja: "App Storeからダウンロード",
     zh: "在 App Store 下载",
   }[language];
+  const googlePlayLabel = { ko: "Google Play에서 다운로드", en: "Get it on Google Play", ja: "Google Playからダウンロード", zh: "在 Google Play 下载" }[language];
   const guideLabel = {ko: "화면으로 보는 사용 가이드", en: "Visual user guide (Korean)", ja: "画面で見る使い方（韓国語）", zh: "图解使用指南（韩文）"}[language];
   const features = [
     { image: "/products/reader-library.webp", icon: Library },
@@ -302,6 +303,9 @@ export function ReaderPage() {
           <h1>{t.readerTitle}</h1>
           <p className="hero-description">{t.readerBody}</p>
           <div className="store-links reader-download">
+        <a href={readerGooglePlayUrl} className="brand-button" aria-label={`${t.reader} — ${googlePlayLabel}`}>
+          {googlePlayLabel}<ArrowUpRight size={18} aria-hidden="true" />
+        </a>
             <a href={readerAppStoreUrl} className="brand-button" aria-label={`${t.reader} — ${downloadLabel}`}>
               {downloadLabel}<ArrowUpRight size={18} aria-hidden="true" />
             </a>
@@ -359,6 +363,9 @@ export function ReaderPage() {
         <Link className="reader-guide-link" href="/koofy-reader/guide">{guideLabel}<ArrowRight size={18} aria-hidden="true" /></Link>
       </section>
       <div className="store-links reader-download">
+        <a href={readerGooglePlayUrl} className="brand-button" aria-label={`${t.reader} — ${googlePlayLabel}`}>
+          {googlePlayLabel}<ArrowUpRight size={18} aria-hidden="true" />
+        </a>
         <a href={readerAppStoreUrl} className="brand-button">
           {downloadLabel}<ArrowUpRight size={18} aria-hidden="true" />
         </a>

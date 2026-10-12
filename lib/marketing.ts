@@ -1,5 +1,7 @@
 import type { LanguageCode } from "./i18n";
 
+export const readerGooglePlayUrl = "https://play.google.com/store/apps/details?id=com.koofylab.koofyreader";
+
 export const readerAppStoreUrl = "https://apps.apple.com/app/id6814514729";
 
 export const copy = {
@@ -65,7 +67,7 @@ export const copy = {
       "기기에 제공되는 음성을 선택해 책을 들으세요. 사용 가능한 음성과 품질은 기기에 따라 다릅니다.",
     ],
     releaseNote:
-      "iPhone·iPad용 앱은 App Store에서 다운로드할 수 있습니다. Android는 비공개 테스트 중입니다.",
+      "iPhone·iPad용 앱은 App Store에서 다운로드할 수 있습니다. Android용 앱은 Google Play에서 다운로드할 수 있습니다.",
     screenshots: "앱 화면 · 예시 도서 사용",
     overview: "제품 소개",
     related: "다른 제품 둘러보기",
@@ -132,7 +134,7 @@ export const copy = {
       "Listen with voices available on your device. Voice availability and quality vary by device.",
     ],
     releaseNote:
-      "Download for iPhone and iPad on the App Store. Android is currently in closed testing.",
+      "Download for iPhone and iPad on the App Store. Download for Android on Google Play.",
     screenshots: "App screens · sample books",
     overview: "About this product",
     related: "Explore other products",
@@ -199,7 +201,7 @@ export const copy = {
       "端末に用意された音声で読み上げます。音声の種類と品質は端末によって異なります。",
     ],
     releaseNote:
-      "iPhone・iPad版はApp Storeからダウンロードできます。Android版はクローズドテスト中です。",
+      "iPhone・iPad版はApp Storeからダウンロードできます。Android版はGoogle Playからダウンロードできます。",
     screenshots: "アプリ画面・サンプル書籍",
     overview: "製品について",
     related: "ほかの製品を見る",
@@ -264,7 +266,7 @@ export const copy = {
       "使用设备提供的语音朗读。可用语音与品质因设备而异。",
     ],
     releaseNote:
-      "iPhone 和 iPad 版可在 App Store 下载。Android 版正在封闭测试。",
+      "iPhone 和 iPad 版可在 App Store 下载。Android 版可在 Google Play 下载。",
     screenshots: "应用画面 · 示例书籍",
     overview: "产品介绍",
     related: "探索其他产品",
@@ -334,7 +336,8 @@ export function getProducts(language: LanguageCode): Product[] {
       kind: "app",
       name: t.reader,
       description: t.readerBody,
-      status: "App Store",
+      status: "App Store · Google Play",
+      links: [{ label: "App Store", href: readerAppStoreUrl }, { label: "Google Play", href: readerGooglePlayUrl }],
       image: "/products/reader-library.webp",
       imageAlt: t.readerFeatures[0],
       privacy: "/koofy-reader/privacy",
