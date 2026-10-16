@@ -6,6 +6,8 @@ import {
   outputName,
   restoreSettings,
   MAX_FILE_BYTES,
+  settingsFingerprint,
+  DEFAULT_SETTINGS,
 } from "../lib/image-tools/rules.ts";
 test("accept supported extensions without relying on mobile MIME values", () => {
   for (const name of ["휴가.HEIC", "a.heif", "a.jpeg", "a.png", "a.webp"])
@@ -46,4 +48,29 @@ test("untrusted saved preferences are bounded and allowResize false is retained"
   assert.equal(result.quality, 0.85);
   assert.equal(result.background, "#ffffff");
   assert.equal(result.allowResize, false);
+});
+
+test("result settings detect meaningful edits and ignore inactive controls", () => {
+  const base = { ...DEFAULT_SETTINGS };
+  const key = settingsFingerprint(base);
+  assert.notEqual(settingsFingerprint({ ...base, format: "png" }), key);
+  assert.notEqual(settingsFingerprint({ ...base, maxWidth: 1200 }), key);
+  assert.notEqual(settingsFingerprint({ ...base, quality: 0.5 }), key);
+  assert.equal(
+    settingsFingerprint({ ...base, targetKB: 500, allowResize: false }),
+    key,
+  );
+  const png = { ...base, format: "png", mode: "compress" };
+  assert.equal(
+    settingsFingerprint({ ...png, quality: 0.2, background: "#000000" }),
+    settingsFingerprint(png),
+  );
+  assert.notEqual(
+    settingsFingerprint({ ...png, targetKB: 500 }),
+    settingsFingerprint(png),
+  );
+  assert.notEqual(
+    settingsFingerprint({ ...png, allowResize: false }),
+    settingsFingerprint(png),
+  );
 });

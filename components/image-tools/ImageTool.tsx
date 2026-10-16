@@ -23,9 +23,14 @@ import {
   MAX_FILES,
   outputName,
   restoreSettings,
+  settingsFingerprint,
   type Settings,
 } from "../../lib/image-tools/rules";
-import { convertImage, makePreview, type Converted } from "../../lib/image-tools/convert";
+import {
+  convertImage,
+  makePreview,
+  type Converted,
+} from "../../lib/image-tools/convert";
 import styles from "./ImageTool.module.css";
 type Item = {
   id: string;
@@ -40,7 +45,16 @@ type Item = {
   progress: number;
   error?: string;
   downloaded?: boolean;
+  appliedSettings?: Settings;
+  hasTransparency?: boolean;
 };
+type Completion = {
+  id: number;
+  done: number;
+  failed: number;
+  cancelled: number;
+};
+const TARGET_PRESETS = [200, 500, 1024, 2048];
 const STORAGE = "koofy-image-settings-v1";
 export default function ImageTool() {
   const { language } = useLanguage();
@@ -55,6 +69,17 @@ export default function ImageTool() {
     [comparing, setComparing] = useState<string | null>(null),
     [customTarget, setCustomTarget] = useState("1024"),
     [customWidth, setCustomWidth] = useState("");
+  const [dockVisible, setDockVisible] = useState(true);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLElement>(null);
+  const [expandedFiles, setExpandedFiles] = useState(false);
+  const [customTargetOpen, setCustomTargetOpen] = useState(false);
+  const [customWidthOpen, setCustomWidthOpen] = useState(false);
+  const [completion, setCompletion] = useState<Completion | null>(null);
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const backgroundRef = useRef<HTMLInputElement>(null);
   const thumbQueue = useRef<Promise<void>>(Promise.resolve());
   const input = useRef<HTMLInputElement>(null),
     controller = useRef<AbortController | null>(null),
@@ -74,6 +99,8 @@ export default function ImageTool() {
       );
       setSettings(saved);
       setCustomTarget(String(saved.targetKB));
+      setCustomTargetOpen(!TARGET_PRESETS.includes(saved.targetKB));
+      setCustomWidthOpen(![0, 1200, 1920, 2560].includes(saved.maxWidth));
       setCustomWidth(saved.maxWidth ? String(saved.maxWidth) : "");
     } catch {}
     setReady(true);
@@ -122,6 +149,36 @@ export default function ImageTool() {
       compareTrigger.current?.focus();
     };
   }, [comparing]);
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+    const visible = new Map<Element, boolean>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) =>
+          visible.set(entry.target, entry.isIntersecting),
+        );
+        setDockVisible([...visible.values()].some(Boolean));
+      },
+      { rootMargin: "-100px 0px 0px 0px" },
+    );
+    if (workspaceRef.current) observer.observe(workspaceRef.current);
+    if (resultsRef.current) observer.observe(resultsRef.current);
+    return () => observer.disconnect();
+  }, []);
+  function showResults() {
+    const heading = resultHeading.current;
+    if (!heading) return;
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+  }
+  useEffect(() => {
+    if (completion) showResults();
+  }, [completion]);
   function objectURL(blob: Blob) {
     const url = URL.createObjectURL(blob);
     urls.current.add(url);
@@ -176,7 +233,9 @@ export default function ImageTool() {
           .then(async () => {
             if (!mounted.current || !current.current.some((i) => i.id === id))
               return;
-            const blob = await makePreview(file);
+            const blob = await makePreview(file, (hasTransparency) =>
+              patch(id, { hasTransparency }),
+            );
             if (mounted.current && current.current.some((i) => i.id === id))
               patch(id, { preview: objectURL(blob) });
           })
@@ -234,6 +293,9 @@ export default function ImageTool() {
             .flatMap((i) => (i.name ? [i.name.toLowerCase()] : []))
         : [],
     );
+    const finished = { done: 0, failed: 0, cancelled: 0 };
+    setCompletion(null);
+    setBatchProgress({ current: 0, total: selected.length });
     selected.forEach((item) => {
       if (item.resultURL) {
         URL.revokeObjectURL(item.resultURL);
@@ -266,7 +328,8 @@ export default function ImageTool() {
       ),
     );
     try {
-      for (const item of selected) {
+      for (const [index, item] of selected.entries()) {
+        setBatchProgress({ current: index + 1, total: selected.length });
         if (abort.signal.aborted) break;
         patch(item.id, { status: "processing", progress: 1 });
         try {
@@ -281,6 +344,7 @@ export default function ImageTool() {
           if (abort.signal.aborted || !mounted.current) break;
           patch(item.id, {
             result,
+            appliedSettings: snapshot,
             resultURL: objectURL(result.blob),
             resultThumbURL: objectURL(thumbnail),
             preview: item.preview || objectURL(thumbnail),
@@ -288,6 +352,7 @@ export default function ImageTool() {
             status: "done",
             progress: 100,
           });
+          finished.done++;
         } catch (error) {
           if (abort.signal.aborted) break;
           const code =
@@ -295,6 +360,7 @@ export default function ImageTool() {
               ? String(error.code)
               : "decode";
           patch(item.id, { status: "failed", error: code });
+          finished.failed++;
         }
       }
     } catch {
@@ -309,6 +375,8 @@ export default function ImageTool() {
           ),
         );
         setBusy(false);
+        finished.cancelled = selected.length - finished.done - finished.failed;
+        setCompletion({ ...finished, id: Date.now() });
       }
       lock.current = false;
       controller.current = null;
@@ -362,6 +430,43 @@ export default function ImageTool() {
       }),
       { before: 0, after: 0 },
     );
+  const requestedSettings = {
+    ...settings,
+    targetKB: Number(customTarget),
+    maxWidth: customWidth === "" ? 0 : Number(customWidth),
+  };
+  const fingerprint = settingsFingerprint(requestedSettings);
+  const isStale = (item: Item) =>
+    !!item.result &&
+    !!item.appliedSettings &&
+    settingsFingerprint(item.appliedSettings) !== fingerprint;
+  const dirty = items.some(isStale);
+  const pending = items.some((item) => !item.result);
+  const needsConversion = dirty || pending || !done.length;
+  const completionText = completion
+    ? [
+        `${completion.done}${language === "ko" ? "" : " "}${t.completedPhotos}`,
+        completion.failed
+          ? `${completion.failed}${language === "ko" ? "" : " "}${t.failedPhotos}`
+          : "",
+        completion.cancelled
+          ? `${completion.cancelled}${language === "ko" ? "" : " "}${t.cancelledPhotos}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : "";
+  const alphaFiles =
+    settings.format === "jpeg" && items.some((item) => item.hasTransparency);
+  const uncheckedAlpha =
+    settings.format === "jpeg" &&
+    items.some(
+      (item) =>
+        item.hasTransparency === undefined &&
+        /\.(png|webp)$/i.test(item.file.name),
+    );
+  const runLabel = dirty ? t.rerun : t.run;
+  const processingLabel = `${t.processing} ${batchProgress.current}/${batchProgress.total}`;
   const comparison = items.find((i) => i.id === comparing),
     working = items.find((i) => i.status === "processing");
   return (
@@ -378,16 +483,6 @@ export default function ImageTool() {
           <p>{t.intro}</p>
           <span className={styles.free}>{t.free}</span>
         </div>
-        <div className={styles.heroArt} aria-hidden="true">
-          <div>
-            HEIC<span>8.4 MB</span>
-          </div>
-          <ArrowRight size={27} />
-          <div>
-            JPG<span>482 KB</span>
-          </div>
-          <small>CONVERT · COMPRESS</small>
-        </div>
       </header>
       <div className={styles.privacy}>
         <ShieldCheck size={22} />
@@ -396,7 +491,7 @@ export default function ImageTool() {
           <p>{t.localBody}</p>
         </div>
       </div>
-      <div className={styles.workspace}>
+      <div ref={workspaceRef} className={styles.workspace}>
         <section className={styles.files}>
           <div className={styles.sectionTitle}>
             <h2>
@@ -413,6 +508,8 @@ export default function ImageTool() {
                   current.current = [];
                   setItems([]);
                   setNotice("");
+                  setCompletion(null);
+                  setExpandedFiles(false);
                 }}
               >
                 {t.clear}
@@ -454,8 +551,36 @@ export default function ImageTool() {
               </>
             )}
           </button>
-          <ul className={styles.fileList}>
-            {items.map((item) => (
+          {items.length > 0 && (
+            <div className={styles.selectionSummary}>
+              <span>
+                {items.length}
+                {language === "ko" ? "" : " "}
+                {t.selectedPhotos} ·{" "}
+                {bytesLabel(
+                  items.reduce((sum, item) => sum + item.file.size, 0),
+                )}
+              </span>
+              {items.length > 3 && (
+                <button
+                  aria-expanded={expandedFiles}
+                  aria-controls="image-file-list"
+                  onClick={() => setExpandedFiles((value) => !value)}
+                >
+                  {expandedFiles
+                    ? t.hideFiles
+                    : `${t.showFiles} (${items.length})`}
+                </button>
+              )}
+            </div>
+          )}
+          <ul
+            id="image-file-list"
+            className={styles.fileList}
+            tabIndex={expandedFiles ? 0 : undefined}
+            aria-label={t.step1}
+          >
+            {(expandedFiles ? items : items.slice(0, 3)).map((item) => (
               <li key={item.id}>
                 <div className={styles.thumb}>
                   {item.preview ? (
@@ -536,16 +661,45 @@ export default function ImageTool() {
                 <option value="webp">WebP</option>
               </select>
             </label>
+            <p className={styles.formatHint}>{t.formatHint[settings.format]}</p>
+            {(alphaFiles || uncheckedAlpha) && (
+              <div className={styles.alphaNotice} role="status">
+                <span
+                  className={styles.colorSwatch}
+                  style={{ background: settings.background }}
+                  aria-hidden="true"
+                />
+                <p>{alphaFiles ? t.alphaNotice : t.alphaPossible}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (detailsRef.current) detailsRef.current.open = true;
+                    backgroundRef.current?.focus();
+                  }}
+                >
+                  {t.changeBackground}
+                </button>
+              </div>
+            )}
             {settings.mode === "compress" && (
-              <label>
-                {t.target}
+              <div
+                className={styles.targetGroup}
+                role="group"
+                aria-labelledby="target-size-label"
+              >
+                <span id="target-size-label" className={styles.fieldTitle}>
+                  {t.target}
+                </span>
                 <div className={styles.presets}>
-                  {[200, 500, 1024, 2048].map((kb) => (
+                  {TARGET_PRESETS.map((kb) => (
                     <button
                       key={kb}
                       type="button"
-                      aria-pressed={customTarget === String(kb)}
+                      aria-pressed={
+                        !customTargetOpen && customTarget === String(kb)
+                      }
                       onClick={() => {
+                        setCustomTargetOpen(false);
                         setCustomTarget(String(kb));
                         update({ targetKB: kb });
                       }}
@@ -553,34 +707,45 @@ export default function ImageTool() {
                       {kb >= 1024 ? `${kb / 1024} MB` : `${kb} KB`}
                     </button>
                   ))}
+                  <button
+                    type="button"
+                    aria-pressed={customTargetOpen}
+                    onClick={() => setCustomTargetOpen(true)}
+                  >
+                    {t.customOption}
+                  </button>
                 </div>
-                <input
-                  aria-label={t.custom}
-                  type="number"
-                  min="10"
-                  max="25600"
-                  value={customTarget}
-                  onChange={(e) => setCustomTarget(e.target.value)}
-                />
-                <small>{t.custom}</small>
-              </label>
+                {customTargetOpen && (
+                  <label className={styles.customInput}>
+                    {t.custom}
+                    <input
+                      aria-label={t.custom}
+                      type="number"
+                      min="10"
+                      max="25600"
+                      value={customTarget}
+                      onChange={(e) => setCustomTarget(e.target.value)}
+                    />
+                  </label>
+                )}
+              </div>
             )}
-            <details className={styles.details}>
+            <details ref={detailsRef} className={styles.details}>
               <summary>{t.advanced}</summary>
               <label>
                 {t.width}
                 <select
                   aria-label={t.width}
-                  value={
-                    ["", "1200", "1920", "2560"].includes(customWidth)
-                      ? customWidth
-                      : "custom"
-                  }
+                  value={customWidthOpen ? "custom" : customWidth}
                   onChange={(e) => {
                     if (e.target.value !== "custom") {
+                      setCustomWidthOpen(false);
                       setCustomWidth(e.target.value);
                       update({ maxWidth: Number(e.target.value) });
-                    } else setCustomWidth("1600");
+                    } else {
+                      setCustomWidthOpen(true);
+                      if (!customWidth) setCustomWidth("1600");
+                    }
                   }}
                 >
                   <option value="">{t.original}</option>
@@ -589,15 +754,17 @@ export default function ImageTool() {
                   <option value="2560">2560 px</option>
                   <option value="custom">{t.custom.replace("KB", "px")}</option>
                 </select>
-                <input
-                  aria-label={`${t.width} (px)`}
-                  type="number"
-                  min="1"
-                  max="8192"
-                  placeholder={t.original}
-                  value={customWidth}
-                  onChange={(e) => setCustomWidth(e.target.value)}
-                />
+                {customWidthOpen && (
+                  <input
+                    aria-label={`${t.width} (px)`}
+                    type="number"
+                    min="1"
+                    max="8192"
+                    placeholder={t.original}
+                    value={customWidth}
+                    onChange={(e) => setCustomWidth(e.target.value)}
+                  />
+                )}
               </label>
               {settings.format !== "png" && (
                 <label>
@@ -632,6 +799,7 @@ export default function ImageTool() {
                 <label>
                   {t.background}
                   <input
+                    ref={backgroundRef}
                     aria-label={t.background}
                     type="color"
                     value={settings.background}
@@ -642,7 +810,12 @@ export default function ImageTool() {
               )}
             </details>
           </fieldset>
-          <p className={styles.hint}>{t.editNotice}</p>
+          {dirty && (
+            <div className={styles.dirtyNotice} role="status">
+              <strong>{t.dirtyTitle}</strong>
+              <span>{t.dirtyBody}</span>
+            </div>
+          )}
           <button
             className={styles.primary}
             disabled={!ready || !items.length || busy || zipBusy}
@@ -653,9 +826,7 @@ export default function ImageTool() {
             ) : (
               <ArrowRight size={19} />
             )}{" "}
-            {busy
-              ? `${t.processing} ${items.filter((i) => i.status === "done" || i.status === "failed").length + 1}/${items.length}`
-              : t.run}
+            {busy ? processingLabel : runLabel}
           </button>
           {busy && (
             <>
@@ -691,9 +862,9 @@ export default function ImageTool() {
           {notice}
         </p>
       )}
-      <section className={styles.results}>
+      <section ref={resultsRef} className={styles.results}>
         <div className={styles.sectionTitle}>
-          <h2>
+          <h2 ref={resultHeading} tabIndex={-1}>
             <b>03</b>
             {t.step3}
             {done.length > 0 && <small>{done.length}</small>}
@@ -705,10 +876,21 @@ export default function ImageTool() {
               onClick={() => void downloadZIP()}
             >
               <ArrowDownToLine size={18} />
-              {zipBusy ? t.zipping : t.zip}
+              {zipBusy ? t.zipping : dirty ? t.savePrevious : t.zip}
             </button>
           )}
         </div>
+        {completion && (
+          <p className={styles.completion} role="status">
+            {completionText}
+          </p>
+        )}
+        {dirty && (
+          <p className={styles.dirtyNotice}>
+            <strong>{t.oldResult}</strong>
+            <span>{t.dirtyBody}</span>
+          </p>
+        )}
         {!done.length && !items.some((i) => i.status === "failed") ? (
           <div className={styles.empty}>
             <Images size={28} />
@@ -762,10 +944,41 @@ export default function ImageTool() {
                         </button>
                         <div className={styles.resultBody}>
                           <h3 title={item.name}>{item.name}</h3>
+                          <div className={styles.badges}>
+                            <span
+                              className={
+                                !item.result.targetMet
+                                  ? styles.warnBadge
+                                  : styles.okBadge
+                              }
+                            >
+                              {!item.result.targetMet
+                                ? t.overTarget
+                                : item.appliedSettings?.mode === "compress"
+                                  ? t.targetAchieved
+                                  : t.converted}
+                            </span>
+                            {item.result.blob.size > item.file.size && (
+                              <span className={styles.warnBadge}>{t.grew}</span>
+                            )}
+                            {isStale(item) && (
+                              <span className={styles.staleBadge}>
+                                {t.oldResult}
+                              </span>
+                            )}
+                          </div>
                           <p>
                             {bytesLabel(item.file.size)}{" "}
                             <ArrowRight size={13} />{" "}
-                            <strong>{bytesLabel(item.result.blob.size)}</strong>
+                            <strong
+                              className={
+                                item.result.blob.size > item.file.size
+                                  ? styles.growth
+                                  : undefined
+                              }
+                            >
+                              {bytesLabel(item.result.blob.size)}
+                            </strong>
                           </p>
                           <small>
                             {item.result.width} × {item.result.height} px
@@ -817,6 +1030,52 @@ export default function ImageTool() {
         ))}
         <a href="/koofy-image/licenses">{t.licenses} ↗</a>
       </section>
+      {items.length > 0 && !comparing && dockVisible && (
+        <div
+          className={styles.mobileDock}
+          aria-label={language === "ko" ? "사진 작업" : "Photo actions"}
+        >
+          <div>
+            <strong>
+              {busy
+                ? processingLabel
+                : dirty
+                  ? t.dirtyTitle
+                  : `${items.length}${language === "ko" ? "" : " "}${t.selectedPhotos}`}
+            </strong>
+            {done.length > 0 && !busy && (
+              <button type="button" onClick={showResults}>
+                {t.viewResults}
+              </button>
+            )}
+          </div>
+          {busy ? (
+            <button
+              className={styles.secondary}
+              onClick={() => controller.current?.abort()}
+            >
+              {t.cancel}
+            </button>
+          ) : (
+            <button
+              className={styles.primary}
+              disabled={zipBusy || !ready}
+              onClick={() =>
+                needsConversion ? void run() : void downloadZIP()
+              }
+            >
+              {zipBusy ? (
+                <LoaderCircle size={17} className={styles.spin} />
+              ) : needsConversion ? (
+                <ArrowRight size={17} />
+              ) : (
+                <ArrowDownToLine size={17} />
+              )}{" "}
+              {zipBusy ? t.zipping : needsConversion ? runLabel : t.zip}
+            </button>
+          )}
+        </div>
+      )}
       {comparison?.result && (
         <div className={styles.modalOverlay} onClick={() => setComparing(null)}>
           <div

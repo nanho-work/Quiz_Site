@@ -15,6 +15,15 @@ Owner decision (2026-10-16): free utility to increase repeat visits to the Koofy
 - Save preferences locally only; never save filenames/photos/results in localStorage. Clear photos on reload. Warn before unload for active jobs or undownloaded results. Cancellation may finish current native/HEIC codec work but discards that result and stops the queue.
 - File extension validates basic eligibility; content decode still determines support. Corrupted files fail independently. Animated WebP/APNG rejected rather than silently flattened.
 
+## UX behavior (2026-10-16 patch)
+
+- Compact introduction, selected count and total input size. Show the first 3 filenames by default; allow expanding all 10 in a bounded, keyboard-scrollable list.
+- Explain JPG/PNG/WebP use beside the output selector. For JPEG, warn about transparent pixels and link directly to the alpha background control. Detection uses the preview; this is a convenience hint, not a full-resolution alpha guarantee.
+- Compression presets: 200/500/1024/2048 KiB, plus a custom input shown only when selected. Custom width likewise appears only when chosen.
+- Keep the settings snapshot for each result. Meaningful changes mark old outputs and offer reconversion; switching back clears the marker. Ignore inactive target/resize options in format-only mode and inactive quality/background controls for PNG. Never silently re-encode an existing result.
+- On completion, announce completed/failed/cancelled counts and move focus/scroll to results, respecting reduced motion. Per-file badges distinguish target met, over target, and larger output.
+- Mobile has a bottom action bar during the work/results area: convert, cancel while processing, or ZIP save after completion. Changed settings or pending photos restore the convert action. Hide it for comparison and after the work/results area is out of view.
+
 ## Architecture / sources of truth
 
 - `lib/image-tools/rules.ts`: limits, settings validation, naming, dimensions (portable to mobile).

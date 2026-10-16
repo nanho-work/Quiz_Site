@@ -85,3 +85,16 @@ export function bytesLabel(bytes: number) {
     ? `${Math.max(0.1, bytes / 1024).toFixed(1)} KB`
     : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
+
+// Compare only settings that affect the encoded result. UI-only choices do not stale it.
+export function settingsFingerprint(s: Settings): string {
+  return JSON.stringify([
+    s.mode,
+    s.format,
+    s.maxWidth,
+    s.format === "png" ? null : s.quality,
+    s.format === "jpeg" ? s.background.toLowerCase() : null,
+    s.mode === "compress" ? s.targetKB : null,
+    s.mode === "compress" ? s.allowResize : null,
+  ]);
+}

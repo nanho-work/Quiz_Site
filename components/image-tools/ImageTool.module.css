@@ -752,3 +752,244 @@
     animation: none;
   }
 }
+
+/* Compact work surface and explicit result state. */
+.hero {
+  padding: 8px 0 18px;
+  gap: 16px;
+}
+.eyebrow {
+  margin-bottom: 8px;
+  font-size: 10px;
+}
+.hero h1 {
+  font-size: 13px;
+}
+.hero h1 span {
+  font-size: clamp(25px, 3vw, 33px);
+  margin-top: 5px;
+  letter-spacing: -1px;
+}
+.hero p:not(.eyebrow) {
+  margin: 9px 0;
+  max-width: 720px;
+  font-size: 13px;
+}
+.privacy {
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+.privacy p {
+  margin-top: 2px;
+}
+.fileList {
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.selectionSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+  font-size: 11px;
+  color: #60796a;
+}
+.selectionSummary button {
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 34px;
+}
+.formatHint {
+  margin: 7px 0 0;
+  color: #6d8073;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.targetGroup {
+  margin-top: 18px;
+}
+.fieldTitle {
+  font-size: 12px;
+  font-weight: 650;
+}
+.presets {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.presets button {
+  min-height: 40px;
+}
+.customInput {
+  margin-top: 10px !important;
+}
+.alphaNotice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  margin-top: 12px;
+  border: 1px solid #ecdcc0;
+  border-radius: 8px;
+  background: #fff9ed;
+}
+.alphaNotice p {
+  flex: 1;
+  min-width: 150px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #805b25;
+}
+.alphaNotice button {
+  font-size: 11px;
+  color: #775021;
+  text-decoration: underline;
+  min-height: 32px;
+}
+.colorSwatch {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #cfc8b8;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.dirtyNotice {
+  background: #fff8e9;
+  color: #805c22;
+  border: 1px solid #edddb9;
+  border-radius: 9px;
+  padding: 12px;
+  margin: 15px 0;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.dirtyNotice strong,
+.dirtyNotice span {
+  display: block;
+}
+.completion {
+  color: #28634e;
+  background: #edf4ee;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin: 0 0 15px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.results h2 {
+  scroll-margin-top: 100px;
+}
+.results h2:focus {
+  outline: none;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.badges span {
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-weight: 650;
+}
+.okBadge {
+  color: #28634e;
+  background: #edf5ee;
+}
+.warnBadge {
+  color: #855b20;
+  background: #fff2d8;
+}
+.staleBadge {
+  color: #687580;
+  background: #edf0f3;
+}
+.resultBody strong.growth {
+  color: #976523;
+}
+.mobileDock {
+  display: none;
+}
+@media (max-width: 760px) {
+  .hero {
+    padding: 2px 0 15px;
+  }
+  .hero h1 span {
+    font-size: 26px;
+  }
+  .hero p:not(.eyebrow) {
+    font-size: 12px;
+    margin: 7px 0;
+  }
+  .privacy {
+    padding: 10px 12px;
+  }
+  .fileList {
+    max-height: 205px;
+  }
+  .fileList li {
+    padding: 10px 0;
+  }
+  .thumb {
+    width: 42px;
+    height: 44px;
+  }
+  .drop {
+    min-height: 160px;
+    gap: 10px;
+  }
+  .drop.compact {
+    min-height: 60px;
+  }
+  .mobileDock {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    padding: 11px max(16px, env(safe-area-inset-right))
+      calc(11px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+    background: #fffffff5;
+    border-top: 1px solid #d9e4db;
+    box-shadow: 0 -4px 18px #183c320b;
+  }
+  .mobileDock > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .mobileDock strong {
+    display: block;
+    font-size: 11px;
+    color: #466451;
+    line-height: 1.5;
+  }
+  .mobileDock > div button {
+    display: block;
+    font-size: 11px;
+    color: #4a7058;
+    text-decoration: underline;
+    margin-top: 3px;
+    min-height: 24px;
+  }
+  .mobileDock > .primary {
+    padding: 10px 13px;
+    font-size: 12px;
+    min-height: 44px;
+    max-width: 65%;
+  }
+  .mobileDock > .secondary {
+    min-height: 44px;
+  }
+}

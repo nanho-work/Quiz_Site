@@ -233,18 +233,42 @@ export async function convertImage(
 }
 
 // Decode thumbnails one at a time; CSS sizing alone would keep ten full images decoded.
-export async function makePreview(blob: Blob): Promise<Blob> {
+export async function makePreview(
+  blob: Blob,
+  inspectAlpha?: (transparent: boolean) => void,
+): Promise<Blob> {
   const img = await readImage(blob);
   const canvas = document.createElement("canvas");
   try {
-    if (img.naturalWidth * img.naturalHeight > MAX_PIXELS || Math.max(img.naturalWidth, img.naturalHeight) > MAX_EDGE) throw new ImageToolError("pixels");
+    if (
+      img.naturalWidth * img.naturalHeight > MAX_PIXELS ||
+      Math.max(img.naturalWidth, img.naturalHeight) > MAX_EDGE
+    )
+      throw new ImageToolError("pixels");
     const ratio = Math.min(
       1,
       320 / Math.max(img.naturalWidth, img.naturalHeight),
     );
     canvas.width = Math.max(1, Math.round(img.naturalWidth * ratio));
     canvas.height = Math.max(1, Math.round(img.naturalHeight * ratio));
-    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const context = canvas.getContext("2d")!;
+    context.drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (inspectAlpha) {
+      const pixels = context.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      ).data;
+      let transparent = false;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] < 255) {
+          transparent = true;
+          break;
+        }
+      }
+      inspectAlpha(transparent);
+    }
     return await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(
         (b) => (b ? resolve(b) : reject(new ImageToolError("decode"))),
