@@ -117,6 +117,9 @@ export default function Header() {
                 </div>
               )}
             </div>
+            <Link href="/koofy-image" onClick={close} aria-current={pathname === "/koofy-image" ? "page" : undefined}>
+              {language === "ko" ? "이미지 도구" : language === "ja" ? "画像ツール" : language === "zh" ? "图片工具" : "Image tools"}
+            </Link>
             <Link
               href="/about"
               onClick={close}

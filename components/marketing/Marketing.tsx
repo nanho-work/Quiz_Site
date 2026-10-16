@@ -56,6 +56,18 @@ export function ProductCard({ product }: { product: Product }) {
     </Link>
   );
 }
+
+export function ImageToolBand() {
+  const { language } = useLanguage();
+  const words = {
+    ko: ['쿠피 이미지', '사진 형식과 용량, 가볍게 바꾸세요.', 'HEIC · JPG · PNG · WebP / 무료 · 최대 10장', '이미지 도구 열기'],
+    en: ['Koofy Image', 'Make photos ready to share.', 'HEIC · JPG · PNG · WebP / Free · Up to 10 photos', 'Open image tools'],
+    ja: ['Koofy Image', '写真の形式と容量を、手軽に。', 'HEIC · JPG · PNG · WebP / 無料 · 最大10枚 / 韓国語・英語', '画像ツールを開く'],
+    zh: ['Koofy Image', '轻松转换图片格式、压缩体积。', 'HEIC · JPG · PNG · WebP / 免费 · 最多10张 / 韩语、英语', '打开图片工具'],
+  }[language];
+  return <Link href="/koofy-image" className="image-tool-band"><div><p className="eyebrow">FREE WEB TOOL / {words[0]}</p><h2>{words[1]}</h2><p>{words[2]}</p></div><span>{words[3]} <ArrowUpRight size={20}/></span></Link>;
+}
+
 export function ContactBand() {
   const { language } = useLanguage();
   const t = copy[language];
@@ -175,6 +187,7 @@ export function HomePage() {
             ))}
         </div>
       </section>
+      <ImageToolBand />
       <section className="brand-values marketing-section">
         <div>
           <p className="eyebrow">THE KOOFY WAY</p>
@@ -221,6 +234,7 @@ export function ProductsPage() {
           <ArrowRight size={16} />
         </a>
       </nav>
+      <ImageToolBand />
       <section id="apps" className="marketing-section">
         <h2>{t.apps}</h2>
         <div className="product-grid">

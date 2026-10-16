@@ -58,7 +58,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // Match the reader landing page's Korean search metadata in the server HTML.
   // Existing language preferences still apply after hydration.
   const [language, setLanguageState] = useState<LanguageCode>(
-    pathname === "/koofy-reader" ? "ko" : defaultLanguage
+    pathname === "/koofy-reader" || pathname.startsWith("/koofy-image") ? "ko" : defaultLanguage
   );
 
   useEffect(() => {

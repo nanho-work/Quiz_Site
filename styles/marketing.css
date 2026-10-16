@@ -1101,3 +1101,8 @@
 
 /* Reader feature instructions beside the existing product images. */
 .reader-guide-link{display:inline-flex;align-items:center;gap:10px;margin:18px 0;padding:13px 18px;border:1px solid #a9bbaa;border-radius:10px;background:#edf2e9;color:#294e38;font-weight:650;font-size:14px;line-height:1.5}.reader-guide-link:hover{background:#dfe9da}.reader-guide-link:focus-visible{outline:3px solid #c77c39;outline-offset:4px}
+
+.image-tool-band { display:flex; align-items:center; justify-content:space-between; gap:24px; border:1px solid #d6e4d9; border-radius:20px; background:#eef4eb; padding:32px; margin:32px 0; color:#214e3a; }
+.image-tool-band h2 { font-size:clamp(21px,2.7vw,29px); font-weight:750; letter-spacing:-.7px; margin:9px 0; }
+.image-tool-band p:not(.eyebrow) { font-size:12px; color:#6e8575; }.image-tool-band>span { display:flex; align-items:center; gap:9px; font-size:13px; font-weight:650; white-space:nowrap; }
+@media(max-width:700px) { .image-tool-band { padding:24px; align-items:flex-start; flex-direction:column; } }
