@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Koofy Image — photo and conversion arrow</title>
+  <rect id="background" x="0" y="0" width="1024" height="1024" fill="#FAFCFF"/>
+  <rect id="back-card" x="284" y="204" width="536" height="512" rx="88" fill="#CDEBFA"/>
+  <rect id="photo-frame" x="204" y="276" width="544" height="512" rx="80" fill="#FFFFFF" stroke="#6BAAC9" stroke-width="20"/>
+  <circle id="sun" cx="608" cy="416" r="40" fill="#A9D9EF"/>
+  <polygon id="mountains" points="248,660 370,492 464,594 536,522 704,688 248,688" fill="#A9D9EF"/>
+  <circle id="arrow-disc" cx="708" cy="724" r="112" fill="#EAF5FD"/>
+  <polyline id="arrow" points="642,724 778,724 738,684 778,724 738,764" fill="none" stroke="#4D8CA8" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

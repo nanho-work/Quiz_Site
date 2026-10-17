@@ -9,7 +9,8 @@ type PrivacyPolicyKey =
   | "bus-pop"
   | "honeybee"
   | "slime-strike-force"
-  | "koofy-reader";
+  | "koofy-reader"
+  | "koofy-image";
 
 const copy = {
   ko: {
@@ -20,6 +21,7 @@ const copy = {
     honeybee: ["허니비(Honeybee)", "모바일 머지 게임"],
     slimeStrikeForce: ["슬라임특공대", "모바일 디펜스 게임"],
     koofyReader: ["쿠피리더", "TXT·EPUB 독서 앱"],
+    koofyImage: ["쿠피 이미지", "사진 형식 변환·용량 줄이기"],
   },
   en: {
     title: "Privacy policies by service",
@@ -29,6 +31,7 @@ const copy = {
     honeybee: ["Honeybee", "Mobile merge game"],
     slimeStrikeForce: ["Slime Strike Force", "Mobile defense game"],
     koofyReader: ["Koofy Reader", "TXT & EPUB reader"],
+    koofyImage: ["Koofy Image", "Photo conversion and compression"],
   },
   ja: {
     title: "サービス別プライバシーポリシー",
@@ -38,6 +41,7 @@ const copy = {
     honeybee: ["Honeybee", "モバイルマージゲーム"],
     slimeStrikeForce: ["スライム特攻隊", "モバイル防衛ゲーム"],
     koofyReader: ["Koofy Reader", "TXT・EPUBリーダー"],
+    koofyImage: ["Koofy Image", "画像形式の変換・圧縮"],
   },
   zh: {
     title: "各服务隐私政策",
@@ -47,6 +51,7 @@ const copy = {
     honeybee: ["Honeybee", "移动合并游戏"],
     slimeStrikeForce: ["史莱姆特攻队", "手机塔防游戏"],
     koofyReader: ["Koofy Reader", "TXT·EPUB阅读器"],
+    koofyImage: ["Koofy Image", "图片格式转换与压缩"],
   },
 } as const;
 
@@ -83,6 +88,7 @@ export default function PrivacyPolicyNav({
       description: labels.slimeStrikeForce[1],
     },
     { key: "koofy-reader" as const, href: "/koofy-reader/privacy", label: labels.koofyReader[0], description: labels.koofyReader[1] },
+    { key: "koofy-image" as const, href: "/koofy-image/privacy", label: labels.koofyImage[0], description: labels.koofyImage[1] },
   ];
 
   return (

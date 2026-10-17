@@ -1,0 +1,540 @@
+{
+  "copy": {
+    "ko": {
+      "name": "쿠피 이미지",
+      "title": [
+        "사진은 가볍게.",
+        "원본은 그대로."
+      ],
+      "sub": "사진 형식 변환 · 용량 줄이기",
+      "foot": "JPG · PNG · WebP  /  한 번에 최대 10장",
+      "privacy": "개인정보처리방침",
+      "support": "고객지원",
+      "app": "앱 소개",
+      "cta": "웹에서 먼저 사용하기",
+      "desc": "사진을 기기 안에서 변환하고, 필요한 결과만 저장하세요.",
+      "features": [
+        "HEIC 사진을 JPG로",
+        "필요한 크기와 용량으로",
+        "한 장씩 또는 함께 저장"
+      ],
+      "details": [
+        "사진 형식을 JPG·PNG·WebP로 바꿀 수 있어요.",
+        "목표 용량과 최대 너비를 설정하고 결과를 확인하세요.",
+        "최대 10장을 처리하고 저장 성공 표시를 확인하세요."
+      ],
+      "draft": "출시 준비 중 · 스토어 링크는 공개 후 제공",
+      "lang": "언어",
+      "preview": "게시 전 검토본: 시행일과 메일 서비스 관련 고지 확인이 필요합니다.",
+      "screenNote": "Android 앱 실제 화면 · 예시 이미지의 변환 결과이며 사진마다 결과는 다릅니다."
+    },
+    "en": {
+      "name": "Koofy Image",
+      "title": [
+        "Lighter photos.",
+        "Originals stay safe."
+      ],
+      "sub": "Convert formats. Reduce file size.",
+      "foot": "JPG · PNG · WebP  /  Up to 10 photos",
+      "privacy": "Privacy policy",
+      "support": "Support",
+      "app": "About the app",
+      "cta": "Try the web tool",
+      "desc": "Convert photos on your device. Save only what you need.",
+      "features": [
+        "HEIC to JPG",
+        "Choose size and quality",
+        "Save one or save together"
+      ],
+      "details": [
+        "Convert photos to JPG, PNG or WebP.",
+        "Set a target size and maximum width, then check the result.",
+        "Process up to 10 photos and see which ones were saved."
+      ],
+      "draft": "Preparing for release · Store links coming after publication",
+      "lang": "Language",
+      "preview": "Pre-publication draft: effective date and mail-provider disclosures are pending.",
+      "screenNote": "Actual Android app screens. Sample-image results vary by photo."
+    },
+    "ja": {
+      "name": "Koofy Image",
+      "title": [
+        "写真を軽く。",
+        "元の写真はそのまま。"
+      ],
+      "sub": "画像形式の変換・ファイルサイズの圧縮",
+      "foot": "JPG · PNG · WebP  /  一度に最大10枚",
+      "privacy": "プライバシーポリシー",
+      "support": "サポート",
+      "app": "アプリ紹介",
+      "cta": "ウェブ版を使う",
+      "desc": "端末内で写真を変換。必要な結果だけを保存できます。",
+      "features": [
+        "HEICをJPGに",
+        "サイズと容量を調整",
+        "1枚ずつ、まとめて保存"
+      ],
+      "details": [
+        "JPG・PNG・WebPに変換できます。",
+        "目標容量と最大幅を設定し、結果を確認できます。",
+        "最大10枚を処理して、保存済みの写真を確認できます。"
+      ],
+      "draft": "公開準備中 · ストアリンクは公開後にご案内",
+      "lang": "言語",
+      "preview": "公開前の確認用原稿：施行日とメールサービスに関する告知は確認待ちです。",
+      "screenNote": "Androidアプリの実際の画面です。結果は写真によって異なります。"
+    }
+  },
+  "legal": {
+    "ko": {
+      "privacy": [
+        {
+          "type": "p",
+          "text": "- 운영 주체: **쿠피랩**\n- 앱 이름: **쿠피 이미지 / Koofy Image**\n- 고객지원 및 개인정보 문의: **koofylab@gmail.com**\n- 시행일: **2026-10-17**"
+        },
+        {
+          "type": "h2",
+          "text": "사진은 기기 안에서 처리합니다"
+        },
+        {
+          "type": "p",
+          "text": "쿠피 이미지는 선택한 사진의 형식을 바꾸거나 용량을 줄이는 앱입니다. 회원가입 없이 사용할 수 있습니다. 사진을 변환하기 위해 운영자의 서버나 외부 이미지 처리 API로 업로드하지 않습니다. 현재 앱에는 운영자에게 사진, 파일명, EXIF, 사용자 파일 경로 또는 사용 기록을 자동 전송하는 기능이 없습니다."
+        },
+        {
+          "type": "p",
+          "text": "사용자가 고른 사진·파일과 파일명, 크기, 해상도, 방향 정보 등을 기기 안에서 사용합니다. 중복 선택 확인을 위한 파일 요약값도 기기 안에서 계산합니다. 원본을 덮어쓰지 않고 결과를 별도 파일로 만듭니다. 변환 결과의 EXIF·GPS 등 촬영 메타데이터를 제거하며, 색 표현에 필요한 정보는 남을 수 있습니다. 임시 입력 사본에는 원본에 있던 메타데이터가 포함될 수 있습니다."
+        },
+        {
+          "type": "h2",
+          "text": "사진·파일 접근과 저장"
+        },
+        {
+          "type": "p",
+          "text": "시스템 사진·파일 선택기를 사용해 사용자가 선택한 항목을 가져옵니다. iOS에서는 사진 보관함에 결과를 추가할 때 추가 저장 권한을 요청합니다. Android에서는 시스템 선택기와 MediaStore 또는 파일 저장 창을 사용합니다. 전체 사진 읽기, 카메라, 연락처, 위치 접근을 요구하지 않습니다."
+        },
+        {
+          "type": "p",
+          "text": "클라우드에만 있는 원본을 선택하면 운영체제나 파일 제공자가 원본을 내려받을 수 있습니다. 사용자가 클라우드 폴더로 저장하거나 사진 보관함 동기화를 켜둔 경우에도 해당 서비스가 파일을 동기화할 수 있습니다. 이는 쿠피 이미지가 운영자의 서버로 사진을 보내는 것과 다르며 해당 서비스의 설정과 방침이 적용됩니다. 기기에 완전히 있는 사진의 변환에는 사진 업로드나 코덱 다운로드가 필요하지 않습니다."
+        },
+        {
+          "type": "h2",
+          "text": "기기 내 파일과 보관 기간"
+        },
+        {
+          "type": "p",
+          "text": "- 작업 중 입력 사본, 미리보기, 변환 결과가 앱 전용 공간을 사용합니다. 변환만으로 사진 보관함에 자동 저장하지 않습니다.\n- **비우기**를 실행하면 해당 작업의 임시 파일을 정리합니다. 미저장 결과가 있으면 확인을 요청합니다. 원본과 이미 사진·파일 보관함에 저장한 결과는 삭제하지 않습니다.\n- 저장 성공 후 불필요한 큰 임시 결과를 정리합니다. 작은 미리보기, 입력 사본, 사진 식별·저장 상태는 작업을 비우거나 앱을 완전히 종료할 때까지 유지합니다. 저장 실패 결과는 현재 작업에서 재시도할 수 있도록 유지합니다.\n- 설정 화면, 홈 화면 이동, 화면 잠금, 잠깐의 앱 전환만으로 현재 결과를 지우지 않습니다. 앱 프로세스 종료 후 남은 작업 파일은 **다음 실행 시 정리**하며 이전 작업 결과를 복원하지 않습니다. 종료 순간의 즉시 삭제를 보장하지는 않습니다.\n- 저장한 사진·파일은 선택한 저장 위치에 남습니다. 삭제하려면 해당 사진·파일 앱을 이용하세요."
+        },
+        {
+          "type": "p",
+          "text": "언어와 마지막 변환 설정은 기기에 보관합니다. 저장 중복·이용권 정산을 위한 무작위 작업 식별자, 저장 성공 상태 및 로컬 잔액도 기기에 보관합니다. Android의 미완료 저장 확인에는 앱이 만든 저장 항목의 식별 주소가 일시적으로 사용될 수 있습니다. 정산 기록에는 사진 원본·EXIF·원본 파일명·사용자 원본 경로를 기록하지 않습니다. 비우기는 이 설정·정산 기록까지 초기화하지 않습니다. 이 기록에는 현재 자동 만료 기간이 없습니다."
+        },
+        {
+          "type": "p",
+          "text": "사진 작업 공간과 이용권 DB는 앱의 백업 제외 영역에 둡니다. 언어 등 설정의 보관·백업은 운영체제에 따라 다를 수 있습니다. 앱 삭제 또는 운영체제의 앱 데이터 삭제로 로컬 데이터를 제거할 수 있습니다. 앱 정리하기/오프로드처럼 데이터를 남기는 기능은 완전한 데이터 삭제와 다릅니다. 재설치·기기 변경 후 이용권 복원을 보장하지 않습니다."
+        },
+        {
+          "type": "h2",
+          "text": "광고·SDK와 외부 페이지"
+        },
+        {
+          "type": "p",
+          "text": "현재 배포 준비 버전은 광고와 원격 광고 설정을 연결하지 않았습니다. 광고·Firebase·분석·오류 보고 SDK를 추가하거나 초기화하지 않으며 광고 요청도 하지 않습니다. 저장은 광고 없이 횟수 제한 없이 이용할 수 있습니다."
+        },
+        {
+          "type": "p",
+          "text": "Flutter, 로컬 설정·SQLite 라이브러리와 iOS의 SDWebImage/WebP 코덱 등을 사용합니다. 사진 처리에는 로컬 코덱만 사용하고 SDWebImage의 네트워크 이미지 로딩을 호출하지 않습니다. 오픈소스 고지는 설정 → 앱 정보 → 법적 고지 → 오픈소스 라이선스에서 볼 수 있습니다. 운영체제·앱스토어가 자체 설정에 따라 처리하는 진단·배포 정보는 해당 플랫폼의 방침을 따릅니다."
+        },
+        {
+          "type": "p",
+          "text": "앱에서 고객지원 이메일을 누르면 외부 메일 앱을 엽니다. 사진이나 진단 자료를 자동 첨부하거나 메일을 자동 전송하지 않습니다. 이메일 주소 복사를 누르면 고객지원 주소만 시스템 클립보드에 기록합니다. 공개된 웹페이지 링크를 추가한 뒤 이를 누르면 외부 브라우저가 열리며, 해당 웹사이트·메일 서비스의 개인정보 처리도 적용됩니다."
+        },
+        {
+          "type": "h2",
+          "text": "문의, 권리 행사와 변경"
+        },
+        {
+          "type": "p",
+          "text": "문의는 **koofylab@gmail.com**으로 보내주세요. 답변에 필요한 이메일 주소와 문의 내용을 운영자가 확인하게 됩니다. 원본 사진, GPS, 비밀번호, 인증서 등 민감한 자료는 보내지 않아도 됩니다. 개인정보 열람·정정·삭제 등 요청도 같은 창구로 접수합니다. 운영자는 기기 안의 사진에 원격으로 접근하거나 삭제할 수 없습니다."
+        },
+        {
+          "type": "p",
+          "text": "고객지원 문의를 처리하기 위해 받은 이메일 주소와 문의 내용은 **문의 처리 완료일로부터 1년간 보관한 뒤 삭제합니다.** 개인정보 관련 요청은 위 고객지원 이메일로 접수할 수 있습니다."
+        },
+        {
+          "type": "p",
+          "text": "고객지원은 운영자가 Gmail로 직접 처리하며 별도 고객관리 서비스를 사용하지 않습니다. 이메일 주소, 문의 내용 및 사용자가 직접 첨부한 자료는 이메일 전송·수신·보관을 위해 Google의 Gmail 서비스에서 처리됩니다. Google은 미국을 포함한 여러 국가의 서버에서 정보를 처리할 수 있습니다. 메일 서비스의 처리와 보안·삭제 절차는 Google 개인정보처리방침을 참고하세요. 문의에 사진이나 민감한 정보를 첨부할 필요는 없습니다."
+        },
+        {
+          "type": "p",
+          "text": "처리 방식이나 SDK가 바뀌면 실제 동작에 맞게 방침과 시행일을 갱신하고 필요한 안내·동의를 제공합니다."
+        }
+      ],
+      "support": [
+        {
+          "type": "p",
+          "text": "운영: **쿠피랩** · 문의: **koofylab@gmail.com**"
+        },
+        {
+          "type": "p",
+          "text": "쿠피 이미지 / Koofy Image는 사진 형식을 바꾸거나 용량을 줄이는 iOS·Android 앱입니다. 사진은 기기 안에서 처리하고 원본을 덮어쓰지 않습니다."
+        },
+        {
+          "type": "h2",
+          "text": "시작하기"
+        },
+        {
+          "type": "p",
+          "text": "1. 사진 또는 파일에서 최대 10장을 선택합니다.\n2. 형식 바꾸기 또는 용량 줄이기를 고릅니다. 출력은 JPG, PNG, WebP입니다.\n3. 필요한 설정을 조절하고 변환하기를 누릅니다. 선택·설정 변경만으로 자동 변환하지 않습니다.\n4. 원본과 결과의 용량·해상도를 확인하고 개별 저장 또는 미저장 결과 모두 저장을 누릅니다."
+        },
+        {
+          "type": "p",
+          "text": "지원 입력은 JPG/JPEG, PNG, 정지 WebP, HEIC/HEIF입니다. HEIC는 첫 정지 이미지를 처리합니다. 애니메이션 PNG/WebP, Live Photo 동영상, SVG/PSD, HEIC 출력은 지원하지 않습니다. 기기와 OS에 따라 일부 HEIC를 처리하지 못할 수 있습니다. Android 10 이상, iOS 15 이상을 대상으로 합니다."
+        },
+        {
+          "type": "h2",
+          "text": "자주 묻는 질문"
+        },
+        {
+          "type": "p",
+          "text": "**사진이 선택되지 않거나 변환에 실패해요.**\n사진당 25 MiB, 한 묶음 합계 100 MiB, 40MP, 한 변 16,384px 한도를 확인하세요. 한 묶음에 추가할 수 있는 사진은 총 10장입니다. 클라우드 원본은 먼저 기기에 내려받고 다시 선택해 보세요. 지원하지 않는 형식·애니메이션·손상 파일은 처리할 수 없습니다. 실패한 사진만 다시 시도할 수 있습니다."
+        },
+        {
+          "type": "p",
+          "text": "**목표 용량을 넘거나 파일이 더 커졌어요.**\n모든 사진이 작아지는 것은 아닙니다. JPG를 PNG로 바꾸면 커질 수 있습니다. PNG는 JPG처럼 품질을 낮춰 용량을 줄이지 않습니다. 최대 너비를 줄이거나 해상도 축소를 허용하고 다시 변환해 보세요. 최대 너비는 긴 변 기준이 아니며 사진을 확대하지 않습니다. 품질·해상도가 낮아질 수 있고 전문적인 HDR·광색역 보존은 보장하지 않습니다. 1 KiB는 1,024바이트입니다."
+        },
+        {
+          "type": "p",
+          "text": "**투명한 부분이나 색이 달라졌어요.**\nJPG는 투명도를 지원하지 않아 선택한 배경색으로 채웁니다. 투명도를 유지하려면 PNG 또는 WebP를 사용하세요. 결과에서 촬영 메타데이터를 제거하며 HDR·광색역 사진의 색감은 달라질 수 있습니다."
+        },
+        {
+          "type": "p",
+          "text": "**저장한 사진은 어디에 있나요?**\n사진 보관함 저장과 파일 저장은 다릅니다. 파일 저장을 선택했다면 시스템 창에서 고른 위치를 확인하세요. iOS에서 WebP는 사진 보관함 대신 파일로 저장합니다. 녹색 체크는 실제 저장 성공을 나타냅니다. 변환 완료만으로 저장되지는 않습니다."
+        },
+        {
+          "type": "p",
+          "text": "**권한 거부·공간 부족·일부 저장 실패가 나와요.**\niOS 사진 추가 저장 권한을 기기 설정에서 허용하거나 파일 저장을 사용하세요. 빈 공간과 저장 위치에 접근할 수 있는지 확인한 뒤 실패한 결과를 다시 저장하세요. 현재 세션의 실패 결과는 유지하며 이미 성공한 사진은 일괄 저장 대상에서 제외합니다. 저장 여부가 불확실하다는 안내가 나오면 중복 저장 전에 저장 위치를 먼저 확인하세요. 미저장 결과가 필요할 때 앱을 삭제하거나 데이터를 초기화하지 마세요."
+        },
+        {
+          "type": "p",
+          "text": "**다른 앱으로 이동하거나 앱을 종료하면 어떻게 되나요?**\n일시적인 앱 전환은 현재 결과를 지우지 않습니다. 변환 중 이탈하면 다음 사진 처리를 멈추고 돌아와서 다시 실행할 수 있습니다. 앱 프로세스가 종료되면 이전 결과를 복원하지 않고 다음 실행 시 임시 작업 파일을 정리합니다. 필요한 결과를 먼저 저장하세요. 비우기는 작업 사본만 지우며 원본과 저장한 사진은 남습니다."
+        },
+        {
+          "type": "p",
+          "text": "**광고나 저장 횟수 제한이 있나요?**\n현재 버전은 광고 없이 무제한 저장할 수 있습니다. 회원가입·결제가 필요하지 않습니다. 앱 안에서 사진을 공유하는 기능은 제공하지 않습니다."
+        },
+        {
+          "type": "h2",
+          "text": "문의할 때 알려주세요"
+        },
+        {
+          "type": "p",
+          "text": "**koofylab@gmail.com**으로 기기 모델, OS 버전, 앱 정보에 표시된 버전·빌드 번호, 선택한 형식·설정, 오류 문구와 재현 순서를 보내주세요. 스크린샷을 보낼 때는 사진·파일명·계정 등 개인 정보를 가려 주세요. 원본 사진, 위치 정보, 비밀번호, 서명 키·인증서는 요청하지 않습니다. 앱은 메일을 자동 전송하거나 사진을 자동 첨부하지 않습니다. 메일 앱이 없으면 앱 정보 화면에서 이메일 주소를 복사할 수 있습니다."
+        },
+        {
+          "type": "p",
+          "text": "답변 시간이나 사진 복구를 보장하지 않습니다. 개인정보 관련 요청도 같은 이메일로 접수합니다. 개인정보처리방침은 이 페이지 상단 메뉴에서 확인할 수 있습니다."
+        }
+      ]
+    },
+    "en": {
+      "privacy": [
+        {
+          "type": "p",
+          "text": "- Operator: **쿠피랩**\n- App: **Koofy Image / 쿠피 이미지**\n- Support and privacy contact: **koofylab@gmail.com**\n- Effective date: **2026-10-17**"
+        },
+        {
+          "type": "h2",
+          "text": "On-device photo processing"
+        },
+        {
+          "type": "p",
+          "text": "Koofy Image converts photo formats and reduces file sizes without an account. It does not upload photos to the operator's servers or an external image-processing API to perform conversions. The current app has no feature that automatically sends photos, filenames, EXIF, personal file paths, or usage records to the operator."
+        },
+        {
+          "type": "p",
+          "text": "Selected photos and files, names, sizes, dimensions, and orientation are used on your device. File hashes for duplicate detection are also computed locally. Originals are not overwritten; results are created separately. Capture metadata such as EXIF and GPS is removed from converted results; color information may remain. Temporary input copies may still contain the original metadata."
+        },
+        {
+          "type": "h2",
+          "text": "Access and saving"
+        },
+        {
+          "type": "p",
+          "text": "The app imports items you select through system photo and file pickers. On iOS it requests add-only photo permission when saving results to the photo library. Android uses system pickers and MediaStore or the file-save dialog. The app does not request full-library read access, camera, contacts, or location access."
+        },
+        {
+          "type": "p",
+          "text": "For a cloud-only original, your operating system or file provider may download it. Saving to a cloud folder or enabling photo-library synchronization may also cause that provider to sync the file. This is separate from uploading photos to the operator and is subject to the provider's settings and policies. Converting photos already fully on your device does not require uploading them or downloading codecs."
+        },
+        {
+          "type": "h2",
+          "text": "Local files and retention"
+        },
+        {
+          "type": "p",
+          "text": "- Input copies, previews, and converted results use app-private storage. Conversion alone does not add results to your photo library.\n- **Clear** removes the current batch's temporary files. The app asks for confirmation if results are unsaved. Originals and results already saved to your photo library or Files are not deleted.\n- After a successful save, unnecessary full-size temporary outputs are removed. Small previews, input copies, photo identification, and save status remain until you clear the batch or fully close the app. Failed-save results remain available for retry within the current session.\n- Opening settings, going home, locking the screen, or briefly switching apps does not clear results. Files left after process termination are cleaned up **on the next launch**; the previous results are not restored. Immediate deletion at the instant of termination is not guaranteed.\n- Saved files remain at your chosen destination. Use the relevant photo or file app to delete them."
+        },
+        {
+          "type": "p",
+          "text": "Language and last-used conversion options are stored locally. Random work identifiers, save outcomes, and a local pass balance support duplicate prevention and save accounting. On Android, the identifier of a destination item created by the app may be kept temporarily to reconcile an interrupted save. Accounting records do not contain original photos, EXIF, original filenames, or personal source paths. Clear does not reset these preferences or accounting records. There is currently no automatic expiration period for these records."
+        },
+        {
+          "type": "p",
+          "text": "The photo workspace and pass database are excluded from app backup. Backup of preferences such as language may vary by operating system. Delete the app or use the operating system's app-data deletion controls to remove local data. Offloading or archiving an app while retaining its data is different from deleting its data. Pass restoration after reinstalling or changing devices is not guaranteed."
+        },
+        {
+          "type": "h2",
+          "text": "Ads, SDKs, and external pages"
+        },
+        {
+          "type": "p",
+          "text": "The current release-preparation version has no connected advertising or remote advertising configuration. No advertising, Firebase, analytics, or crash-reporting SDK is added or initialized, and no ad requests are made. Saving is unlimited without ads."
+        },
+        {
+          "type": "p",
+          "text": "The app uses Flutter, local preference and SQLite libraries, and iOS SDWebImage/WebP codecs. Only local codecs are used for photo processing; SDWebImage network image loading is not called. Open-source notices are available under Settings → About → Legal notices → Open-source licenses. Diagnostic or distribution information processed independently by the operating system or app store follows that platform's settings and policies."
+        },
+        {
+          "type": "p",
+          "text": "Tapping the support email opens an external mail app. Photos and diagnostic data are not automatically attached, and messages are not automatically sent. Copying the support address places only that address on the system clipboard. Once published web links are added, tapping them opens an external browser; the relevant website and mail service's privacy practices also apply."
+        },
+        {
+          "type": "h2",
+          "text": "Contact, requests, and changes"
+        },
+        {
+          "type": "p",
+          "text": "Contact **koofylab@gmail.com** for help or privacy requests, including access, correction, or deletion requests. The operator receives the email address and message you provide to answer your inquiry. You do not need to send original photos, GPS data, passwords, or certificates. The operator cannot remotely access or delete photos held on your device."
+        },
+        {
+          "type": "p",
+          "text": "Email addresses and messages received for customer support are **retained for one year from the date the inquiry is resolved and then deleted.** Privacy requests can be sent to the support email above."
+        },
+        {
+          "type": "p",
+          "text": "The operator handles support directly through Gmail, without a separate customer-management service. Email addresses, inquiry contents, and attachments you choose to send are processed by Google’s Gmail service for email delivery, receipt, and storage. Google may process information on servers in multiple countries, including the United States. See Google’s Privacy Policy for its processing, security, and deletion practices. You do not need to attach photos or sensitive information."
+        },
+        {
+          "type": "p",
+          "text": "If processing or SDKs change, this policy and its effective date will be updated, with notices or consent where required."
+        }
+      ],
+      "support": [
+        {
+          "type": "p",
+          "text": "Operated by **쿠피랩** · Contact: **koofylab@gmail.com**"
+        },
+        {
+          "type": "p",
+          "text": "Koofy Image / 쿠피 이미지 converts photo formats and reduces file sizes on iOS and Android. Photos are processed on your device without overwriting originals."
+        },
+        {
+          "type": "h2",
+          "text": "Getting started"
+        },
+        {
+          "type": "p",
+          "text": "1. Choose up to 10 photos from Photos or Files.\n2. Select Convert format or Reduce size. Available outputs are JPG, PNG, and WebP.\n3. Adjust options and tap Convert photos. Selecting photos or changing options does not start conversion automatically.\n4. Compare file sizes and dimensions, then save individually or choose Save unsaved results."
+        },
+        {
+          "type": "p",
+          "text": "Inputs include JPG/JPEG, PNG, still WebP, and HEIC/HEIF. HEIC processing uses the first still image. Animated PNG/WebP, Live Photo video, SVG/PSD, and HEIC output are unsupported. Some HEIC files may not decode on a particular device or OS. The app targets Android 10+ and iOS 15+."
+        },
+        {
+          "type": "h2",
+          "text": "Frequently asked questions"
+        },
+        {
+          "type": "p",
+          "text": "**A photo will not import or convert.**\nCheck the limits: 25 MiB per photo, 100 MiB per batch, 40 MP, and 16,384 pixels per side. A batch can contain up to 10 photos in total, including later additions. Download cloud-only originals onto your device first. Unsupported, animated, or damaged files cannot be processed. You can retry failed photos."
+        },
+        {
+          "type": "p",
+          "text": "**The result exceeds the target or is larger than the original.**\nNot every conversion reduces size. JPG-to-PNG may increase it, and PNG cannot be reduced through a JPG-style quality setting. Try a smaller maximum width or allow resizing, then convert again. Maximum width refers to width, not the longest edge, and images are never enlarged. Quality or resolution may decrease; professional HDR and wide-gamut preservation are not guaranteed. One KiB is 1,024 bytes."
+        },
+        {
+          "type": "p",
+          "text": "**Transparency or colors changed.**\nJPG replaces transparent pixels with your chosen background color. Choose PNG or WebP to keep transparency. Capture metadata is removed from results, and HDR or wide-gamut photos may look different."
+        },
+        {
+          "type": "p",
+          "text": "**Where is my saved photo?**\nSaving to Photos is different from saving to Files. For Files, check the location selected in the system dialog. On iOS, save WebP to Files instead of the photo library. A green check means saving succeeded. Conversion alone does not save the result to your library."
+        },
+        {
+          "type": "p",
+          "text": "**Permission was denied, storage is full, or only some photos saved.**\nAllow photo addition in iOS settings or choose Files. Check free space and access to the destination, then retry failed results. Failed-save outputs are retained in the current session; already saved photos are excluded from batch saving. If save status is uncertain, check the destination before saving again. Do not delete the app or reset its data while you still need unsaved results."
+        },
+        {
+          "type": "p",
+          "text": "**What happens when I switch apps or close the app?**\nBrief app switching does not clear results. Leaving during conversion stops the next photo from starting; return and tap Convert to continue. After the app process ends, previous results are not restored and temporary work files are removed on the next launch. Save important results first. Clear removes working copies, leaving originals and saved photos intact."
+        },
+        {
+          "type": "p",
+          "text": "**Are there ads or save limits?**\nThe current version offers unlimited saving without ads, accounts, or payment. It does not offer an in-app image-sharing feature."
+        },
+        {
+          "type": "h2",
+          "text": "Contacting support"
+        },
+        {
+          "type": "p",
+          "text": "Email **koofylab@gmail.com** with your device model, OS version, version/build shown in About, selected formats/options, error message, and steps to reproduce. Hide personal photos, filenames, and account information in screenshots. We do not request original photos, location data, passwords, signing keys, or certificates. The app does not automatically send email or attach photos. If no mail app is available, copy the support address from About."
+        },
+        {
+          "type": "p",
+          "text": "Response times and photo recovery are not guaranteed. Send privacy requests to the same address. The privacy-policy link will be connected after the page is published."
+        }
+      ]
+    },
+    "ja": {
+      "privacy": [
+        {
+          "type": "p",
+          "text": "- 運営主体：**쿠피랩**\n- アプリ名：**Koofy Image / 쿠피 이미지**\n- サポート・個人情報に関する連絡先：**koofylab@gmail.com**\n- 施行日：**2026-10-17**"
+        },
+        {
+          "type": "h2",
+          "text": "写真は端末内で処理します"
+        },
+        {
+          "type": "p",
+          "text": "Koofy Imageは、アカウント登録なしで写真の形式変換や容量削減を行うアプリです。変換のために写真を運営者のサーバーや外部の画像処理APIへアップロードしません。現在のアプリには、写真、ファイル名、EXIF、利用者のファイルパス、利用記録を運営者に自動送信する機能はありません。"
+        },
+        {
+          "type": "p",
+          "text": "選択した写真・ファイルと、その名前、容量、解像度、向きの情報などを端末内で使用します。重複確認用のファイルハッシュも端末内で計算します。元の写真は上書きせず、別のファイルとして結果を作成します。変換結果からEXIF・GPSなどの撮影メタデータを除去しますが、色表現に必要な情報が残る場合があります。一時的な入力コピーには元のメタデータが含まれる場合があります。"
+        },
+        {
+          "type": "h2",
+          "text": "写真・ファイルへのアクセスと保存"
+        },
+        {
+          "type": "p",
+          "text": "システムの写真・ファイル選択画面で利用者が選んだ項目を取り込みます。iOSでは結果を写真ライブラリに保存する際に、追加保存の許可を求めます。Androidではシステムの選択画面とMediaStoreまたはファイル保存画面を使用します。写真ライブラリ全体の読み取り、カメラ、連絡先、位置情報へのアクセスは要求しません。"
+        },
+        {
+          "type": "p",
+          "text": "クラウドにのみ存在する元の写真を選ぶと、OSやファイル提供サービスがダウンロードすることがあります。クラウドフォルダへの保存や写真ライブラリの同期でも、そのサービスがファイルを同期する場合があります。これは本アプリが運営者へ写真を送信する処理とは異なり、各サービスの設定・ポリシーが適用されます。端末に完全に保存された写真の変換には、写真のアップロードやコーデックのダウンロードは不要です。"
+        },
+        {
+          "type": "h2",
+          "text": "端末内のファイルと保管期間"
+        },
+        {
+          "type": "p",
+          "text": "- 入力コピー、プレビュー、変換結果はアプリ専用領域の容量を使用します。変換だけで写真ライブラリに自動保存はしません。\n- **クリア**すると、現在の作業の一時ファイルを削除します。未保存の結果がある場合は確認を求めます。元の写真や、写真・ファイルアプリに保存済みの結果は削除しません。\n- 保存成功後は、不要になった大きな一時出力を削除します。小さなプレビュー、入力コピー、写真の識別情報・保存状態は、クリアするかアプリを完全に終了するまで保持します。保存に失敗した結果は、現在の作業内で再試行できるよう保持します。\n- 設定画面、ホーム画面、画面ロック、一時的なアプリ切替では結果を消しません。プロセス終了後に残った作業ファイルは**次回起動時に削除**し、以前の結果は復元しません。終了した瞬間の即時削除は保証しません。\n- 保存した写真・ファイルは選択した保存先に残ります。削除には写真・ファイルアプリを使用してください。"
+        },
+        {
+          "type": "p",
+          "text": "言語と直前の変換設定を端末内に保存します。保存の重複防止やチケットの精算用に、ランダムな作業ID、保存結果、ローカル残高も保存します。Androidでは中断した保存を確認するため、本アプリが作成した保存先項目の識別アドレスを一時的に使用することがあります。精算記録に元の写真、EXIF、元のファイル名、利用者の元ファイルパスは記録しません。クリア操作では設定や精算記録まで初期化しません。これらの記録には現在、自動失効期間を設けていません。"
+        },
+        {
+          "type": "p",
+          "text": "写真作業領域とチケットDBはバックアップ対象から除外します。言語などの設定のバックアップはOSにより異なる場合があります。アプリの削除またはOSのアプリデータ削除機能でローカルデータを削除できます。データを残すオフロード等は完全なデータ削除とは異なります。再インストールや機種変更後のチケット復元は保証しません。"
+        },
+        {
+          "type": "h2",
+          "text": "広告・SDKと外部ページ"
+        },
+        {
+          "type": "p",
+          "text": "現在のリリース準備版では、広告および広告のリモート設定を接続していません。広告、Firebase、解析、クラッシュ報告SDKの追加・初期化や広告リクエストは行いません。広告なしで回数制限なく保存できます。"
+        },
+        {
+          "type": "p",
+          "text": "Flutter、ローカル設定・SQLiteライブラリ、iOSのSDWebImage/WebPコーデック等を使用します。写真処理にはローカルコーデックを使用し、SDWebImageのネットワーク画像読み込みは呼び出しません。オープンソースの告知は「設定 → アプリ情報 → 法的情報 → オープンソースライセンス」で確認できます。OSやアプリストアが独自に処理する診断・配布情報には、各プラットフォームの設定・ポリシーが適用されます。"
+        },
+        {
+          "type": "p",
+          "text": "サポートのメールアドレスを押すと外部のメールアプリを開きます。写真や診断情報の自動添付、メールの自動送信はしません。メールアドレスのコピーを押すと、サポートのアドレスのみをシステムのクリップボードに記録します。公開済みのウェブリンクを追加した後、そのリンクを押すと外部ブラウザを開きます。各ウェブサイト・メールサービスの個人情報の取扱いも適用されます。"
+        },
+        {
+          "type": "h2",
+          "text": "お問い合わせ・請求・変更"
+        },
+        {
+          "type": "p",
+          "text": "サポートや個人情報の開示・訂正・削除等のご相談は **koofylab@gmail.com** にご連絡ください。回答のため、運営者は送信されたメールアドレスとお問い合わせ内容を確認します。元の写真、GPS、パスワード、証明書などの機密情報を送る必要はありません。運営者は端末内の写真に遠隔アクセスしたり削除したりできません。"
+        },
+        {
+          "type": "p",
+          "text": "サポート対応のために受け取ったメールアドレスとお問い合わせ内容は、**対応完了日から1年間保管した後、削除します。** 個人情報に関するご請求は上記のサポート窓口で受け付けます。"
+        },
+        {
+          "type": "p",
+          "text": "お問い合わせは運営者がGmailで直接対応し、別の顧客管理サービスは使用しません。メールアドレス、お問い合わせ内容、ご自身で添付した資料は、メールの送受信・保管のためGoogleのGmailで処理されます。Googleは米国を含む複数の国のサーバーで情報を処理する場合があります。処理・セキュリティ・削除についてはGoogleのプライバシーポリシーをご確認ください。写真や機密情報を添付する必要はありません。"
+        },
+        {
+          "type": "p",
+          "text": "処理方法やSDKを変更する場合は、実際の動作に合わせて本ポリシーと施行日を更新し、必要な案内や同意手続きを行います。"
+        }
+      ],
+      "support": [
+        {
+          "type": "p",
+          "text": "運営：**쿠피랩** · お問い合わせ：**koofylab@gmail.com**"
+        },
+        {
+          "type": "p",
+          "text": "Koofy Image / 쿠피 이미지は、iOS・Androidで写真の形式変換や容量削減を行うアプリです。端末内で処理し、元の写真を上書きしません。"
+        },
+        {
+          "type": "h2",
+          "text": "使い方"
+        },
+        {
+          "type": "p",
+          "text": "1. 写真またはファイルから最大10枚を選びます。\n2. 「形式を変換」または「容量を削減」を選びます。出力形式はJPG・PNG・WebPです。\n3. 必要な設定を選び、「変換する」を押します。選択や設定変更だけでは変換しません。\n4. 元の写真と結果の容量・解像度を確認し、個別保存または「未保存の結果をすべて保存」を押します。"
+        },
+        {
+          "type": "p",
+          "text": "入力はJPG/JPEG、PNG、静止WebP、HEIC/HEIFに対応します。HEICは最初の静止画像を処理します。アニメーションPNG/WebP、Live Photoの動画、SVG/PSD、HEIC出力には対応しません。端末やOSによって処理できないHEICもあります。対象OSはAndroid 10以上・iOS 15以上です。"
+        },
+        {
+          "type": "h2",
+          "text": "よくある質問"
+        },
+        {
+          "type": "p",
+          "text": "**選択や変換に失敗します。**\n1枚25 MiB、合計100 MiB、40MP、一辺16,384pxの上限を確認してください。後から追加する場合も1グループ合計10枚までです。クラウド上の元の写真は先に端末へダウンロードしてください。非対応形式、アニメーション、破損ファイルは処理できません。失敗した写真は再試行できます。"
+        },
+        {
+          "type": "p",
+          "text": "**目標容量を超えたり、元より大きくなりました。**\nすべての変換で容量が減るわけではありません。JPGからPNGでは大きくなる場合があり、PNGはJPGのような画質調整では小さくなりません。最大幅を小さくするか、解像度の縮小を許可して再変換してください。最大幅は長辺ではなく横幅で、拡大はしません。画質・解像度が低下する場合があり、専門的なHDR・広色域の保持は保証しません。1 KiBは1,024バイトです。"
+        },
+        {
+          "type": "p",
+          "text": "**透明部分や色が変わりました。**\nJPGの透明部分は選択した背景色になります。透明度を保つにはPNGかWebPを選んでください。結果から撮影メタデータを除去し、HDR・広色域の写真は色合いが変わる場合があります。"
+        },
+        {
+          "type": "p",
+          "text": "**保存した写真はどこにありますか？**\n写真ライブラリへの保存とファイル保存は異なります。ファイルの場合はシステム画面で選択した保存先を確認してください。iOSのWebPは写真ライブラリではなくファイルに保存します。緑色のチェックは保存成功を表します。変換完了だけでは写真ライブラリに保存されません。"
+        },
+        {
+          "type": "p",
+          "text": "**権限拒否・容量不足・一部の保存失敗が表示されます。**\niOSの設定で写真の追加保存を許可するか、ファイル保存を選んでください。空き容量と保存先へのアクセスを確認し、失敗した結果を再保存してください。現在の作業内では失敗した結果を保持し、保存成功済みの写真は一括保存から除外します。保存結果が不明な場合は、再保存する前に保存先を確認してください。未保存の結果が必要なときはアプリ削除やデータ初期化をしないでください。"
+        },
+        {
+          "type": "p",
+          "text": "**アプリを切り替えたり終了するとどうなりますか？**\n一時的な切替で結果は消えません。変換中に離れると次の写真の処理を止め、戻って変換を押すと続けられます。プロセス終了後は以前の結果を復元せず、次回起動時に作業ファイルを削除します。必要な結果は先に保存してください。クリアは作業コピーのみを削除し、元の写真と保存済みの写真は残します。"
+        },
+        {
+          "type": "p",
+          "text": "**広告や保存回数の制限はありますか？**\n現在のバージョンは広告なしで無制限に保存でき、登録や支払いは不要です。アプリ内の画像共有機能はありません。"
+        },
+        {
+          "type": "h2",
+          "text": "お問い合わせ"
+        },
+        {
+          "type": "p",
+          "text": "**koofylab@gmail.com** 宛てに、端末の機種、OS、アプリ情報に表示されるバージョン・ビルド番号、形式・設定、エラーメッセージ、再現手順をご連絡ください。スクリーンショットの写真・ファイル名・アカウントなどの個人情報は隠してください。元の写真、位置情報、パスワード、署名キー、証明書の送付は求めません。メールの自動送信や写真の自動添付はしません。メールアプリがない場合は、アプリ情報から連絡先をコピーできます。"
+        },
+        {
+          "type": "p",
+          "text": "回答時間や写真の復元は保証しません。個人情報に関するご相談も同じ連絡先で受け付けます。プライバシーポリシーは上部のメニューから確認できます。"
+        }
+      ]
+    }
+  }
+}
