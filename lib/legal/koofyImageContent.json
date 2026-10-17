@@ -138,7 +138,11 @@
         },
         {
           "type": "p",
-          "text": "현재 배포 준비 버전은 광고와 원격 광고 설정을 연결하지 않았습니다. 광고·Firebase·분석·오류 보고 SDK를 추가하거나 초기화하지 않으며 광고 요청도 하지 않습니다. 저장은 광고 없이 횟수 제한 없이 이용할 수 있습니다."
+          "text": "Firebase Remote Config로 광고 기능의 켜짐/꺼짐 설정을 가져옵니다. 이 과정에서 Google이 설치 식별자와 앱·기기 정보 및 연결 정보를 처리할 수 있습니다. 사진·파일명·EXIF·파일 경로는 전송하지 않습니다. Firebase Analytics와 Crashlytics는 사용하지 않습니다."
+        },
+        {
+          "type": "p",
+          "text": "선택형 보상 광고를 위해 Unity LevelPlay와 Google AdMob SDK를 포함합니다. 초기 설정은 광고 OFF이며 OFF에서는 광고 초기화·요청 없이 무제한 저장할 수 있습니다. 광고가 켜진 경우 사용자가 보상 광고를 요청할 때 필요한 동의 절차 후 광고를 불러옵니다. 이때 광고 제공사가 기기 식별자, IP 기반 대략적 위치, 광고 상호작용·진단 정보 등을 처리할 수 있습니다. iOS 추적 허가를 요청하지 않으며 비개인화 설정을 사용합니다. 비개인화 광고도 데이터 처리가 전혀 없다는 뜻은 아닙니다. 광고가 켜져 있으면 설정의 광고 개인정보 설정에서 동의 선택을 다시 확인할 수 있습니다."
         },
         {
           "type": "p",
@@ -167,6 +171,14 @@
         {
           "type": "p",
           "text": "처리 방식이나 SDK가 바뀌면 실제 동작에 맞게 방침과 시행일을 갱신하고 필요한 안내·동의를 제공합니다."
+        },
+        {
+          "type": "p",
+          "text": "Firebase: https://firebase.google.com/support/privacy · Google: https://policies.google.com/privacy · Unity: https://unity.com/legal/privacy-policy"
+        },
+        {
+          "type": "p",
+          "text": "외부 서비스의 처리·보관 기간은 각 제공사의 방침에 따릅니다. 문의 메일의 1년 보관 기준과 별개입니다. 개인정보 관련 열람·삭제 문의는 koofylab@gmail.com으로 접수합니다."
         }
       ],
       "support": [
@@ -288,7 +300,11 @@
         },
         {
           "type": "p",
-          "text": "The current release-preparation version has no connected advertising or remote advertising configuration. No advertising, Firebase, analytics, or crash-reporting SDK is added or initialized, and no ad requests are made. Saving is unlimited without ads."
+          "text": "Firebase Remote Config retrieves the advertising feature setting. Google may process installation identifiers, app/device information and connection data. Photos, filenames, EXIF and file paths are not sent. Firebase Analytics and Crashlytics are not used."
+        },
+        {
+          "type": "p",
+          "text": "The app includes Unity LevelPlay and Google AdMob for optional rewarded ads. Ads start OFF: no ad initialization or requests, and unlimited saving. When enabled, ads are requested only after the user chooses a reward and the required consent flow permits it. Providers may process device identifiers, approximate location derived from IP, ad interactions and diagnostics. The app does not request iOS tracking permission and uses non-personalized settings; this does not mean no data processing. When ads are enabled, revisit consent through Ad privacy choices in Settings."
         },
         {
           "type": "p",
@@ -317,6 +333,14 @@
         {
           "type": "p",
           "text": "If processing or SDKs change, this policy and its effective date will be updated, with notices or consent where required."
+        },
+        {
+          "type": "p",
+          "text": "Firebase: https://firebase.google.com/support/privacy · Google: https://policies.google.com/privacy · Unity: https://unity.com/legal/privacy-policy"
+        },
+        {
+          "type": "p",
+          "text": "External providers apply their own processing and retention policies, separately from our one-year support-email retention. Contact koofylab@gmail.com for access or deletion inquiries."
         }
       ],
       "support": [
@@ -438,7 +462,11 @@
         },
         {
           "type": "p",
-          "text": "現在のリリース準備版では、広告および広告のリモート設定を接続していません。広告、Firebase、解析、クラッシュ報告SDKの追加・初期化や広告リクエストは行いません。広告なしで回数制限なく保存できます。"
+          "text": "Firebase Remote Configで広告機能の有効・無効設定を取得します。Googleがインストール識別子、アプリ・端末情報、接続情報を処理する場合があります。写真、ファイル名、EXIF、ファイルパスは送信しません。Firebase AnalyticsとCrashlyticsは使用しません。"
+        },
+        {
+          "type": "p",
+          "text": "任意のリワード広告のためUnity LevelPlayとGoogle AdMob SDKを含みます。初期設定は広告OFFで、広告の初期化・リクエストなしで無制限に保存できます。有効な場合も、ユーザーがリワード広告を選び、必要な同意手続きを経てから読み込みます。広告提供者は端末識別子、IPから推定される大まかな位置、広告操作・診断情報などを処理する場合があります。iOSのトラッキング許可を要求せず、非パーソナライズ設定を使用しますが、データ処理がないという意味ではありません。広告有効時は設定の「広告のプライバシー設定」で同意を再確認できます。"
         },
         {
           "type": "p",
@@ -467,6 +495,14 @@
         {
           "type": "p",
           "text": "処理方法やSDKを変更する場合は、実際の動作に合わせて本ポリシーと施行日を更新し、必要な案内や同意手続きを行います。"
+        },
+        {
+          "type": "p",
+          "text": "Firebase: https://firebase.google.com/support/privacy · Google: https://policies.google.com/privacy · Unity: https://unity.com/legal/privacy-policy"
+        },
+        {
+          "type": "p",
+          "text": "外部サービスの処理・保存期間は各提供者の方針に従い、問い合わせメールの1年保存とは別です。開示・削除の問い合わせはkoofylab@gmail.comで受け付けます。"
         }
       ],
       "support": [
