@@ -329,7 +329,25 @@ export function getProducts(language: LanguageCode): Product[] {
       "体验合成乐趣的手机合并游戏。",
     ],
   }[language];
+  const imageCopy = {
+    ko: ["쿠피 이미지", "사진 형식을 바꾸고 용량을 줄이세요. 원본은 그대로, 한 번에 최대 10장까지.", "웹에서 무료 이용 · 앱 출시 준비 중"],
+    en: ["Koofy Image", "Convert and compress up to 10 photos at a time while keeping your originals.", "Free web tool · Mobile app coming soon"],
+    ja: ["Koofy Image", "元の写真を残したまま、最大10枚の形式変換・容量削減をまとめて。", "無料ウェブツール · アプリ公開準備中"],
+    zh: ["Koofy Image", "一次转换或压缩最多10张照片，保留原图。", "免费网页工具 · 移动应用即将推出"],
+  }[language];
   return [
+    {
+      slug: "koofy-image",
+      href: "/koofy-image/app",
+      kind: "app",
+      name: imageCopy[0],
+      description: imageCopy[1],
+      status: imageCopy[2],
+      image: `/products/koofy-image/${language === "ko" || language === "ja" ? language : "en"}/web-social-1200x630.png`,
+      imageAlt: imageCopy[0],
+      privacy: "/koofy-image/privacy",
+      support: "/koofy-image/support",
+    },
     {
       slug: "koofy-reader",
       href: "/koofy-reader",

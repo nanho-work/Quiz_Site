@@ -181,7 +181,7 @@ export function HomePage() {
         </Link>
         <div className="product-grid featured-grid">
           {products
-            .filter((p) => ["bus-pop", "koofy-sudoku"].includes(p.slug))
+            .filter((p) => ["koofy-image", "bus-pop", "koofy-sudoku"].includes(p.slug))
             .map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
