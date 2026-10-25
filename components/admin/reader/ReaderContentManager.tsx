@@ -207,6 +207,10 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
           onSave={publish => void saveContent(publish)} onEpisodes={() => selected && navigate('book', selected)}
           onCancelFile={() => setPendingFiles({})}
           onRemoveCover={() => selected && void run(() => mutateReaderContent({ action: 'removeAsset', id: selected.id, revision: selected.revision, slot: 'cover' }), '초안에서 표지를 제외했습니다. 공개본은 다음 공개까지 유지됩니다.')}
+          onCorrectLanguage={language => {
+            if (selected && window.confirm(`“${selected.title}”와 연결된 모든 회차의 언어를 ${language === 'ja' ? '日本語' : language === 'en' ? 'English' : '한국어'}로 정정할까요? 공개 목록에도 바로 적용됩니다. 본문과 파일은 변경하지 않습니다.`))
+              void run(() => mutateReaderContent({ action: 'correctMonthlyLanguage', id: selected.id, revision: selected.revision, language }), '월간호와 연결된 회차의 언어를 정정했습니다. 앱에서 목록을 새로고침해 주세요.');
+          }}
           onCompile={() => { if (selected && window.confirm('해당 월에 현재 공개된 회차만 합본으로 만들고 마감할까요? 초안·비공개·다른 달 회차는 제외됩니다.')) void run(() => mutateReaderContent({ action: 'compileMonthly', id: selected.id, revision: selected.revision }), '합본을 만들고 연결했습니다.'); }}
           management={selected && <details className="border-t border-slate-800 pt-4"><summary className="cursor-pointer text-sm text-slate-400">공개 중단 · 삭제</summary><div className="mt-3 flex flex-wrap gap-3">
             {selected.published && <button className={buttonClass} disabled={busy || dirty || !!selected.deleting} onClick={() => void run(() => mutateReaderContent({ action: 'unpublish', id: selected.id, revision: selected.revision }), '비공개로 전환했습니다. 기존 다운로드는 유지됩니다.')}>비공개로 전환</button>}

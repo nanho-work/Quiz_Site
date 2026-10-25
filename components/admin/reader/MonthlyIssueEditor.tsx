@@ -37,12 +37,14 @@ function useCoverPreview(file: File | undefined, item: ReaderContent | null) {
   return { url, failed, fail: () => setFailed(true) };
 }
 
-export default function MonthlyIssueEditor({ form, onChange, selected, busy, dirty, valid, publishReady, coverFile, coverInput, onSave, onEpisodes, onCompile, onRemoveCover, onCancelFile, management }: {
+export default function MonthlyIssueEditor({ form, onChange, selected, busy, dirty, valid, publishReady, coverFile, coverInput, onSave, onEpisodes, onCompile, onRemoveCover, onCancelFile, onCorrectLanguage, management }: {
   form: ReaderMetadata; onChange: (value: ReaderMetadata) => void; selected: ReaderContent | null;
   busy: boolean; dirty: boolean; valid: boolean; publishReady: boolean; coverFile?: File; coverInput: ReactNode;
   onSave: (publish: boolean) => void; onEpisodes: () => void; onCompile: () => void;
+  onCorrectLanguage: (language: 'ko' | 'en' | 'ja') => void;
   onRemoveCover: () => void; onCancelFile: () => void; management: ReactNode;
 }) {
+  const [correction, setCorrection] = useState<'ko' | 'en' | 'ja'>('ja');
   const [extraOpen, setExtraOpen] = useState(false);
   const preview = useCoverPreview(coverFile, selected);
   const disabled = busy || !!selected?.deleting;
@@ -57,6 +59,14 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
       <label className="min-w-0 text-sm text-slate-300">언어<select className={input} disabled={!!selected?.publishedContent} value={form.language || 'ko'} onChange={e => onChange({ ...monthlyLanguageFields(form, e.target.value as 'ko' | 'en' | 'ja'), compilationId: '' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label>
       <label className="min-w-0 text-sm text-slate-300 sm:col-span-2 2xl:col-span-1">월간호 제목<input required maxLength={160} className={input} value={form.title} placeholder="월간 쿠피 11월호" onChange={e => onChange({ ...form, title: e.target.value })} /></label>
     </fieldset>
+    {selected?.publishedContent && <details className="rounded-xl border border-slate-700 p-4">
+      <summary className="cursor-pointer text-sm text-slate-300">잘못 등록한 언어 정정</summary>
+      <p className="my-3 text-sm text-slate-400">월간호와 연결된 모든 회차의 초안·공개 언어를 함께 변경합니다. 파일과 독서 위치는 유지하며, 본문을 번역하지 않습니다. 합본이 연결된 경우에는 사용할 수 없습니다.</p>
+      <div className="flex flex-wrap gap-3">
+        <select aria-label="정정할 언어" className={input} value={correction} onChange={e => setCorrection(e.target.value as 'ko' | 'en' | 'ja')}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select>
+        <button className={button} disabled={disabled || dirty || correction === (selected.language || 'ko') || !!selected.compilationId || !!selected.publishedContent.compilationId} onClick={() => onCorrectLanguage(correction)}>월간호·회차 언어 함께 정정</button>
+      </div>
+    </details>}
     <div className="grid min-w-0 gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <section className="min-w-0 space-y-3" aria-label="대표 표지">
         <div className="flex h-48 items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-950 sm:h-56">

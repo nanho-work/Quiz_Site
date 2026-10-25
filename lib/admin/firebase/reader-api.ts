@@ -31,7 +31,7 @@ async function request<T>(query: Record<string, string>, init: RequestInit = {})
 export function listReaderContent(kind: ReaderKind, after?: string, seriesId?: string) {
   return request<{ items: ReaderContent[]; nextCursor: string | null }>({ kind, ...(seriesId ? { seriesId } : kind === 'book' ? { topLevel: '1' } : {}), ...(after ? { after } : {}) });
 }
-export function mutateReaderContent(input: { action: 'create'; kind: ReaderKind; seriesId?: string; metadata: ReaderMetadata } | { action: 'save' | 'publish' | 'unpublish' | 'removeAsset' | 'compileMonthly'; id: string; revision: number; metadata?: ReaderMetadata; slot?: string }) {
+export function mutateReaderContent(input: { action: 'create'; kind: ReaderKind; seriesId?: string; metadata: ReaderMetadata } | { action: 'save' | 'publish' | 'unpublish' | 'removeAsset' | 'compileMonthly' | 'correctMonthlyLanguage'; language?: 'ko' | 'en' | 'ja'; id: string; revision: number; metadata?: ReaderMetadata; slot?: string }) {
   return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
 }
 export function uploadReaderAsset(item: ReaderContent, slot: string, file: File) {
