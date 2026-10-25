@@ -1,4 +1,5 @@
 'use client';
+import MonthlyIssueEditor from './MonthlyIssueEditor';
 import MonthlyFields from './MonthlyFields';
 
 import { useCallback, useEffect, useState } from 'react';
@@ -47,6 +48,8 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(selected ? fields(selected) : newForm());
   const dirty = metadataDirty || Object.keys(pendingFiles).length > 0;
   const valid = (!monthly || !!form.issueMonth) && form.title.trim() && (series ? Number.isSafeInteger(form.episodeNumber) && form.episodeNumber! > 0 : form.author.trim() && form.license.trim());
+  const monthlyIssue = monthly && kind === 'series' && !series;
+  const monthlyValid = Boolean(valid && (!form.autoCompile || (Number.isInteger(form.expectedEpisodes) && form.expectedEpisodes! > 0 && form.expectedEpisodes! <= 100)));
   const label = series ? '회차' : kind === 'series' ? (monthly ? '월간호' : '작품') : kind === 'book' ? (monthly ? '합본' : '책') : '글꼴';
   const navigate: typeof onNavigate = (...args) => {
     if (busy || (dirty && !window.confirm('저장하지 않은 입력을 닫고 이동할까요?'))) return;
@@ -61,7 +64,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
     try {
       const [page, categoryResult] = await Promise.all([
         listReaderContent(kind, after, series?.id),
-        kind !== 'font' && !series ? listReaderCategories() : Promise.resolve(null),
+        kind !== 'font' && !series && !monthly ? listReaderCategories() : Promise.resolve(null),
       ]);
       const inScope = (item: ReaderContent) => !!series || kind === 'font' || Boolean(item.issueMonth || item.publishedContent?.issueMonth) === monthly;
       page.items = page.items.filter(inScope);
@@ -174,10 +177,10 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
   return <div className="space-y-5">
     {error && <div role="alert" className="rounded-xl border border-rose-900 bg-rose-950/40 p-4 text-sm text-rose-200">{error}</div>}
     {notice && <div role="status" className="rounded-xl border border-emerald-900 bg-emerald-950/40 p-4 text-sm text-emerald-200">{notice}</div>}
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)]">
+    <div className={`grid items-start gap-6 ${monthlyIssue ? 'xl:grid-cols-[240px_minmax(0,1fr)]' : 'xl:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)]'}`}>
       <AdminCard className="p-5">
     {kind !== 'font' && <div className="mb-5 flex flex-wrap items-center gap-2">
-      {series ? <><button disabled={busy} className={buttonClass} onClick={() => navigate('series', null, series)}>{monthly ? '← 월간호 정보' : '← 작품 정보'}</button><h2 className="text-lg font-semibold text-white">{series.title} · 회차 관리</h2></> : <>
+      {series ? <><button disabled={busy} className={buttonClass} onClick={() => navigate('series', null, series)}>{monthly ? '← 월간호 설정' : '← 작품 정보'}</button><h2 className="text-lg font-semibold text-white">{series.title} · 회차 관리</h2></> : <>
         {(monthly ? ['series', 'book'] as const : ['book', 'series'] as const).map(tab => <button key={tab} disabled={busy} aria-pressed={kind === tab} className={`${buttonClass} ${kind === tab ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate(tab)}>{tab === 'series' ? (monthly ? '월간호 · 회차' : '연재 작품') : (monthly ? '완결 합본' : '단권 도서')}</button>) }
       </>}
     </div>}
@@ -187,17 +190,29 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
         </div></div>
     {series && <button className={`${buttonClass} mb-4 w-full`} disabled={busy || loading} onClick={() => { if (dirty && !window.confirm('저장하지 않은 입력을 닫고 일괄 등록을 열까요?')) return; setPendingFiles({}); setBatchOpen(true); }}>회차 일괄 등록</button>}
     {series && <p className="mb-5 text-sm leading-6 text-slate-400">저자·분류·출처·이용 조건과 대표 표지는 작품에서 이어받습니다. 회차를 공개할 때 작품의 공개된 정보를 사용합니다. 회차 표지는 필요할 때만 추가하세요.</p>}
-    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">{monthly ? '발행 월·언어별로 월간호를 만들고, 회차 관리에서 매일의 글과 표지를 등록하세요. 월말에는 완결 합본 탭에서 EPUB을 올린 뒤 이 월간호에 연결하세요.' : '작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.'}</p>}
+    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">{monthly ? '발행 월·언어별로 월간호를 만들고, 회차 관리에서 매일의 글과 표지를 등록하세요. 월간호를 누르면 회차 관리가 열립니다. 기본 정보와 합본 설정은 월간호 설정에서 변경하세요.' : '작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.'}</p>}
         {loading && <p role="status" className="py-4 text-sm text-slate-400">목록을 불러오는 중…</p>}
         {!loading && items.length === 0 && !error && <p className="py-6 text-sm text-slate-400">등록한 {label}이 없습니다. 오른쪽에서 첫 항목을 추가해 주세요.</p>}
         {series && <label className="mb-4 block text-sm text-slate-300">회차 찾기 · {items.length}개<input className={inputClass} placeholder="번호 또는 제목" value={episodeQuery} onChange={e => setEpisodeQuery(e.target.value)} /></label>}
-        <ul className="max-h-[70vh] space-y-2 overflow-y-auto pr-1">{items.filter(item => !series || `${item.episodeNumber}화 ${item.title}`.toLocaleLowerCase().includes(episodeQuery.trim().toLocaleLowerCase())).sort((a, b) => series ? (a.episodeNumber || 0) - (b.episodeNumber || 0) : a.title.localeCompare(b.title, 'ko')).map(item => <li key={item.id}><button disabled={busy} onClick={() => select(item)} className={`w-full rounded-xl border p-4 text-left ${selected?.id === item.id ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 hover:bg-slate-800/60'}`}>
+        <ul className="max-h-[70vh] space-y-2 overflow-y-auto pr-1">{items.filter(item => !series || `${item.episodeNumber}화 ${item.title}`.toLocaleLowerCase().includes(episodeQuery.trim().toLocaleLowerCase())).sort((a, b) => series ? (a.episodeNumber || 0) - (b.episodeNumber || 0) : a.title.localeCompare(b.title, 'ko')).map(item => <li key={item.id}><button disabled={busy} onClick={() => monthlyIssue ? navigate('book', item) : select(item)} className={`w-full rounded-xl border p-4 text-left ${selected?.id === item.id ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 hover:bg-slate-800/60'}`}>
           <span className="block truncate font-medium text-white">{series ? `${item.episodeNumber}화 · ` : ''}{item.title}</span><span className="mt-1 block text-xs text-slate-400">{monthly && !series ? `${item.issueMonth || item.publishedContent?.issueMonth} · ${{ ko: '한국어', en: 'English', ja: '日本語' }[item.language || 'ko']} · ` : ''}{item.author} · {item.deleting ? '삭제 대기 · 재시도 필요' : item.published ? ((item.publishedContent?.releaseAt ? Date.parse(item.publishedContent.releaseAt) : item.publishedContent?.releaseDate ? Date.parse(item.publishedContent.releaseDate + 'T00:00:00+09:00') : 0) > Date.now() ? '공개 예약 · ' + (item.publishedContent?.releaseAt || item.publishedContent?.releaseDate)?.replace('T', ' ').replace(':00+09:00', '') + ' (한국 시간)' : '공개 중') : '초안'}</span>
           {item.published && item.publishedContent?.version !== item.revision && <span className="mt-2 block text-xs text-amber-300">수정된 초안 있음</span>}
         </button></li>)}</ul>
         {cursor && <button className={`${buttonClass} mt-4 w-full`} disabled={busy || loading} onClick={() => void load(cursor)}>더 불러오기</button>}
       </AdminCard>
-      <AdminCard className="p-6">
+      <AdminCard className="min-w-0 p-4 sm:p-6">
+        {monthlyIssue ? <MonthlyIssueEditor form={form} onChange={setForm} selected={selected} busy={busy} dirty={dirty} valid={monthlyValid} publishReady={Boolean(contentPublishReady)} coverFile={pendingFiles.cover}
+          coverInput={fileControl('cover', '대표 표지 등록', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP / 최대 5MB')}
+          onSave={publish => void saveContent(publish)} onEpisodes={() => selected && navigate('book', selected)}
+          onCancelFile={() => setPendingFiles({})}
+          onRemoveCover={() => selected && void run(() => mutateReaderContent({ action: 'removeAsset', id: selected.id, revision: selected.revision, slot: 'cover' }), '초안에서 표지를 제외했습니다. 공개본은 다음 공개까지 유지됩니다.')}
+          onCompile={() => { if (selected && window.confirm('예정한 모든 회차로 합본을 만들고 마감할까요?')) void run(() => mutateReaderContent({ action: 'compileMonthly', id: selected.id, revision: selected.revision }), '합본을 만들고 연결했습니다.'); }}
+          management={selected && <details className="border-t border-slate-800 pt-4"><summary className="cursor-pointer text-sm text-slate-400">공개 중단 · 삭제</summary><div className="mt-3 flex flex-wrap gap-3">
+            {selected.published && <button className={buttonClass} disabled={busy || dirty || !!selected.deleting} onClick={() => void run(() => mutateReaderContent({ action: 'unpublish', id: selected.id, revision: selected.revision }), '비공개로 전환했습니다. 기존 다운로드는 유지됩니다.')}>비공개로 전환</button>}
+            <button className={`${buttonClass} text-rose-300`} disabled={busy || loading} onClick={() => void remove()}>{selected.deleting ? '삭제 재시도' : '영구 삭제'}</button>
+            <p className="w-full text-xs text-slate-500">회차가 있는 월간호는 삭제할 수 없습니다. 비공개 전환 시 모든 회차의 신규 다운로드가 중단됩니다.</p>
+          </div></details>} /> : <>
+
         <h2 className="text-lg font-semibold text-white">{selected ? `${label} 편집` : `새 ${label} 등록`}</h2>
         <p className="mt-2 text-sm leading-6 text-slate-400">정보와 파일은 초안으로 저장됩니다. ‘공개’하면 앱의 다운로드 목록에 반영됩니다.</p>
         <form className="mt-6 space-y-4" onSubmit={event => { event.preventDefault(); if (kind !== 'font') { void saveContent(false); return; } void run(() => selected ? mutateReaderContent({ action: 'save', id: selected.id, revision: selected.revision, metadata: form }) : mutateReaderContent({ action: 'create', kind, metadata: form }), '정보를 초안에 저장했습니다.'); }}>
@@ -226,13 +241,6 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
           </fieldset>
         </form>
         <div className="mt-8 space-y-3 border-t border-slate-800 pt-6">
-          {monthly && kind === 'series' && selected && <div className="space-y-2 rounded-xl border border-slate-700 p-4">
-            <p className="text-sm text-slate-300">{selected.publishedContent?.compilationId ? '합본 연결 완료 · 앱 다운로드 목록에서 합본을 제공합니다.' : 'TXT 원본으로 각 회차의 이미지와 본문을 모아 합본을 만듭니다.'}</p>
-            {selected.compilationError && <p role="alert" className="text-sm text-amber-300">{selected.compilationError}</p>}
-            <button type="button" className={buttonClass} disabled={busy || dirty || !selected.published || !!selected.publishedContent?.compilationId} onClick={() => {
-              if (window.confirm('현재 공개된 회차로 합본을 만들고 월간호를 완결 처리할까요? 예정 회차가 모두 등록·공개되어 있어야 합니다. 먼저 설정 변경을 공개해 주세요.')) void run(() => mutateReaderContent({ action: 'compileMonthly', id: selected.id, revision: selected.revision }), '합본을 만들고 연결했습니다. 앱 목록을 새로고침하면 확인할 수 있습니다.');
-            }}>지금 합본 만들고 마감</button>
-          </div>}
           <h3 className="font-semibold text-white">파일 등록</h3>
           {kind === 'font' && (!selected || dirty) && <p className="text-sm text-amber-300">입력한 정보를 먼저 저장한 뒤 파일을 등록해 주세요.</p>}
           {kind !== 'font' && <p className="text-sm text-slate-400">파일을 선택한 뒤 아래에서 임시 저장하거나 공개하세요.</p>}
@@ -258,6 +266,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
           {selected.deleting && <p role="status" className="w-full text-sm text-amber-300">신규 다운로드가 차단된 상태입니다. 삭제를 다시 시도하여 서버 파일 정리를 완료해 주세요.</p>}
           <p className="w-full text-xs leading-5 text-slate-500">{kind === 'series' ? '작품을 비공개로 전환하면 모든 회차의 신규 다운로드도 중단됩니다. 회차가 있는 작품은 삭제할 수 없습니다.' : '공개한 파일은 로그인 없이 다운로드할 수 있습니다.'} 비공개 전환 후에도 이미 내려받은 파일은 유지됩니다.</p>
         </div>}
+        </>}
       </AdminCard>
     </div>
   </div>;

@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { listReaderContent, ReaderContent, ReaderKind, ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 
 /** Monthly publishing is an extension of series, not another content store. */
-export default function MonthlyFields({ kind, series, form, onChange, monthLocked = false }: {
+export default function MonthlyFields({ kind, series, form, onChange, monthLocked = false, section = 'all' }: {
+  section?: 'all' | 'link';
   monthLocked?: boolean; kind: ReaderKind; series: ReaderContent | null; form: ReaderMetadata; onChange: (value: ReaderMetadata) => void;
 }) {
   const [books, setBooks] = useState<ReaderContent[]>([]);
@@ -28,16 +29,16 @@ export default function MonthlyFields({ kind, series, form, onChange, monthLocke
   const options = books.filter(book => book.published && book.publishedContent?.assets.epub && !book.seriesId &&
     book.publishedContent.issueMonth === form.issueMonth && (book.publishedContent.language || 'ko') === (form.language || 'ko'));
   return <div className="space-y-3 rounded-xl border border-slate-700 p-4">
-    <label className="block text-sm text-slate-300">발행 월 (필수)
+    {section === 'all' && <label className="block text-sm text-slate-300">발행 월 (필수)
       <input required disabled={monthLocked} type="month" className={input} value={form.issueMonth || ''} onChange={e => onChange({ ...form, issueMonth: e.target.value, compilationId: '', releaseDate: '', releaseAt: '' })} />
-    </label>
+    </label>}
     {form.issueMonth && kind === 'book' && <p className="text-xs text-slate-400">이 월간호의 완성된 합본 EPUB을 올리고 공개한 뒤, 월간호 · 회차 탭에서 해당 월간호에 연결하세요.</p>}
     {form.issueMonth && kind === 'series' && <>
-      <label className="block text-sm text-slate-300"><input type="checkbox" checked={form.autoCompile || false} onChange={e => onChange({ ...form, autoCompile: e.target.checked, expectedEpisodes: form.expectedEpisodes || 1 })} /> 월말 자동 합본 생성</label>
+      {section === 'all' && <><label className="block text-sm text-slate-300"><input type="checkbox" checked={form.autoCompile || false} onChange={e => onChange({ ...form, autoCompile: e.target.checked, expectedEpisodes: form.expectedEpisodes || 1 })} /> 월말 자동 합본 생성</label>
       <label className="block text-sm text-slate-300">이번 호 예정 회차 수
         <input type="number" min={1} max={100} className={input} value={form.expectedEpisodes || ''} onChange={e => onChange({ ...form, expectedEpisodes: Number(e.target.value) })} />
       </label>
-      <p className="text-xs text-slate-400">설정 후 ‘수정하고 공개’를 눌러 적용하세요. 다음 달 1일 한국 시간 0시 이후 매시간 확인합니다. 예정 회차가 모두 공개되고 TXT 원본이 있어야 합본을 만들며, 누락·실패 시 기존 목록을 유지합니다. 원본 TXT와 이미지는 보관됩니다.</p>
+      <p className="text-xs text-slate-400">설정 후 ‘수정하고 공개’를 눌러 적용하세요. 다음 달 1일 한국 시간 0시 이후 매시간 확인합니다. 예정 회차가 모두 공개되고 TXT 원본이 있어야 합본을 만들며, 누락·실패 시 기존 목록을 유지합니다. 원본 TXT와 이미지는 보관됩니다.</p></>}
       <label className="block text-sm text-slate-300">직접 만든 합본 연결 (선택)
         <select className={input} value={form.compilationId || ''} onChange={e => onChange({ ...form, compilationId: e.target.value, ...(e.target.value ? { seriesStatus: 'completed' } : {}) })}>
           <option value="">아직 연결하지 않음</option>
@@ -47,7 +48,7 @@ export default function MonthlyFields({ kind, series, form, onChange, monthLocke
       </label>
       {error && <p role="alert" className="text-sm text-rose-300">{error}</p>}
       <p className="text-xs text-slate-400">같은 월·언어의 공개된 EPUB만 표시됩니다. 합본 연결 후 ‘수정 내용 공개’를 누르면 앱 다운로드 목록은 합본으로 전환됩니다. 기존에 받은 회차와 독서 기록은 유지됩니다.</p>
-      <p className="text-xs text-slate-400">일괄 등록에서 시작 일시와 발행 간격을 지정할 수 있습니다. 회차 번호와 발행 날짜는 별개이며 각 회차의 공개 일시도 수정할 수 있습니다.</p>
+      {section === 'all' && <p className="text-xs text-slate-400">일괄 등록에서 시작 일시와 발행 간격을 지정할 수 있습니다. 회차 번호와 발행 날짜는 별개이며 각 회차의 공개 일시도 수정할 수 있습니다.</p>}
     </>}
   </div>;
 }
