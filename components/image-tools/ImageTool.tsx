@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- Local blob previews must not use server image optimization. */
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   ImagePlus,
   ArrowDownToLine,
@@ -1028,7 +1029,7 @@ export default function ImageTool() {
             <p>{answer}</p>
           </details>
         ))}
-        <a href="/koofy-image/licenses">{t.licenses} ↗</a>
+        <Link href="/koofy-image/licenses">{t.licenses} ↗</Link>
       </section>
       {items.length > 0 && !comparing && dockVisible && (
         <div
