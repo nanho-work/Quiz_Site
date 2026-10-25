@@ -1,6 +1,6 @@
 export interface NamedFile { name: string; size: number; lastModified: number }
 export interface EpisodeRow<F extends NamedFile = File> {
-  key: string; number: string; title: string; description: string; releaseAt?: string;
+  key: string; number: string; title: string; description: string; releaseAt?: string; byline?: string;
   books: F[]; covers: F[];
 }
 const normalize = (value: string) => value.normalize('NFC').replace(/[\s_]+/g, ' ').trim();

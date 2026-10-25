@@ -10,7 +10,7 @@ import { AdminCard } from '../shared/AdminCard';
 const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, expectedEpisodes: item.expectedEpisodes || 0, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
 export function ReaderContentManager({ kind, monthly = false }: { kind: ReaderKind; monthly?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
@@ -25,7 +25,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
   onNavigate: (kind: ReaderKind, series?: ReaderContent | null, item?: ReaderContent | null) => void;
 }) {
   const newForm = (): ReaderMetadata => series
-    ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '', releaseAt: '' }
+    ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '', releaseAt: '', autoCompile: false, expectedEpisodes: 0, byline: '' }
     : { ...empty, ...(monthly ? { issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
@@ -218,6 +218,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
             </div>}
             <label className="block text-sm text-slate-300">출처 (선택)<input maxLength={500} className={inputClass} placeholder="원문 페이지 주소 또는 제공 기관" value={form.source || ''} onChange={e => setForm({ ...form, source: e.target.value })} /></label>
             </>}
+            {monthly && series && <label className="block text-sm text-slate-300">글쓴이 (선택 · 이미지 위에 표시)<input className={inputClass} maxLength={120} value={form.byline || ''} onChange={e => setForm({ ...form, byline: e.target.value })} /></label>}
             {monthly && <MonthlyFields kind={kind} series={series} form={form} onChange={setForm} monthLocked={!!selected?.publishedContent} />}
             <label className="block text-sm text-slate-300">설명 (선택)<textarea rows={3} maxLength={2000} className={inputClass} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
             {!series && <label className="block text-sm text-slate-300">배포 권한 · 이용 조건 (필수)<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>}
@@ -225,10 +226,17 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
           </fieldset>
         </form>
         <div className="mt-8 space-y-3 border-t border-slate-800 pt-6">
+          {monthly && kind === 'series' && selected && <div className="space-y-2 rounded-xl border border-slate-700 p-4">
+            <p className="text-sm text-slate-300">{selected.publishedContent?.compilationId ? '합본 연결 완료 · 앱 다운로드 목록에서 합본을 제공합니다.' : 'TXT 원본으로 각 회차의 이미지와 본문을 모아 합본을 만듭니다.'}</p>
+            {selected.compilationError && <p role="alert" className="text-sm text-amber-300">{selected.compilationError}</p>}
+            <button type="button" className={buttonClass} disabled={busy || dirty || !selected.published || !!selected.publishedContent?.compilationId} onClick={() => {
+              if (window.confirm('현재 공개된 회차로 합본을 만들고 월간호를 완결 처리할까요? 예정 회차가 모두 등록·공개되어 있어야 합니다. 먼저 설정 변경을 공개해 주세요.')) void run(() => mutateReaderContent({ action: 'compileMonthly', id: selected.id, revision: selected.revision }), '합본을 만들고 연결했습니다. 앱 목록을 새로고침하면 확인할 수 있습니다.');
+            }}>지금 합본 만들고 마감</button>
+          </div>}
           <h3 className="font-semibold text-white">파일 등록</h3>
           {kind === 'font' && (!selected || dirty) && <p className="text-sm text-amber-300">입력한 정보를 먼저 저장한 뒤 파일을 등록해 주세요.</p>}
           {kind !== 'font' && <p className="text-sm text-slate-400">파일을 선택한 뒤 아래에서 임시 저장하거나 공개하세요.</p>}
-          {kind === 'series' ? fileControl('cover', '대표 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB. 별도 표지가 없는 회차에도 사용합니다.') : kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', '책 파일', '.epub,.txt', 'EPUB 또는 TXT · 최대 20MB. TXT는 각 제목 줄을 [장] 제목으로 작성하면 새 앱에서 목차와 페이지 구분을 만듭니다. [장]은 줄 맨 앞에, 제목은 공백 뒤에 작성하세요. 표식은 숨겨지고 제목만 표시됩니다. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', series ? '회차 표지 (선택)' : '책 표지', '.png,.jpg,.jpeg,.webp', series ? '없으면 작품의 대표 표지를 사용합니다. PNG · JPG · WebP · 최대 5MB' : 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
+          {kind === 'series' ? fileControl('cover', '대표 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB. 별도 표지가 없는 회차에도 사용합니다.') : kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', monthly && series ? '회차 TXT (공개할 때 EPUB 자동 생성)' : '책 파일', '.epub,.txt', monthly && series ? 'TXT 본문(UTF-8 기준 1MB 이하)과 회차 이미지를 넣으세요. [장]은 필요 없습니다. 첫 줄이 제목과 같으면 본문 제목으로 한 번만 표시합니다. 직접 만든 EPUB도 등록할 수 있으나 자동 합본에는 TXT 원본이 필요합니다.' : 'EPUB 또는 TXT · 최대 20MB. TXT는 각 제목 줄을 [장] 제목으로 작성하면 새 앱에서 목차와 페이지 구분을 만듭니다. [장]은 줄 맨 앞에, 제목은 공백 뒤에 작성하세요. 표식은 숨겨지고 제목만 표시됩니다. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', monthly && series ? '첫 페이지 이미지 (TXT 회차 필수)' : series ? '회차 표지 (선택)' : '책 표지', '.png,.jpg,.jpeg,.webp', series ? '없으면 작품의 대표 표지를 사용합니다. PNG · JPG · WebP · 최대 5MB' : 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
             <label className="block text-sm text-slate-300">글꼴 굵기<select disabled={busy || !!selected?.deleting} className={inputClass} value={weight} onChange={e => setWeight(e.target.value)}>{[100,200,300,400,500,600,700,800,900].map(w => <option value={w} key={w}>{w}{w === 300 ? ' · Light' : w === 400 ? ' · Regular' : w === 700 ? ' · Bold' : ''}</option>)}</select></label>
             {fileControl(`font${weight}`, '선택한 굵기의 글꼴 파일', '.otf,.ttf', '정적 OTF · TTF · 파일당 최대 10MB. 다른 굵기는 차례로 추가하세요.')}
             <p className="text-xs leading-5 text-slate-400">공개할 때 등록한 글꼴로 이름 미리보기를 자동 생성합니다. 보통 굵기(400)를 우선 사용하며 없으면 가장 가까운 굵기를 사용합니다. 기존 글꼴은 ‘수정 내용 공개’를 누르면 생성됩니다. 글꼴에 이름의 문자가 없으면 앱 기본 글꼴로 표시됩니다.</p>
