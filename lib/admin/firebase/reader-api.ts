@@ -1,7 +1,7 @@
 import { getAdminFirebaseServices } from './client';
 import { koofyReaderFirebaseConfig } from './koofy-reader';
 export type ReaderKind = 'book' | 'font' | 'series';
-export interface ReaderMetadata { issueMonth?: string; releaseDate?: string; compilationId?: string; language?: 'ko' | 'en' | 'ja'; title: string; author: string; description: string; license: string; category?: string; source?: string; seriesId?: string; seriesTitle?: string; episodeNumber?: number; seriesStatus?: 'ongoing' | 'completed' }
+export interface ReaderMetadata { issueMonth?: string; releaseDate?: string; releaseAt?: string; compilationId?: string; language?: 'ko' | 'en' | 'ja'; title: string; author: string; description: string; license: string; category?: string; source?: string; seriesId?: string; seriesTitle?: string; episodeNumber?: number; seriesStatus?: 'ongoing' | 'completed' }
 export interface ReaderAsset { path: string; sha256: string; size: number; extension: string; contentType: string; weight?: number }
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;

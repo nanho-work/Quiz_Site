@@ -10,7 +10,7 @@ import { AdminCard } from '../shared/AdminCard';
 const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
 export function ReaderContentManager({ kind, monthly = false }: { kind: ReaderKind; monthly?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
@@ -25,7 +25,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
   onNavigate: (kind: ReaderKind, series?: ReaderContent | null, item?: ReaderContent | null) => void;
 }) {
   const newForm = (): ReaderMetadata => series
-    ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '' }
+    ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '', releaseAt: '' }
     : { ...empty, ...(monthly ? { issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
@@ -139,7 +139,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
         setPendingFiles(previous => { const next = { ...previous }; delete next[slot]; return next; });
       }
       if (publish) remember(await mutateReaderContent({ action: 'publish', id: current!.id, revision: current!.revision }));
-      setNotice(publish ? '공개했습니다. 앱에서 목록을 새로고침하면 확인할 수 있습니다.' : '임시 저장했습니다. 이번 변경은 아직 공개되지 않았습니다.');
+      setNotice(publish ? (current?.releaseAt && Date.parse(current.releaseAt) > Date.now() ? '공개를 예약했습니다. 지정한 한국 시간 이후 앱 목록에 노출됩니다.' : '공개했습니다. 앱에서 목록을 새로고침하면 확인할 수 있습니다.') : '임시 저장했습니다. 이번 변경은 아직 공개되지 않았습니다.');
     } catch (error) {
       setError(`${error instanceof Error ? error.message : '작업을 완료하지 못했습니다.'}${current ? ' 완료된 단계는 저장되어 있습니다. 남은 파일과 공개 상태를 확인한 뒤 다시 시도해 주세요.' : ''}`);
     } finally { setBusy(false); }
@@ -192,7 +192,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
         {!loading && items.length === 0 && !error && <p className="py-6 text-sm text-slate-400">등록한 {label}이 없습니다. 오른쪽에서 첫 항목을 추가해 주세요.</p>}
         {series && <label className="mb-4 block text-sm text-slate-300">회차 찾기 · {items.length}개<input className={inputClass} placeholder="번호 또는 제목" value={episodeQuery} onChange={e => setEpisodeQuery(e.target.value)} /></label>}
         <ul className="max-h-[70vh] space-y-2 overflow-y-auto pr-1">{items.filter(item => !series || `${item.episodeNumber}화 ${item.title}`.toLocaleLowerCase().includes(episodeQuery.trim().toLocaleLowerCase())).sort((a, b) => series ? (a.episodeNumber || 0) - (b.episodeNumber || 0) : a.title.localeCompare(b.title, 'ko')).map(item => <li key={item.id}><button disabled={busy} onClick={() => select(item)} className={`w-full rounded-xl border p-4 text-left ${selected?.id === item.id ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 hover:bg-slate-800/60'}`}>
-          <span className="block truncate font-medium text-white">{series ? `${item.episodeNumber}화 · ` : ''}{item.title}</span><span className="mt-1 block text-xs text-slate-400">{monthly && !series ? `${item.issueMonth || item.publishedContent?.issueMonth} · ${{ ko: '한국어', en: 'English', ja: '日本語' }[item.language || 'ko']} · ` : ''}{item.author} · {item.deleting ? '삭제 대기 · 재시도 필요' : item.published ? '공개 중' : '비공개'}</span>
+          <span className="block truncate font-medium text-white">{series ? `${item.episodeNumber}화 · ` : ''}{item.title}</span><span className="mt-1 block text-xs text-slate-400">{monthly && !series ? `${item.issueMonth || item.publishedContent?.issueMonth} · ${{ ko: '한국어', en: 'English', ja: '日本語' }[item.language || 'ko']} · ` : ''}{item.author} · {item.deleting ? '삭제 대기 · 재시도 필요' : item.published ? ((item.publishedContent?.releaseAt ? Date.parse(item.publishedContent.releaseAt) : item.publishedContent?.releaseDate ? Date.parse(item.publishedContent.releaseDate + 'T00:00:00+09:00') : 0) > Date.now() ? '공개 예약 · ' + (item.publishedContent?.releaseAt || item.publishedContent?.releaseDate)?.replace('T', ' ').replace(':00+09:00', '') + ' (한국 시간)' : '공개 중') : '초안'}</span>
           {item.published && item.publishedContent?.version !== item.revision && <span className="mt-2 block text-xs text-amber-300">수정된 초안 있음</span>}
         </button></li>)}</ul>
         {cursor && <button className={`${buttonClass} mt-4 w-full`} disabled={busy || loading} onClick={() => void load(cursor)}>더 불러오기</button>}
@@ -238,7 +238,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
         </div>
         {kind !== 'font' && <div className="mt-6 flex flex-wrap items-center gap-3">
           <button className={buttonClass} disabled={busy || !valid || !!selected?.deleting || (!!selected && !dirty)} onClick={() => void saveContent(false)}>{busy ? '처리 중…' : '임시 저장'}</button>
-          <button className={`${buttonClass} border-emerald-600 bg-emerald-700 hover:bg-emerald-600`} disabled={busy || !valid || !contentPublishReady || !!selected?.deleting} onClick={() => void saveContent(true)}>{busy ? '처리 중…' : selected?.published ? '수정하고 공개' : '등록하고 공개'}</button>
+          <button className={`${buttonClass} border-emerald-600 bg-emerald-700 hover:bg-emerald-600`} disabled={busy || !valid || !contentPublishReady || !!selected?.deleting} onClick={() => void saveContent(true)}>{busy ? '처리 중…' : form.releaseAt && Date.parse(form.releaseAt) > Date.now() ? '공개 예약 저장' : selected?.published ? '수정하고 공개' : '등록하고 공개'}</button>
           {Object.keys(pendingFiles).length > 0 && <button className={buttonClass} disabled={busy} onClick={() => setPendingFiles({})}>파일 선택 취소</button>}
         </div>}
         {kind === 'series' && selected && <button className={`${buttonClass} mt-6`} disabled={busy || dirty || !!selected.deleting} onClick={() => navigate('book', selected)}>회차 관리 · 추가</button>}

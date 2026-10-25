@@ -4,10 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import { listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
 import { episodeIssues, mergeEpisodeFiles, type EpisodeRow } from '../../../lib/admin/reader/episode-batch';
 
+import { scheduleAt, scheduleIssue } from '../../../lib/admin/reader/monthly-schedule';
+
 const button = 'rounded-lg border border-slate-600 px-4 py-2 text-sm text-white disabled:opacity-40';
 const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-sm text-white';
 interface Progress { item?: ReaderContent; bookDone?: boolean; coverDone?: boolean; state: 'working' | 'saved' | 'published' | 'failed'; message?: string }
 export function ReaderEpisodeBatch({ series, onClose }: { series: ReaderContent; onClose: () => void }) {
+  const [scheduleStart, setScheduleStart] = useState(`${series.issueMonth || ''}-01T09:00`);
+  const [intervalDays, setIntervalDays] = useState(1);
   const [rows, setRows] = useState<EpisodeRow[]>([]);
   const [existing, setExisting] = useState<ReaderContent[]>([]);
   const [progress, setProgress] = useState<Record<string, Progress>>({});
@@ -32,7 +36,7 @@ export function ReaderEpisodeBatch({ series, onClose }: { series: ReaderContent;
     const warn = (event: BeforeUnloadEvent) => { if (busy || rows.some(row => !['saved', 'published'].includes(progress[row.key]?.state))) { event.preventDefault(); event.returnValue = ''; } };
     window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn);
   }, [busy, rows, progress]);
-  const issues = (row: EpisodeRow, all = existing) => episodeIssues(row, rows, new Set(all.filter(item => item.id !== progress[row.key]?.item?.id).map(item => item.episodeNumber!)));
+  const issues = (row: EpisodeRow, all = existing) => [...episodeIssues(row, rows, new Set(all.filter(item => item.id !== progress[row.key]?.item?.id).map(item => item.episodeNumber!))), ...(series.issueMonth && scheduleIssue(row.releaseAt, series.issueMonth) ? [scheduleIssue(row.releaseAt, series.issueMonth)!] : [])];
   const addFiles = (files: File[]) => {
     if (lock.current) return;
     if (!files.length) { setMessage('폴더 안의 본문·표지 파일들을 선택해서 넣어 주세요.'); return; }
@@ -59,7 +63,7 @@ export function ReaderEpisodeBatch({ series, onClose }: { series: ReaderContent;
         remember({}); setMessage(`${row.number}화 처리 중 · 이번 실행 ${completed}개 완료 · ${failed}개 실패`);
         try {
           if (!state.item) {
-            const item = await mutateReaderContent({ action: 'create', kind: 'book', seriesId: series.id, metadata: { ...(series.issueMonth ? { releaseDate: `${series.issueMonth}-${String(Number(row.number)).padStart(2, '0')}` } : {}), title: row.title.trim(), episodeNumber: Number(row.number), description: row.description, author: series.author, license: series.license } });
+            const item = await mutateReaderContent({ action: 'create', kind: 'book', seriesId: series.id, metadata: { ...(series.issueMonth ? { releaseDate: row.releaseAt!.slice(0, 10), releaseAt: row.releaseAt } : {}), title: row.title.trim(), episodeNumber: Number(row.number), description: row.description, author: series.author, license: series.license } });
             remember({ item }); fresh.push(item);
           } else {
             const current = fresh.find(item => item.id === state.item!.id);
@@ -84,20 +88,32 @@ export function ReaderEpisodeBatch({ series, onClose }: { series: ReaderContent;
       <span className="block">본문·표지 파일을 여기에 끌어다 놓으세요</span><span className="mt-2 block text-xs text-slate-400">TXT·EPUB 최대 20MB / JPG·PNG·WebP 최대 5MB · 표지는 사용할 폴더 하나에서 선택하세요</span>
       <input aria-label="회차 파일 여러 개 선택" type="file" multiple accept=".txt,.epub,.jpg,.jpeg,.png,.webp" disabled={busy} className="mt-4 max-w-full text-sm" onChange={event => { addFiles(Array.from(event.target.files || [])); event.target.value = ''; }} />
     </label>
-    {series.issueMonth && <p className="text-sm text-slate-300">발행 월: {series.issueMonth} · 회차 번호가 발행 날짜입니다(1화 = 1일). 공개 후에도 해당 날짜 전에는 앱에 노출되지 않습니다.</p>}
+    {series.issueMonth && <div className="space-y-3 rounded-xl border border-slate-700 p-4">
+      <p className="text-sm text-slate-300">발행 월: {series.issueMonth} · 한국 시간 기준입니다. 회차 번호 순서로 일정을 넣고, 아래에서 각각 수정할 수 있습니다.</p>
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="text-sm text-slate-300">시작 일시<input type="datetime-local" className={input} value={scheduleStart} disabled={busy} onChange={e => setScheduleStart(e.target.value)} /></label>
+        <label className="text-sm text-slate-300">발행 간격 (일)<input type="number" min={1} max={31} className={input} value={intervalDays} disabled={busy} onChange={e => setIntervalDays(Number(e.target.value))} /></label>
+        <button className={button} disabled={busy || !rows.length || !scheduleAt(scheduleStart, 0, intervalDays)} onClick={() => {
+          if (rows.some(row => row.releaseAt && !progress[row.key]?.item) && !window.confirm('아직 저장하지 않은 회차의 공개 일시를 다시 배정할까요?')) return;
+          let index = 0;
+          setRows(rows.map(row => progress[row.key]?.item ? row : { ...row, releaseAt: scheduleAt(scheduleStart, index++, intervalDays) }));
+        }}>미저장 회차에 일정 적용</button>
+      </div>
+      <p className="text-xs text-slate-400">일정을 확인한 뒤 아래 ‘등록하고 예약·공개’를 누르세요. 과거 일시는 바로 공개되며, 발행 월을 넘긴 회차는 등록되지 않습니다.</p>
+    </div>}
     {message && <p role="status" className="break-words text-sm text-amber-200">{message}</p>}
     <p className="text-sm text-slate-300">{rows.length}개 회차 · 등록 가능 {ready.length}개 {loading ? '· 기존 회차 확인 중…' : ''}</p>
     <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm text-slate-300"><thead><tr>{['회차', '제목·설명', '본문', '표지', '상태'].map(label => <th className="p-2" key={label}>{label}</th>)}</tr></thead><tbody>
       {rows.map(row => { const state = progress[row.key]; const problems = issues(row); const locked = busy || !!state?.item;
         return <tr key={row.key} className="border-t border-slate-700 align-top">
           <td className="w-24 p-2"><input aria-label={`${row.title} 회차 번호`} type="number" min={1} max={100000} className={input} value={row.number} disabled={locked} onChange={event => update(row.key, { number: event.target.value })} /></td>
-          <td className="min-w-64 p-2"><input aria-label={`${row.number || '미지정'}화 제목`} className={input} maxLength={160} value={row.title} disabled={locked} onChange={event => update(row.key, { title: event.target.value })} /><textarea aria-label={`${row.number || '미지정'}화 설명`} className={`${input} mt-2`} placeholder="설명 (선택)" maxLength={2000} rows={2} value={row.description} disabled={locked} onChange={event => update(row.key, { description: event.target.value })} /></td>
+          <td className="min-w-64 p-2"><input aria-label={`${row.number || '미지정'}화 제목`} className={input} maxLength={160} value={row.title} disabled={locked} onChange={event => update(row.key, { title: event.target.value })} />{series.issueMonth && <label className="mt-2 block text-xs">공개 일시 (한국 시간)<input type="datetime-local" className={input} value={row.releaseAt?.slice(0, 16) || ''} disabled={locked} onChange={event => update(row.key, { releaseAt: event.target.value ? event.target.value + ':00+09:00' : '' })} /></label>}<textarea aria-label={`${row.number || '미지정'}화 설명`} className={`${input} mt-2`} placeholder="설명 (선택)" maxLength={2000} rows={2} value={row.description} disabled={locked} onChange={event => update(row.key, { description: event.target.value })} /></td>
           {(['books', 'covers'] as const).map(slot => <td className="max-w-56 break-all p-2" key={slot}>{row[slot].length ? row[slot].map((file, index) => <div key={index} className="mb-2">{file.name}{!locked && <button aria-label={`${file.name} 제외`} className="ml-2 text-rose-300" onClick={() => update(row.key, { [slot]: row[slot].filter((_, n) => n !== index) })}>×</button>}</div>) : slot === 'covers' ? '작품 표지 사용' : '본문 없음'}</td>)}
-          <td className="min-w-40 p-2"><p className={problems.length || state?.state === 'failed' ? 'text-amber-300' : 'text-emerald-300'}>{state?.state === 'published' ? '공개 완료' : state?.state === 'saved' ? '임시 저장 완료' : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}</p>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
+          <td className="min-w-40 p-2"><p className={problems.length || state?.state === 'failed' ? 'text-amber-300' : 'text-emerald-300'}>{state?.state === 'published' ? (row.releaseAt && Date.parse(row.releaseAt) > Date.now() ? '공개 예약 완료' : '공개 완료') : state?.state === 'saved' ? '임시 저장 완료' : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}</p>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
         </tr>;
       })}
     </tbody></table></div>
-    <div className="flex flex-wrap gap-3"><button className={button} disabled={busy || loading || !ready.some(row => progress[row.key]?.state !== 'saved')} onClick={() => void start(false)}>전체 임시 저장</button><button className={`${button} bg-emerald-700`} disabled={busy || loading || !series.published || !ready.length} onClick={() => void start(true)}>전체 등록하고 공개</button>{busy && <button className={button} onClick={() => { stop.current = true; setMessage('현재 회차를 마친 뒤 중단합니다.'); }}>다음 회차부터 중단</button>}</div>
+    <div className="flex flex-wrap gap-3"><button className={button} disabled={busy || loading || !ready.some(row => progress[row.key]?.state !== 'saved')} onClick={() => void start(false)}>전체 임시 저장</button><button className={`${button} bg-emerald-700`} disabled={busy || loading || !series.published || !ready.length} onClick={() => void start(true)}>{series.issueMonth ? '등록하고 예약·공개' : '전체 등록하고 공개'}</button>{busy && <button className={button} onClick={() => { stop.current = true; setMessage('현재 회차를 마친 뒤 중단합니다.'); }}>다음 회차부터 중단</button>}</div>
     {!series.published && <p className="text-sm text-amber-300">작품을 먼저 공개해야 회차를 공개할 수 있습니다.</p>}
     <p className="text-xs text-slate-400">파일 선택은 이 화면에서만 유지됩니다. 등록 중에는 페이지를 닫지 마세요. 임시 저장·공개가 끝난 행은 개별 회차 화면에서 수정할 수 있습니다.</p>
   </section>;
