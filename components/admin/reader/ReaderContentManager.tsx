@@ -1,4 +1,5 @@
 'use client';
+import MonthlyFields from './MonthlyFields';
 
 import { useCallback, useEffect, useState } from 'react';
 import { FileUp, Plus, RefreshCw } from 'lucide-react';
@@ -9,7 +10,7 @@ import { AdminCard } from '../shared/AdminCard';
 const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
 export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
@@ -24,7 +25,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
   onNavigate: (kind: ReaderKind, series?: ReaderContent | null, item?: ReaderContent | null) => void;
 }) {
   const newForm = (): ReaderMetadata => series
-    ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined }
+    ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '' }
     : { ...empty, ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
@@ -216,6 +217,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
             </div>}
             <label className="block text-sm text-slate-300">출처 (선택)<input maxLength={500} className={inputClass} placeholder="원문 페이지 주소 또는 제공 기관" value={form.source || ''} onChange={e => setForm({ ...form, source: e.target.value })} /></label>
             </>}
+            <MonthlyFields kind={kind} series={series} form={form} onChange={setForm} />
             <label className="block text-sm text-slate-300">설명 (선택)<textarea rows={3} maxLength={2000} className={inputClass} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
             {!series && <label className="block text-sm text-slate-300">배포 권한 · 이용 조건 (필수)<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>}
             {kind === 'font' && <button type="submit" className={buttonClass} disabled={busy || !valid || (!!selected && !dirty)}>{busy ? '처리 중…' : selected ? '초안 저장' : '초안 만들기'}</button>}

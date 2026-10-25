@@ -59,7 +59,7 @@ export function ReaderEpisodeBatch({ series, onClose }: { series: ReaderContent;
         remember({}); setMessage(`${row.number}화 처리 중 · 이번 실행 ${completed}개 완료 · ${failed}개 실패`);
         try {
           if (!state.item) {
-            const item = await mutateReaderContent({ action: 'create', kind: 'book', seriesId: series.id, metadata: { title: row.title.trim(), episodeNumber: Number(row.number), description: row.description, author: series.author, license: series.license } });
+            const item = await mutateReaderContent({ action: 'create', kind: 'book', seriesId: series.id, metadata: { ...(series.issueMonth ? { releaseDate: `${series.issueMonth}-${String(Number(row.number)).padStart(2, '0')}` } : {}), title: row.title.trim(), episodeNumber: Number(row.number), description: row.description, author: series.author, license: series.license } });
             remember({ item }); fresh.push(item);
           } else {
             const current = fresh.find(item => item.id === state.item!.id);
@@ -84,6 +84,7 @@ export function ReaderEpisodeBatch({ series, onClose }: { series: ReaderContent;
       <span className="block">본문·표지 파일을 여기에 끌어다 놓으세요</span><span className="mt-2 block text-xs text-slate-400">TXT·EPUB 최대 20MB / JPG·PNG·WebP 최대 5MB · 표지는 사용할 폴더 하나에서 선택하세요</span>
       <input aria-label="회차 파일 여러 개 선택" type="file" multiple accept=".txt,.epub,.jpg,.jpeg,.png,.webp" disabled={busy} className="mt-4 max-w-full text-sm" onChange={event => { addFiles(Array.from(event.target.files || [])); event.target.value = ''; }} />
     </label>
+    {series.issueMonth && <p className="text-sm text-slate-300">발행 월: {series.issueMonth} · 회차 번호가 발행 날짜입니다(1화 = 1일). 공개 후에도 해당 날짜 전에는 앱에 노출되지 않습니다.</p>}
     {message && <p role="status" className="break-words text-sm text-amber-200">{message}</p>}
     <p className="text-sm text-slate-300">{rows.length}개 회차 · 등록 가능 {ready.length}개 {loading ? '· 기존 회차 확인 중…' : ''}</p>
     <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm text-slate-300"><thead><tr>{['회차', '제목·설명', '본문', '표지', '상태'].map(label => <th className="p-2" key={label}>{label}</th>)}</tr></thead><tbody>
