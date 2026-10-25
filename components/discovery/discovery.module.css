@@ -1,7 +1,4 @@
 .page { color: #243b35; padding: 12px 0 48px; }
-.languages { display:flex; gap:20px; flex-wrap:wrap; justify-content:flex-end; margin-bottom:32px; font-size:14px; }
-.languages a { padding:8px 0; }
-.languages a[aria-current] { border-bottom:2px solid #366858; font-weight:700; }
 .back { font-size:14px; }
 .hero { padding:40px 0; max-width:850px; }
 .brand { font-size:12px!important; letter-spacing:.16em; font-weight:700; }

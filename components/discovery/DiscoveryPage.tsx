@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { article, labels, locales, localeNames, pathFor, pageSchema, jsonLd, topics, type Locale, type Topic } from '../../lib/discovery';
+import { article, labels, pathFor, pageSchema, jsonLd, topics, type Locale, type Topic } from '../../lib/discovery';
 import { readerAppStoreUrl, readerGooglePlayUrl } from '../../lib/marketing';
 import styles from './discovery.module.css';
 
@@ -10,9 +10,6 @@ export default function DiscoveryPage({ locale, topic }: { locale: Locale; topic
   const reader = topic === 'koofy-reader' || topic === 'guides/read-txt-epub';
   return <article lang={locale} className={styles.page}>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(pageSchema(locale, topic)) }} />
-    <nav className={styles.languages} aria-label="Language">
-      {locales.map(code => <Link href={pathFor(code, topic)} hrefLang={code} lang={code} aria-current={code === locale ? 'page' : undefined} key={code}>{localeNames[code]}</Link>)}
-    </nav>
     {topic && <Link href={pathFor(locale)} className={styles.back}>← {words.home}</Link>}
     <header className={styles.hero}>
       <p className={styles.brand}>쿠피 · KOOFY LAB</p>

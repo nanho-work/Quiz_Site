@@ -10,6 +10,5 @@ export default function DiscoveryLinks() {
     <h2><Link href={pathFor(locale)}>{labels[locale].home} →</Link></h2>
     <p style={{ marginBottom: 20 }}>{article(locale, '').summary}</p>
     <div className={styles.grid}>{topics.filter(topic => topic).map(topic => <Link key={topic} href={pathFor(locale, topic)}>{article(locale, topic).title} →</Link>)}</div>
-    <nav className={styles.languages} aria-label="Language" style={{ marginTop: 24 }}><Link href="/ko" hrefLang="ko">한국어</Link><Link href="/en" hrefLang="en">English</Link><Link href="/ja" hrefLang="ja">日本語</Link></nav>
   </section>;
 }
