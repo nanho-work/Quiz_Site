@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
     priority: number;
   }> = [
+    { path: "/monthly-koofy/submit", changeFrequency: "monthly", priority: 0.6 },
     { path: "/", changeFrequency: "weekly", priority: 1 },
     { path: "/koofy-image/app", changeFrequency: "monthly", priority: 0.8 },
     { path: "/koofy-image/privacy", changeFrequency: "yearly", priority: 0.5 },
