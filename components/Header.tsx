@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { ChevronDown, ArrowUpRight, Menu, X } from "lucide-react";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
@@ -12,6 +12,18 @@ export default function Header() {
   const { language } = useLanguage();
   const t = copy[language];
   const pathname = usePathname();
+  const categories = {
+    ko: ['게임', '웹 도구', '모바일 앱'],
+    en: ['Games', 'Web tools', 'Mobile apps'],
+    ja: ['ゲーム', 'ウェブツール', 'モバイルアプリ'],
+    zh: ['游戏', '网页工具', '移动应用'],
+  }[language];
+  const products = getProducts(language);
+  const groups = [
+    products.filter(p => ['bus-pop', 'koofy-sudoku', 'slime-strike-force'].includes(p.slug)),
+    products.filter(p => p.slug === 'koofy-image').map(p => ({ ...p, href: '/koofy-image' })),
+    products.filter(p => ['koofy-reader', 'koofy-image'].includes(p.slug)),
+  ];
   const [open, setOpen] = useState(false);
   const [mobile, setMobile] = useState(false);
   const root = useRef<HTMLElement>(null);
@@ -92,20 +104,17 @@ export default function Header() {
                     {t.all}
                     <ArrowUpRight size={18} />
                   </Link>
-                  <p>{t.apps}</p>
-                  {getProducts(language)
-                    .filter((p) => p.kind === "app")
-                    .map((p) => (
-                      <Link
-                        key={p.slug}
-                        href={p.href}
-                        onClick={close}
-                        aria-current={pathname === p.href ? "page" : undefined}
-                      >
-                        {p.name}
-                        <ArrowUpRight size={14} aria-hidden="true" />
-                      </Link>
-                    ))}
+                  {groups.map((items, index) => (
+                    <Fragment key={categories[index]}>
+                      <p>{categories[index]}</p>
+                      {items.map(p => (
+                        <Link key={p.slug} href={p.href} onClick={close}
+                          aria-current={pathname === p.href ? 'page' : undefined}>
+                          {p.name}<ArrowUpRight size={14} aria-hidden="true" />
+                        </Link>
+                      ))}
+                    </Fragment>
+                  ))}
                   <Link
                     href="/products#projects"
                     className="products-all"

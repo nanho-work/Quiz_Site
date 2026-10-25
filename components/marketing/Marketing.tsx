@@ -88,7 +88,7 @@ export function ContactBand() {
 export function HomePage() {
   const { language } = useLanguage();
   const t = copy[language];
-  const products = getProducts(language);
+  const products = getProducts(language).filter(p => p.slug !== "honeybee");
   return (
     <div className="marketing home-marketing">
       <section className="brand-hero">
@@ -216,7 +216,7 @@ export function HomePage() {
 export function ProductsPage() {
   const { language } = useLanguage();
   const t = copy[language];
-  const products = getProducts(language);
+  const products = getProducts(language).filter(p => p.slug !== "honeybee");
   return (
     <div className="marketing">
       <PageIntro

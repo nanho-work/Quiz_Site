@@ -1106,3 +1106,9 @@
 .image-tool-band h2 { font-size:clamp(21px,2.7vw,29px); font-weight:750; letter-spacing:-.7px; margin:9px 0; }
 .image-tool-band p:not(.eyebrow) { font-size:12px; color:#6e8575; }.image-tool-band>span { display:flex; align-items:center; gap:9px; font-size:13px; font-weight:650; white-space:nowrap; }
 @media(max-width:700px) { .image-tool-band { padding:24px; align-items:flex-start; flex-direction:column; } }
+
+/* Keep the complete Koofy Image artwork visible without stretching or hover cropping. */
+.product-koofy-image .product-visual { aspect-ratio: 1200 / 630; }
+.product-koofy-image .product-cover { object-fit: contain; }
+.product-koofy-image:hover .product-cover { transform: none; }
+.products-panel { max-height: calc(100dvh - 100px); overflow-y: auto; }
