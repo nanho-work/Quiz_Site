@@ -2,6 +2,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { BookImage, ChevronDown } from 'lucide-react';
 import type { ReaderContent, ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
+import { monthlyDefaults, monthlyLanguageFields } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyFields from './MonthlyFields';
 
 const input = 'mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none';
@@ -53,7 +54,7 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
     </div>
     <fieldset disabled={disabled} className="grid min-w-0 gap-3 sm:grid-cols-2 2xl:grid-cols-[160px_140px_minmax(0,1fr)]">
       <label className="min-w-0 text-sm text-slate-300">발행 월<input type="month" required className={input} disabled={!!selected?.publishedContent} value={form.issueMonth || ''} onChange={e => onChange({ ...form, issueMonth: e.target.value, compilationId: '', releaseDate: '', releaseAt: '' })} /></label>
-      <label className="min-w-0 text-sm text-slate-300">언어<select className={input} disabled={!!selected?.publishedContent} value={form.language || 'ko'} onChange={e => onChange({ ...form, language: e.target.value as 'ko' | 'en' | 'ja', compilationId: '' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label>
+      <label className="min-w-0 text-sm text-slate-300">언어<select className={input} disabled={!!selected?.publishedContent} value={form.language || 'ko'} onChange={e => onChange({ ...monthlyLanguageFields(form, e.target.value as 'ko' | 'en' | 'ja'), compilationId: '' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label>
       <label className="min-w-0 text-sm text-slate-300 sm:col-span-2 2xl:col-span-1">월간호 제목<input required maxLength={160} className={input} value={form.title} placeholder="월간 쿠피 11월호" onChange={e => onChange({ ...form, title: e.target.value })} /></label>
     </fieldset>
     <div className="grid min-w-0 gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -77,9 +78,9 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
     <details id="monthly-extra-anchor" open={extraOpen} onToggle={e => setExtraOpen(e.currentTarget.open)} className="rounded-xl border border-slate-800">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm text-slate-200">추가 정보 <span className="flex items-center gap-2 text-xs text-slate-400">설명 · 이용 조건 · 합본 연결<ChevronDown className={`h-4 w-4 ${extraOpen ? 'rotate-180' : ''}`} /></span></summary>
       <fieldset disabled={disabled} className="grid gap-4 border-t border-slate-800 p-4 sm:grid-cols-2">
-        <p className="text-sm text-slate-400">발행자: 쿠피랩 (자동 저장 · 앱에 표시하지 않음)<br />글쓴이는 회차별로 입력할 수 있으며, 입력한 경우에만 표시됩니다.</p>
+        <p className="text-sm text-slate-400">발행자: {monthlyDefaults[form.language || 'ko'].author} (자동 저장 · 앱에 표시하지 않음)<br />글쓴이는 회차별로 입력할 수 있으며, 입력한 경우에만 표시됩니다.</p>
         <label className="block text-sm text-slate-300">설명 (선택)<textarea className={input} rows={2} maxLength={2000} value={form.description} onChange={e => onChange({ ...form, description: e.target.value })} /></label>
-        <label className="block text-sm text-slate-300 sm:col-span-2">이용 조건 (기본 문구 · 수정 가능)<textarea className={input} rows={2} maxLength={2000} value={form.license} onChange={e => onChange({ ...form, license: e.target.value })} /></label>
+        <label className="block text-sm text-slate-300 sm:col-span-2">이용 조건 (선택 언어 자동 적용 · 수정 가능)<textarea className={input} rows={2} maxLength={2000} value={form.license} onChange={e => onChange({ ...form, license: e.target.value })} /></label>
         <div className="min-w-0 sm:col-span-2">{extraOpen && <MonthlyFields section="link" kind="series" series={null} form={form} onChange={onChange} />}</div>
       </fieldset>
     </details>

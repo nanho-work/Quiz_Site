@@ -1,4 +1,5 @@
 'use client';
+import { monthlyDefaults, monthlyLanguageFields } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyIssueEditor from './MonthlyIssueEditor';
 import MonthlyFields from './MonthlyFields';
 
@@ -8,11 +9,10 @@ import { addReaderCategory, listReaderCategories, deleteReaderContent, listReade
 import { ReaderEpisodeBatch } from './ReaderEpisodeBatch';
 import { AdminCard } from '../shared/AdminCard';
 
-const monthlyLicense = '쿠피랩이 제공하는 콘텐츠입니다. 개인적인 독서 목적으로 다운로드하여 이용할 수 있습니다. 무단 복제·재배포 및 상업적 이용은 허용하지 않습니다.';
 const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? '쿠피랩' : item.author, description: item.description, license: item.issueMonth ? item.license || monthlyLicense : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? monthlyDefaults[item.language || 'ko'].author : item.author, description: item.description, license: item.issueMonth ? monthlyLanguageFields(item).license : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
 export function ReaderContentManager({ kind, monthly = false }: { kind: ReaderKind; monthly?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
@@ -28,7 +28,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
 }) {
   const newForm = (): ReaderMetadata => series
     ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '', releaseAt: '', autoCompile: false, byline: '' }
-    : { ...empty, ...(monthly ? { author: '쿠피랩', license: monthlyLicense, issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
+    : { ...empty, ...(monthly ? { ...monthlyDefaults.ko, issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -222,7 +222,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
             {series && <label className="block text-sm text-slate-300">회차 번호 (필수)<input type="number" min={1} max={100000} step={1} required readOnly={!!selected?.publishedContent} className={inputClass} value={form.episodeNumber ?? ''} onChange={e => setForm({ ...form, episodeNumber: e.target.value === '' ? undefined : Number(e.target.value) })} />{selected?.publishedContent && <span className="mt-1 block text-xs text-slate-400">공개한 회차의 번호는 유지됩니다. 제목과 본문은 수정할 수 있습니다.</span>}</label>}
             {kind === 'series' && <label className="block text-sm text-slate-300">연재 상태<select className={inputClass} value={form.seriesStatus || 'ongoing'} onChange={e => setForm({ ...form, seriesStatus: e.target.value as 'ongoing' | 'completed' })}><option value="ongoing">연재 중</option><option value="completed">완결</option></select></label>}
             {!series && <>
-            {kind !== 'font' && <label className="block text-sm text-slate-300">콘텐츠 언어<select className={inputClass} value={form.language || 'ko'} disabled={Boolean(series || selected?.publishedContent)} onChange={e => setForm({ ...form, language: e.target.value as 'ko' | 'en' | 'ja' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select><span className="mt-1 block text-xs text-slate-400">앱 설정 언어와 같은 콘텐츠만 표시합니다. 회차는 작품 언어를 따릅니다. 공개한 콘텐츠의 번역본은 별도 작품으로 등록하세요.</span></label>}
+            {kind !== 'font' && <label className="block text-sm text-slate-300">콘텐츠 언어<select className={inputClass} value={form.language || 'ko'} disabled={Boolean(series || selected?.publishedContent)} onChange={e => setForm(monthly ? monthlyLanguageFields(form, e.target.value as 'ko' | 'en' | 'ja') : { ...form, language: e.target.value as 'ko' | 'en' | 'ja' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select><span className="mt-1 block text-xs text-slate-400">앱 설정 언어와 같은 콘텐츠만 표시합니다. 회차는 작품 언어를 따릅니다. 공개한 콘텐츠의 번역본은 별도 작품으로 등록하세요.</span></label>}
             <label className="block text-sm text-slate-300">{kind !== 'font' ? '저자 또는 필명 (필수)' : '제작자 (필수)'}<input required maxLength={120} className={inputClass} value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} /></label>
             {kind !== 'font' && <div className="space-y-2">
               <label className="block text-sm text-slate-300">도서 분류<select className={inputClass} value={form.category || '기타'} onChange={e => setForm({ ...form, category: e.target.value })}>{categoryOptions.map(category => <option key={category} value={category}>{category}</option>)}</select></label>
