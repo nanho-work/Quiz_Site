@@ -45,7 +45,7 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
   const [extraOpen, setExtraOpen] = useState(false);
   const preview = useCoverPreview(coverFile, selected);
   const disabled = busy || !!selected?.deleting;
-  const missingExtra = !form.author.trim() || !form.license.trim();
+
   return <div className="min-w-0 space-y-5 pb-28 sm:pb-20">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h2 className="text-lg font-semibold text-white">{selected ? '월간호 설정' : '새 월간호 등록'}</h2><p className="mt-1 text-sm text-slate-400">기본 정보와 표지를 정하고, 회차 관리에서 글을 올리세요.</p></div>
@@ -75,18 +75,18 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
       </fieldset>
     </div>
     <details id="monthly-extra-anchor" open={extraOpen} onToggle={e => setExtraOpen(e.currentTarget.open)} className="rounded-xl border border-slate-800">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm text-slate-200">추가 정보 <span className="flex items-center gap-2 text-xs text-slate-400">{missingExtra ? '제작자 · 배포 권한 입력 필요' : '제작자 · 설명 · 이용 조건 · 합본 연결'}<ChevronDown className={`h-4 w-4 ${extraOpen ? 'rotate-180' : ''}`} /></span></summary>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm text-slate-200">추가 정보 <span className="flex items-center gap-2 text-xs text-slate-400">설명 · 이용 조건 · 합본 연결<ChevronDown className={`h-4 w-4 ${extraOpen ? 'rotate-180' : ''}`} /></span></summary>
       <fieldset disabled={disabled} className="grid gap-4 border-t border-slate-800 p-4 sm:grid-cols-2">
-        <label className="block text-sm text-slate-300">제작자 / 저자 (필수)<input className={input} required maxLength={120} value={form.author} onChange={e => onChange({ ...form, author: e.target.value })} /></label>
+        <p className="text-sm text-slate-400">발행자: 쿠피랩 (자동 저장 · 앱에 표시하지 않음)<br />글쓴이는 회차별로 입력할 수 있으며, 입력한 경우에만 표시됩니다.</p>
         <label className="block text-sm text-slate-300">설명 (선택)<textarea className={input} rows={2} maxLength={2000} value={form.description} onChange={e => onChange({ ...form, description: e.target.value })} /></label>
-        <label className="block text-sm text-slate-300 sm:col-span-2">배포 권한 · 이용 조건 (필수)<textarea className={input} required rows={2} maxLength={2000} value={form.license} onChange={e => onChange({ ...form, license: e.target.value })} /></label>
+        <label className="block text-sm text-slate-300 sm:col-span-2">이용 조건 (기본 문구 · 수정 가능)<textarea className={input} rows={2} maxLength={2000} value={form.license} onChange={e => onChange({ ...form, license: e.target.value })} /></label>
         <div className="min-w-0 sm:col-span-2">{extraOpen && <MonthlyFields section="link" kind="series" series={null} form={form} onChange={onChange} />}</div>
       </fieldset>
     </details>
     {management}
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-700 bg-slate-950/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur lg:left-72">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-3">
-        <span role="status" className="w-full text-xs text-slate-400 sm:mr-auto sm:w-auto">{busy ? '저장 중…' : missingExtra ? <button className="text-amber-300 underline" onClick={() => { setExtraOpen(true); document.getElementById('monthly-extra-anchor')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }}>추가 정보의 필수 항목을 입력하세요</button> : dirty ? '저장하지 않은 변경이 있습니다' : selected ? '저장된 상태입니다' : '정보를 입력해 주세요'}</span>
+        <span role="status" className="w-full text-xs text-slate-400 sm:mr-auto sm:w-auto">{busy ? '저장 중…' : dirty ? '저장하지 않은 변경이 있습니다' : selected ? '저장된 상태입니다' : '정보를 입력해 주세요'}</span>
         <button className={`${button} flex-1 sm:flex-none`} disabled={disabled || !valid || (!!selected && !dirty)} onClick={() => onSave(false)}>초안 저장</button>
         <button className={`${button} flex-1 border-emerald-600 bg-emerald-700 hover:bg-emerald-600 sm:flex-none`} disabled={disabled || !valid || !publishReady} onClick={() => onSave(true)}>{selected?.published ? '수정하고 공개' : '등록하고 공개'}</button>
       </div>

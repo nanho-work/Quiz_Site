@@ -8,10 +8,11 @@ import { addReaderCategory, listReaderCategories, deleteReaderContent, listReade
 import { ReaderEpisodeBatch } from './ReaderEpisodeBatch';
 import { AdminCard } from '../shared/AdminCard';
 
+const monthlyLicense = '쿠피랩이 제공하는 콘텐츠입니다. 개인적인 독서 목적으로 다운로드하여 이용할 수 있습니다. 무단 복제·재배포 및 상업적 이용은 허용하지 않습니다.';
 const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? '쿠피랩' : item.author, description: item.description, license: item.issueMonth ? item.license || monthlyLicense : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
 export function ReaderContentManager({ kind, monthly = false }: { kind: ReaderKind; monthly?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
@@ -27,7 +28,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
 }) {
   const newForm = (): ReaderMetadata => series
     ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '', releaseAt: '', autoCompile: false, byline: '' }
-    : { ...empty, ...(monthly ? { issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
+    : { ...empty, ...(monthly ? { author: '쿠피랩', license: monthlyLicense, issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -47,7 +48,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
   const categoryOptions = Array.from(new Set([...categories, ...items.map(item => item.category || '기타'), form.category || '기타']));
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(selected ? fields(selected) : newForm());
   const dirty = metadataDirty || Object.keys(pendingFiles).length > 0;
-  const valid = (!monthly || !!form.issueMonth) && form.title.trim() && (series ? Number.isSafeInteger(form.episodeNumber) && form.episodeNumber! > 0 : form.author.trim() && form.license.trim());
+  const valid = (!monthly || !!form.issueMonth) && form.title.trim() && (series ? Number.isSafeInteger(form.episodeNumber) && form.episodeNumber! > 0 : monthly || (form.author.trim() && form.license.trim()));
   const monthlyIssue = monthly && kind === 'series' && !series;
   const monthlyValid = Boolean(valid);
   const label = series ? '회차' : kind === 'series' ? (monthly ? '월간호' : '작품') : kind === 'book' ? (monthly ? '합본' : '책') : '글꼴';
