@@ -1,3 +1,4 @@
+import { locales, topics, pathFor } from "../lib/discovery";
 import type { MetadataRoute } from "next";
 
 import { productSlugs } from "../lib/marketing";
@@ -5,7 +6,6 @@ import { productSlugs } from "../lib/marketing";
 const SITE_URL = "https://www.koofy.co.kr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
 
   const routes: Array<{
     path: string;
@@ -51,9 +51,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     })),
   );
+  routes.push(...locales.flatMap(locale => topics.map(topic => ({ path: pathFor(locale, topic), changeFrequency: "monthly" as const, priority: topic ? 0.7 : 0.8 }))));
   return routes.map((route) => ({
     url: new URL(route.path, SITE_URL).toString(),
-    lastModified: now,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));

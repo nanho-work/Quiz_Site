@@ -1,0 +1,347 @@
+{
+  "ko": {
+    "": [
+      "쿠피랩 · 일상에 필요한 앱과 사용 가이드",
+      "쿠피(Koofy)는 쿠피랩(Koofy Lab)의 앱과 웹서비스 브랜드입니다. TXT·EPUB 독서를 위한 쿠피리더와 사진 형식·용량을 바꾸는 쿠피 이미지를 만나보세요.",
+      [
+        [
+          "무엇을 도와드릴까요?",
+          "휴대폰에 저장한 글을 읽고 싶다면 쿠피리더, HEIC 사진을 JPG로 바꾸거나 블로그에 올릴 사진의 용량을 줄이려면 쿠피 이미지 웹 도구를 이용하세요."
+        ],
+        [
+          "공식 제품 정보",
+          "이곳은 쿠피랩이 운영하는 공식 안내 페이지입니다. 제품별 지원 형식과 제한, 사용 방법, 다운로드 경로를 확인할 수 있습니다. 문의는 koofylab@gmail.com으로 보내 주세요."
+        ]
+      ],
+      []
+    ],
+    "koofy-reader": [
+      "쿠피리더 — 아이폰·안드로이드 TXT·EPUB 뷰어",
+      "쿠피리더는 TXT·EPUB 파일을 서재에 가져와 읽고, 읽던 위치에서 이어 읽거나 기기 음성으로 들을 수 있는 독서 앱입니다.",
+      [
+        [
+          "어떤 파일을 읽을 수 있나요?",
+          "TXT와 DRM이 없는 EPUB을 지원합니다. PDF 뷰어나 도서관 전자책 대출 앱은 아닙니다. EPUB에 포함된 이미지를 본문과 함께 볼 수 있습니다."
+        ],
+        [
+          "나에게 맞는 독서 화면",
+          "글꼴·글자 크기·줄간격을 조절하고 책갈피와 이어 읽기를 사용할 수 있습니다. 한국어·영어·일본어 UI를 제공하며, 스마트폰과 태블릿의 독서 화면을 지원합니다."
+        ],
+        [
+          "소리로 들을 수 있나요?",
+          "TTS는 기기의 음성 엔진과 설치된 음성을 사용합니다. 사용 가능한 언어와 음질은 기기 설정에 따라 달라집니다. 읽을 파일을 준비한 뒤 아래 사용 가이드를 따라 가져오세요."
+        ]
+      ],
+      []
+    ],
+    "koofy-image": [
+      "쿠피 이미지 웹 — HEIC 변환과 사진 용량 줄이기",
+      "쿠피 이미지 웹 도구는 가입 없이 최대 10장의 사진을 JPG·PNG·WebP로 변환하거나 용량을 줄이는 무료 도구입니다. 사진 변환은 브라우저 안에서 처리합니다.",
+      [
+        [
+          "지원 형식과 제한",
+          "입력은 JPG/JPEG, PNG, 정지 WebP, HEIC/HEIF이며 출력은 JPG, PNG, WebP입니다. 한 번에 최대 10장, 파일당 25 MiB, 전체 100 MiB까지 선택할 수 있습니다. 큰 사진은 기기의 메모리에 따라 처리에 실패할 수 있습니다."
+        ],
+        [
+          "사진이 서버로 전송되나요?",
+          "웹 변환 도구는 사진 파일을 서버에 업로드하지 않습니다. 처리 결과를 개별 파일 또는 ZIP으로 다운로드할 수 있고 원본 파일은 덮어쓰지 않습니다."
+        ],
+        [
+          "웹 도구와 모바일 앱의 차이",
+          "이 페이지의 무료·가입 없음·ZIP 다운로드 설명은 웹 도구 기준입니다. 별도 모바일 앱의 저장 방식과 이용조건은 앱 소개에서 확인하세요. 웹 도구 조작 화면은 한국어·영어를 지원합니다."
+        ]
+      ],
+      []
+    ],
+    "guides/read-txt-epub": [
+      "아이폰·안드로이드에서 TXT·EPUB 파일 읽는 방법",
+      "다운로드 폴더의 TXT나 EPUB을 쿠피리더에 가져오면 책처럼 읽고, 글자 크기를 바꾸고, 다음에 읽던 위치로 돌아올 수 있습니다.",
+      [
+        [
+          "가져오기 전에 확인하세요",
+          "파일이 기기에 저장되어 있어야 합니다. DRM으로 보호된 EPUB이나 PDF는 이 방법의 대상이 아닙니다. 이미지는 EPUB 파일에 포함된 경우 표시됩니다."
+        ],
+        [
+          "글자가 작거나 듣고 싶다면",
+          "독서 설정에서 글꼴·글자 크기·줄간격을 조절하세요. 듣기는 기기 TTS를 이용하므로 원하는 언어 음성이 설치되어 있는지도 확인하세요."
+        ]
+      ],
+      [
+        "App Store 또는 Google Play에서 쿠피리더를 설치합니다.",
+        "서재의 책 추가에서 기기에 저장한 TXT 또는 EPUB 파일을 선택합니다.",
+        "서재에 추가된 책을 열고 독서 설정을 조절합니다.",
+        "읽기를 마친 뒤 같은 책을 다시 열면 저장된 위치에서 이어 읽습니다."
+      ]
+    ],
+    "guides/heic-to-jpg": [
+      "아이폰 HEIC 사진을 JPG로 바꾸는 방법",
+      "HEIC 사진이 상대방의 기기나 업로드 사이트에서 열리지 않는다면 JPG로 변환해 보세요. 쿠피 이미지 웹에서는 사진을 서버에 올리지 않고 변환할 수 있습니다.",
+      [
+        [
+          "변환하면 무엇이 달라지나요?",
+          "JPG는 사진 공유에 널리 사용되는 형식이지만 손실 압축이므로 원본과 완전히 같지는 않습니다. HDR·색상 표현이 달라질 수 있어 중요한 사진은 원본을 보관하세요."
+        ],
+        [
+          "Live Photo도 되나요?",
+          "HEIC/HEIF의 첫 정지 이미지를 처리합니다. Live Photo 동영상이나 애니메이션을 변환하는 기능은 아닙니다. 결과 파일에서는 메타데이터가 제거됩니다."
+        ]
+      ],
+      [
+        "쿠피 이미지 웹 도구를 엽니다.",
+        "HEIC/HEIF 사진을 최대 10장 선택합니다.",
+        "출력 형식을 JPG로 선택하고 품질과 크기를 확인합니다.",
+        "변환 결과를 확인하고 개별 다운로드 또는 ZIP 다운로드로 저장합니다."
+      ]
+    ],
+    "guides/reduce-photo-size": [
+      "블로그에 올릴 사진 용량 줄이는 방법",
+      "고해상도 사진이 업로드 제한을 넘는다면 JPG·WebP의 품질과 이미지 크기를 조절하세요. 쿠피 이미지 웹에서 목표 용량을 지정하고 결과를 비교할 수 있습니다.",
+      [
+        [
+          "용량은 항상 목표 이하가 되나요?",
+          "사진 내용과 설정에 따라 목표에 도달하지 못할 수 있습니다. 결과에 표시된 실제 크기를 확인하고 필요하면 해상도를 더 줄여 다시 변환하세요. 원본보다 커질 수도 있습니다."
+        ],
+        [
+          "JPG·PNG·WebP 중 무엇을 고르나요?",
+          "일반 사진은 JPG, 투명 배경을 유지하려면 PNG 또는 WebP를 고려하세요. PNG는 품질 조절만으로 압축되지 않으므로 크기 축소가 필요할 수 있습니다. JPG로 바꾸면 투명 영역은 선택한 배경색으로 채워집니다."
+        ]
+      ],
+      [
+        "쿠피 이미지 웹에서 사진을 선택하고 용량 줄이기를 선택합니다.",
+        "출력 형식과 목표 용량을 지정합니다.",
+        "필요하면 크기 축소를 허용하고 변환합니다.",
+        "결과의 화질과 실제 용량을 확인한 뒤 저장합니다."
+      ]
+    ]
+  },
+  "en": {
+    "": [
+      "Koofy Lab — useful apps and practical guides",
+      "Koofy is the app and web service brand of Koofy Lab (쿠피랩). Explore Koofy Reader for TXT and EPUB reading, and Koofy Image for photo conversion and compression.",
+      [
+        [
+          "Find the right tool",
+          "Use Koofy Reader to read text files and EPUB books saved on your phone. Use Koofy Image on the web to convert HEIC photos to JPG or reduce image sizes before uploading to a blog."
+        ],
+        [
+          "Official product information",
+          "These guides are published by Koofy Lab. Check supported formats, limitations and download links before choosing a tool. Contact koofylab@gmail.com for support."
+        ]
+      ],
+      []
+    ],
+    "koofy-reader": [
+      "Koofy Reader — TXT and EPUB reader for iPhone and Android",
+      "Import TXT and EPUB files into Koofy Reader, continue from your saved reading position, or listen using your device’s text-to-speech voices.",
+      [
+        [
+          "Which files can I read?",
+          "Koofy Reader supports TXT and DRM-free EPUB files, including images embedded in EPUB books. It is not a PDF viewer or a library ebook lending service."
+        ],
+        [
+          "Make reading comfortable",
+          "Adjust fonts, text size and line spacing, add bookmarks and continue reading. The app offers Korean, English and Japanese interfaces, with reading layouts for phones and tablets."
+        ],
+        [
+          "How does reading aloud work?",
+          "Text-to-speech uses your device’s speech engine and installed voices. Available languages and voice quality depend on your device settings. The guide below explains how to import your own files."
+        ]
+      ],
+      []
+    ],
+    "koofy-image": [
+      "Koofy Image web — convert HEIC and reduce photo sizes",
+      "Koofy Image is a free web tool for converting up to 10 photos to JPG, PNG or WebP and reducing file sizes. No signup is required; photo conversion runs in your browser.",
+      [
+        [
+          "Supported formats and limits",
+          "Inputs: JPG/JPEG, PNG, static WebP and HEIC/HEIF. Outputs: JPG, PNG and WebP. Select up to 10 files, 25 MiB per file and 100 MiB total. Large photos may fail to process if your device runs out of memory."
+        ],
+        [
+          "Are my photos uploaded?",
+          "The web converter does not upload photo files to a server. Download results individually or as a ZIP file. Your original files are not overwritten."
+        ],
+        [
+          "Web tool versus mobile app",
+          "Free access, no signup and ZIP downloads on this page describe the web tool. Check the separate mobile app introduction for its saving workflow and terms. The web tool interface supports Korean and English."
+        ]
+      ],
+      []
+    ],
+    "guides/read-txt-epub": [
+      "How to read TXT and EPUB files on iPhone or Android",
+      "Import a downloaded TXT or EPUB file into Koofy Reader to read it like a book, adjust the text size and return to your saved position.",
+      [
+        [
+          "Before importing",
+          "Save the file on your device first. This workflow does not support DRM-protected EPUB files or PDF documents. Images are displayed when included in the EPUB file."
+        ],
+        [
+          "Adjust the text or listen",
+          "Use reading settings to change the font, text size and line spacing. For text-to-speech, check that a suitable voice for the book’s language is installed on your device."
+        ]
+      ],
+      [
+        "Install Koofy Reader from the App Store or Google Play.",
+        "Choose Add book in the library and select a TXT or EPUB file saved on your device.",
+        "Open the imported book and adjust the reading settings.",
+        "Open the same book later to continue from the saved position."
+      ]
+    ],
+    "guides/heic-to-jpg": [
+      "How to convert iPhone HEIC photos to JPG",
+      "If a HEIC photo will not open on another device or upload to a website, converting it to JPG may help. Koofy Image web processes the photo in your browser without uploading it.",
+      [
+        [
+          "What changes during conversion?",
+          "JPG is widely used for photo sharing, but it uses lossy compression. HDR and colors may change, so keep your original when image fidelity matters."
+        ],
+        [
+          "Does it convert Live Photos?",
+          "The tool processes the first still image in HEIC/HEIF files. It does not convert Live Photo videos or animations. Metadata is removed from the output."
+        ]
+      ],
+      [
+        "Open the Koofy Image web tool.",
+        "Select up to 10 HEIC or HEIF photos.",
+        "Choose JPG as the output and review quality and size settings.",
+        "Check the results, then download individual files or a ZIP archive."
+      ]
+    ],
+    "guides/reduce-photo-size": [
+      "How to reduce photo file sizes for a blog",
+      "If a high-resolution photo exceeds an upload limit, adjust JPG or WebP quality and image dimensions. Koofy Image web lets you set a target size and inspect the result.",
+      [
+        [
+          "Will every photo meet the target size?",
+          "Some photos cannot reach the target with your chosen settings. Check the actual output size and try smaller dimensions if needed. An output can also be larger than its source."
+        ],
+        [
+          "Should I choose JPG, PNG or WebP?",
+          "JPG suits everyday photos. Consider PNG or WebP to preserve transparency. PNG cannot be reduced through a quality slider alone; resizing may be needed. JPG fills transparent areas with your chosen background color."
+        ]
+      ],
+      [
+        "Select photos in Koofy Image web and choose compression.",
+        "Choose an output format and target file size.",
+        "Allow resizing if appropriate, then convert.",
+        "Review image quality and actual file size before downloading."
+      ]
+    ]
+  },
+  "ja": {
+    "": [
+      "Koofy Lab — 暮らしに役立つアプリと使い方ガイド",
+      "Koofy（クーフィー）はKoofy Lab（쿠피랩）のアプリ・ウェブサービスブランドです。TXT・EPUBを読むKoofy Readerと、写真の形式や容量を変えるKoofy Imageをご紹介します。",
+      [
+        [
+          "目的に合ったツールを探す",
+          "スマートフォンに保存した文章を読むならKoofy Reader。HEIC写真をJPGに変えたり、ブログに載せる写真を軽くしたりするならKoofy Imageのウェブツールをご利用ください。"
+        ],
+        [
+          "公式の製品情報",
+          "このページはKoofy Labが運営しています。対応形式、制限、操作手順、ダウンロード先を確認できます。お問い合わせはkoofylab@gmail.comへお送りください。"
+        ]
+      ],
+      []
+    ],
+    "koofy-reader": [
+      "Koofy Reader — iPhone・Android用TXT・EPUBリーダー",
+      "Koofy ReaderはTXT・EPUBファイルを本棚に取り込み、続きから読んだり、端末の音声で読み上げたりできる読書アプリです。",
+      [
+        [
+          "どのファイルを読めますか？",
+          "TXTとDRMのないEPUBに対応し、EPUB内の画像も表示できます。PDFビューアーや図書館の電子書籍貸出サービスではありません。"
+        ],
+        [
+          "読みやすい画面に調整",
+          "フォント、文字サイズ、行間を調整し、しおりや続きを読む機能を利用できます。韓国語・英語・日本語のUIと、スマートフォン・タブレット向けの読書画面に対応しています。"
+        ],
+        [
+          "読み上げの仕組み",
+          "TTSは端末の音声エンジンとインストール済みの音声を使います。利用できる言語や音質は端末の設定によって異なります。ファイルの取り込み方は下のガイドをご覧ください。"
+        ]
+      ],
+      []
+    ],
+    "koofy-image": [
+      "Koofy Imageウェブ — HEIC変換と写真の容量削減",
+      "Koofy Imageのウェブツールは、登録なしで最大10枚の写真をJPG・PNG・WebPに変換したり、容量を減らしたりできる無料ツールです。写真の処理はブラウザ内で行います。",
+      [
+        [
+          "対応形式と制限",
+          "入力はJPG/JPEG、PNG、静止WebP、HEIC/HEIF。出力はJPG、PNG、WebPです。1回最大10枚、1ファイル25 MiB、合計100 MiBまで選択できます。大きな写真は端末のメモリ不足で処理できない場合があります。"
+        ],
+        [
+          "写真はアップロードされますか？",
+          "ウェブ変換ツールは写真ファイルをサーバーへアップロードしません。結果は個別ファイルまたはZIPで保存でき、元のファイルは上書きしません。"
+        ],
+        [
+          "ウェブとモバイルアプリの違い",
+          "このページの無料・登録不要・ZIP保存の説明はウェブ版についてです。モバイルアプリの保存方法や利用条件はアプリ紹介をご覧ください。ウェブツールの操作画面は韓国語・英語に対応しています。"
+        ]
+      ],
+      []
+    ],
+    "guides/read-txt-epub": [
+      "iPhone・AndroidでTXT・EPUBファイルを読む方法",
+      "保存したTXTやEPUBをKoofy Readerに取り込むと、本のように読み、文字サイズを変え、次回も続きから読めます。",
+      [
+        [
+          "取り込む前に",
+          "まずファイルを端末に保存してください。DRM付きEPUBやPDFは対象外です。画像はEPUBファイルに含まれている場合に表示されます。"
+        ],
+        [
+          "文字の調整と読み上げ",
+          "読書設定からフォント、文字サイズ、行間を変更できます。TTSを使う場合は、本の言語に合う音声が端末にインストールされているか確認してください。"
+        ]
+      ],
+      [
+        "App StoreまたはGoogle PlayでKoofy Readerをインストールします。",
+        "本棚の本を追加から、端末に保存したTXTまたはEPUBを選びます。",
+        "取り込んだ本を開き、読書設定を調整します。",
+        "次回は同じ本を開くと、保存された位置から読めます。"
+      ]
+    ],
+    "guides/heic-to-jpg": [
+      "iPhoneのHEIC写真をJPGに変換する方法",
+      "HEIC写真を相手の端末で開けない、サイトへアップロードできない場合は、JPGへの変換を試してください。Koofy Imageウェブなら写真をアップロードせずに処理できます。",
+      [
+        [
+          "変換すると何が変わりますか？",
+          "JPGは写真の共有によく使われますが、非可逆圧縮です。HDRや色の表現が変わることがあるため、大切な写真は元のファイルも保管してください。"
+        ],
+        [
+          "Live Photoも変換できますか？",
+          "HEIC/HEIF内の最初の静止画を処理します。Live Photoの動画やアニメーションは変換しません。出力ファイルからメタデータは削除されます。"
+        ]
+      ],
+      [
+        "Koofy Imageのウェブツールを開きます。",
+        "HEICまたはHEIFの写真を最大10枚選びます。",
+        "出力をJPGにし、画質とサイズを確認します。",
+        "結果を確認し、個別ファイルまたはZIPでダウンロードします。"
+      ]
+    ],
+    "guides/reduce-photo-size": [
+      "ブログに載せる写真のファイル容量を減らす方法",
+      "高解像度の写真がアップロード上限を超える場合は、JPG・WebPの画質や画像サイズを調整しましょう。Koofy Imageウェブでは目標容量を設定して結果を確認できます。",
+      [
+        [
+          "必ず目標容量以下になりますか？",
+          "写真の内容や設定によっては目標に届かない場合があります。実際の出力容量を確認し、必要に応じて画像サイズを小さくして再変換してください。元より大きくなる場合もあります。"
+        ],
+        [
+          "JPG・PNG・WebPの選び方",
+          "一般的な写真にはJPG、透明な背景を残す場合はPNGやWebPを検討してください。PNGは画質設定だけでは容量を減らせないため、縮小が必要な場合があります。JPGでは透明部分が選択した背景色で塗られます。"
+        ]
+      ],
+      [
+        "Koofy Imageウェブで写真を選び、容量削減を選択します。",
+        "出力形式と目標容量を指定します。",
+        "必要に応じて縮小を許可し、変換します。",
+        "画質と実際の容量を確認してから保存します。"
+      ]
+    ]
+  }
+}

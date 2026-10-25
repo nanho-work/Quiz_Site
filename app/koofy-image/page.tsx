@@ -1,3 +1,4 @@
+import DiscoveryLinks from "../../components/discovery/DiscoveryLinks";
 import type { Metadata } from "next";
 import ImageTool from "../../components/image-tools/ImageTool";
 const title = "쿠피 이미지 — 무료 HEIC·JPG 변환, 사진 용량 줄이기";
@@ -17,5 +18,5 @@ export const metadata: Metadata = {
   twitter: { card: "summary", title, description },
 };
 export default function Page() {
-  return <ImageTool />;
+  return <><ImageTool /><DiscoveryLinks /></>;
 }

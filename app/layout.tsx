@@ -8,9 +8,9 @@ import { RootChrome } from "../components/RootChrome";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.koofy.co.kr"),
-  title: "Koofy Lab - Games, Apps, and AI-Powered Tools",
+  title: "쿠피랩(Koofy Lab) | 앱과 웹 도구",
   description:
-    "Koofy Lab creates simple, fun, and memorable digital products across games, mobile apps, AI-powered tools, and web utilities.",
+    "쿠피랩의 독서 앱 쿠피리더, 사진 변환 도구 쿠피 이미지와 일상에 유용한 앱·웹서비스를 만나보세요.",
   keywords: [
     "Koofy Lab",
     "Koofy",
@@ -24,11 +24,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Koofy Lab" }],
   openGraph: {
-    title: "Koofy Lab - Simple, Fun, Memorable Experiences",
+    title: "쿠피랩(Koofy Lab) | 앱과 웹 도구",
     description:
-      "Games, apps, AI-powered tools, and web utilities by Koofy Lab.",
+      "쿠피리더, 쿠피 이미지와 일상에 유용한 앱·웹서비스.",
     url: "https://www.koofy.co.kr",
-    siteName: "Koofy Lab",
+    siteName: "쿠피랩 · Koofy Lab",
     images: [
       {
         url: "/KoofyLab_Banner.png",
@@ -37,14 +37,14 @@ export const metadata: Metadata = {
         alt: "Koofy Lab banner",
       },
     ],
-    locale: "en_US",
+    locale: "ko_KR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Koofy Lab - Games, Apps, and AI-Powered Tools",
+    title: "쿠피랩(Koofy Lab) | 앱과 웹 도구",
     description:
-      "Simple, fun, and memorable digital products from Koofy Lab.",
+      "쿠피리더, 쿠피 이미지와 일상에 유용한 앱·웹서비스.",
     images: ["/KoofyLab_Banner.png"],
   },
   icons: {
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>
         <meta name="google-adsense-account" content="ca-pub-5773331970563455" />
         <meta

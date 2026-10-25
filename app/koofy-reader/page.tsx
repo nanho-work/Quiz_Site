@@ -1,9 +1,10 @@
+import DiscoveryLinks from "../../components/discovery/DiscoveryLinks";
 import type { Metadata } from "next";
 import { ReaderPage } from "../../components/marketing/Marketing";
 import { readerAppStoreUrl } from "../../lib/marketing";
 
-const title = "쿠피리더 — 아이폰 TXT·EPUB 뷰어, TTS 책 읽기 | Koofy Lab";
-const description = "iPhone·iPad에서 TXT·EPUB 파일을 가져와 읽는 쿠피리더. 책 묶음, 이어 읽기, 글꼴 설정과 기기 음성 TTS를 지원합니다. App Store 다운로드와 사용 방법을 확인하세요.";
+const title = "쿠피리더 — 아이폰·안드로이드 TXT·EPUB 뷰어, TTS 책 읽기 | Koofy Lab";
+const description = "iPhone·iPad·Android에서 TXT·EPUB 파일을 가져와 읽는 쿠피리더. 책 묶음, 이어 읽기, 글꼴 설정과 기기 음성 TTS를 지원합니다. App Store·Google Play 다운로드와 사용 방법을 확인하세요.";
 
 export const metadata: Metadata = {
   title,
@@ -24,5 +25,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ReaderPage />;
+  return <><ReaderPage /><DiscoveryLinks /></>;
 }

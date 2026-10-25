@@ -1,0 +1,29 @@
+.page { color: #243b35; padding: 12px 0 48px; }
+.languages { display:flex; gap:20px; flex-wrap:wrap; justify-content:flex-end; margin-bottom:32px; font-size:14px; }
+.languages a { padding:8px 0; }
+.languages a[aria-current] { border-bottom:2px solid #366858; font-weight:700; }
+.back { font-size:14px; }
+.hero { padding:40px 0; max-width:850px; }
+.brand { font-size:12px!important; letter-spacing:.16em; font-weight:700; }
+.hero h1 { font-size:clamp(30px,4.8vw,54px); line-height:1.25; letter-spacing:-.035em; margin:16px 0 24px; text-wrap:balance; overflow-wrap:anywhere; }
+.hero p { font-size:18px; line-height:1.8; }
+.actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
+.actions a { padding:12px 18px; border:1px solid #b4c8bd; border-radius:10px; font-weight:600; }
+.actions a:first-child { background:#285346; color:white; }
+.body { display:grid; gap:40px; grid-template-columns:minmax(0,1fr); }
+.body:has(.image) { grid-template-columns:minmax(180px,.7fr) minmax(0,1.5fr); }
+.image { width:100%; height:auto; max-height:460px; object-fit:contain; border-radius:16px; background:#f0f2ed; }
+.body section { margin-bottom:32px; }
+.page h2 { font-size:23px; line-height:1.4; font-weight:650; margin-bottom:14px; }
+.body p,.body li { font-size:16px; line-height:1.9; }
+.body ol { list-style:decimal; padding-left:24px; }
+.body li { padding:4px 0 4px 6px; }
+.support { display:flex; gap:24px; text-decoration:underline; flex-wrap:wrap; }
+.related { border-top:1px solid #dce4de; margin-top:40px; padding-top:32px; }
+.grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.grid a { display:block; padding:24px; border:1px solid #dce4de; border-radius:12px; background:white; }
+.grid h3 { font-size:18px; font-weight:650; line-height:1.5; margin-bottom:12px; }
+.grid p { font-size:14px; line-height:1.8; }
+.grid span { display:block; text-align:right; margin-top:12px; }
+.page a:focus-visible { outline:3px solid #6a967f; outline-offset:4px; }
+@media(max-width:650px) { .body:has(.image),.grid { grid-template-columns:1fr; } .image { max-height:280px; } .hero { padding:24px 0; } }

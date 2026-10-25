@@ -55,15 +55,23 @@ function detectBrowserLanguage(): LanguageCode {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  // Match the reader landing page's Korean search metadata in the server HTML.
-  // Existing language preferences still apply after hydration.
-  const [language, setLanguageState] = useState<LanguageCode>(
-    pathname === "/koofy-reader" || pathname.startsWith("/koofy-image") ? "ko" : defaultLanguage
+  // Explicit language URLs are stable for both crawlers and visitors.
+  // Legacy routes retain browser/preference-based language selection.
+  const routeLocale = pathname.split("/")[1];
+  const fixedLanguage = ["ko", "en", "ja"].includes(routeLocale) ? routeLocale as LanguageCode : null;
+  const [preferredLanguage, setLanguageState] = useState<LanguageCode>(
+    pathname === "/" || pathname === "/koofy-reader" || pathname.startsWith("/koofy-image") ? "ko" : defaultLanguage
   );
+
+  const language = fixedLanguage || preferredLanguage;
 
   useEffect(() => {
     setLanguageState(detectBrowserLanguage());
   }, []);
+
+  useEffect(() => {
+    if (fixedLanguage) setLanguageState(fixedLanguage);
+  }, [fixedLanguage]);
 
   useEffect(() => {
     document.documentElement.lang = getHtmlLang(language);

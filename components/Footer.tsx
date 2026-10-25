@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "./LanguageProvider";
+import { labels, pathFor } from "../lib/discovery";
 import { copy } from "../lib/marketing";
 export default function Footer() {
   const { language } = useLanguage();
@@ -22,6 +23,7 @@ export default function Footer() {
           <Link href="/koofy-reader">{t.reader}</Link>
           <Link href="/products/bus-pop">Bus Pop</Link>
           <Link href="/products">{t.all}</Link>
+          <Link href={pathFor(language === "ko" || language === "ja" ? language : "en")}>{labels[language === "ko" || language === "ja" ? language : "en"].home}</Link>
         </nav>
         <nav aria-label={t.support}>
           <h2>{t.support}</h2>
