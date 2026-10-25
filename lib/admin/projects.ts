@@ -1,4 +1,4 @@
-import { BookOpen, Type, BellRing, CreditCard, Gamepad2, History, LayoutDashboard, Map, Search } from "lucide-react";
+import { CalendarDays, BookOpen, Type, BellRing, CreditCard, Gamepad2, History, LayoutDashboard, Map, Search } from "lucide-react";
 import type { ComponentType } from "react";
 
 export interface AdminNavigationItem {
@@ -47,6 +47,7 @@ export const adminProjects: AdminProject[] = [
     status: "active", href: "/admin/projects/koofy-reader", accent: "from-amber-500 to-orange-300", icon: BookOpen,
     navigation: [
       { label: "책 · 표지", href: "/admin/projects/koofy-reader/books", icon: BookOpen, requiredRole: "superAdmin" },
+      { label: "월간 쿠피", href: "/admin/projects/koofy-reader/monthly", icon: CalendarDays, requiredRole: "superAdmin" },
       { label: "글꼴", href: "/admin/projects/koofy-reader/fonts", icon: Type, requiredRole: "superAdmin" },
     ],
   },

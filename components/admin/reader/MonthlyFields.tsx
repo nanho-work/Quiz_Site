@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { listReaderContent, ReaderContent, ReaderKind, ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 
 /** Monthly publishing is an extension of series, not another content store. */
-export default function MonthlyFields({ kind, series, form, onChange }: {
-  kind: ReaderKind; series: ReaderContent | null; form: ReaderMetadata; onChange: (value: ReaderMetadata) => void;
+export default function MonthlyFields({ kind, series, form, onChange, monthLocked = false }: {
+  monthLocked?: boolean; kind: ReaderKind; series: ReaderContent | null; form: ReaderMetadata; onChange: (value: ReaderMetadata) => void;
 }) {
   const [books, setBooks] = useState<ReaderContent[]>([]);
   const [error, setError] = useState('');
@@ -28,10 +28,10 @@ export default function MonthlyFields({ kind, series, form, onChange }: {
   const options = books.filter(book => book.published && book.publishedContent?.assets.epub && !book.seriesId &&
     book.publishedContent.issueMonth === form.issueMonth && (book.publishedContent.language || 'ko') === (form.language || 'ko'));
   return <div className="space-y-3 rounded-xl border border-slate-700 p-4">
-    <label className="block text-sm text-slate-300">월간 쿠피 발행 월 (일반 도서는 비워 두세요)
-      <input type="month" className={input} value={form.issueMonth || ''} onChange={e => onChange({ ...form, issueMonth: e.target.value, compilationId: '', releaseDate: '' })} />
+    <label className="block text-sm text-slate-300">발행 월 (필수)
+      <input required disabled={monthLocked} type="month" className={input} value={form.issueMonth || ''} onChange={e => onChange({ ...form, issueMonth: e.target.value, compilationId: '', releaseDate: '' })} />
     </label>
-    {form.issueMonth && kind === 'book' && <p className="text-xs text-slate-400">이 월간호의 완성된 합본 EPUB을 올리고 공개한 뒤, 연재 작품에서 연결하세요.</p>}
+    {form.issueMonth && kind === 'book' && <p className="text-xs text-slate-400">이 월간호의 완성된 합본 EPUB을 올리고 공개한 뒤, 월간호 · 회차 탭에서 해당 월간호에 연결하세요.</p>}
     {form.issueMonth && kind === 'series' && <>
       <label className="block text-sm text-slate-300">완결 합본 연결
         <select className={input} value={form.compilationId || ''} onChange={e => onChange({ ...form, compilationId: e.target.value, ...(e.target.value ? { seriesStatus: 'completed' } : {}) })}>

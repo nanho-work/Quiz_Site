@@ -12,21 +12,21 @@ const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
 function fields(item: ReaderMetadata): ReaderMetadata { return { issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.author, description: item.description, license: item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
-export function ReaderContentManager({ kind }: { kind: ReaderKind }) {
+export function ReaderContentManager({ kind, monthly = false }: { kind: ReaderKind; monthly?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
   const [series, setSeries] = useState<ReaderContent | null>(null);
   const [initialItem, setInitialItem] = useState<ReaderContent | null>(null);
-  return <ContentEditor key={`${mode}-${series?.id || 'root'}`} kind={mode} series={series} initialItem={initialItem}
+  return <ContentEditor key={`${monthly}-${mode}-${series?.id || 'root'}`} monthly={monthly} kind={mode} series={series} initialItem={initialItem}
     onNavigate={(nextMode, parent = null, item = null) => { setMode(nextMode); setSeries(parent); setInitialItem(item); }} />;
 }
 
-function ContentEditor({ kind, series, initialItem, onNavigate }: {
-  kind: ReaderKind; series: ReaderContent | null; initialItem: ReaderContent | null;
+function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
+  monthly: boolean; kind: ReaderKind; series: ReaderContent | null; initialItem: ReaderContent | null;
   onNavigate: (kind: ReaderKind, series?: ReaderContent | null, item?: ReaderContent | null) => void;
 }) {
   const newForm = (): ReaderMetadata => series
     ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '' }
-    : { ...empty, ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
+    : { ...empty, ...(monthly ? { issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -46,8 +46,8 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
   const categoryOptions = Array.from(new Set([...categories, ...items.map(item => item.category || '기타'), form.category || '기타']));
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(selected ? fields(selected) : newForm());
   const dirty = metadataDirty || Object.keys(pendingFiles).length > 0;
-  const valid = form.title.trim() && (series ? Number.isSafeInteger(form.episodeNumber) && form.episodeNumber! > 0 : form.author.trim() && form.license.trim());
-  const label = series ? '회차' : kind === 'series' ? '작품' : kind === 'book' ? '책' : '글꼴';
+  const valid = (!monthly || !!form.issueMonth) && form.title.trim() && (series ? Number.isSafeInteger(form.episodeNumber) && form.episodeNumber! > 0 : form.author.trim() && form.license.trim());
+  const label = series ? '회차' : kind === 'series' ? (monthly ? '월간호' : '작품') : kind === 'book' ? (monthly ? '합본' : '책') : '글꼴';
   const navigate: typeof onNavigate = (...args) => {
     if (busy || (dirty && !window.confirm('저장하지 않은 입력을 닫고 이동할까요?'))) return;
     onNavigate(...args);
@@ -63,19 +63,21 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
         listReaderContent(kind, after, series?.id),
         kind !== 'font' && !series ? listReaderCategories() : Promise.resolve(null),
       ]);
+      const inScope = (item: ReaderContent) => !!series || kind === 'font' || Boolean(item.issueMonth || item.publishedContent?.issueMonth) === monthly;
+      page.items = page.items.filter(inScope);
       const seen = new Set<string>();
       while (page.nextCursor && (series || page.items.length === 0)) {
         if (seen.has(page.nextCursor)) throw new Error('목록을 끝까지 읽지 못했습니다. 새로고침해 주세요.');
         seen.add(page.nextCursor);
         const next = await listReaderContent(kind, page.nextCursor, series?.id);
-        page.items.push(...next.items); page.nextCursor = next.nextCursor;
+        page.items.push(...next.items.filter(inScope)); page.nextCursor = next.nextCursor;
       }
       if (series && !after) setForm(current => current.title || current.description ? current : { ...current, episodeNumber: Math.max(0, ...page.items.map(item => item.episodeNumber || 0)) + 1 });
       if (categoryResult) setCategories(categoryResult.categories);
       setItems(current => after ? Array.from(new Map([...current, ...page.items].map(item => [item.id, item])).values()) : page.items); setCursor(page.nextCursor);
     } catch (error) { setError(error instanceof Error ? error.message : '목록을 불러오지 못했습니다.'); }
     finally { setLoading(false); }
-  }, [kind, series]);
+  }, [kind, series, monthly]);
   useEffect(() => { void load(); }, [load]);
   const run = async (action: () => Promise<ReaderContent>, message: string) => {
     setBusy(true); setError(null); setNotice(null);
@@ -175,9 +177,8 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)]">
       <AdminCard className="p-5">
     {kind !== 'font' && <div className="mb-5 flex flex-wrap items-center gap-2">
-      {series ? <><button disabled={busy} className={buttonClass} onClick={() => navigate('series', null, series)}>← 작품 정보</button><h2 className="text-lg font-semibold text-white">{series.title} · 회차 관리</h2></> : <>
-        <button disabled={busy} aria-pressed={kind === 'book'} className={`${buttonClass} ${kind === 'book' ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate('book')}>단권 도서</button>
-        <button disabled={busy} aria-pressed={kind === 'series'} className={`${buttonClass} ${kind === 'series' ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate('series')}>연재 작품</button>
+      {series ? <><button disabled={busy} className={buttonClass} onClick={() => navigate('series', null, series)}>{monthly ? '← 월간호 정보' : '← 작품 정보'}</button><h2 className="text-lg font-semibold text-white">{series.title} · 회차 관리</h2></> : <>
+        {(monthly ? ['series', 'book'] as const : ['book', 'series'] as const).map(tab => <button key={tab} disabled={busy} aria-pressed={kind === tab} className={`${buttonClass} ${kind === tab ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate(tab)}>{tab === 'series' ? (monthly ? '월간호 · 회차' : '연재 작품') : (monthly ? '완결 합본' : '단권 도서')}</button>) }
       </>}
     </div>}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-white">{label} 목록</h2><div className="flex gap-2">
@@ -186,12 +187,12 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
         </div></div>
     {series && <button className={`${buttonClass} mb-4 w-full`} disabled={busy || loading} onClick={() => { if (dirty && !window.confirm('저장하지 않은 입력을 닫고 일괄 등록을 열까요?')) return; setPendingFiles({}); setBatchOpen(true); }}>회차 일괄 등록</button>}
     {series && <p className="mb-5 text-sm leading-6 text-slate-400">저자·분류·출처·이용 조건과 대표 표지는 작품에서 이어받습니다. 회차를 공개할 때 작품의 공개된 정보를 사용합니다. 회차 표지는 필요할 때만 추가하세요.</p>}
-    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.</p>}
+    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">{monthly ? '발행 월·언어별로 월간호를 만들고, 회차 관리에서 매일의 글과 표지를 등록하세요. 월말에는 완결 합본 탭에서 EPUB을 올린 뒤 이 월간호에 연결하세요.' : '작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.'}</p>}
         {loading && <p role="status" className="py-4 text-sm text-slate-400">목록을 불러오는 중…</p>}
         {!loading && items.length === 0 && !error && <p className="py-6 text-sm text-slate-400">등록한 {label}이 없습니다. 오른쪽에서 첫 항목을 추가해 주세요.</p>}
         {series && <label className="mb-4 block text-sm text-slate-300">회차 찾기 · {items.length}개<input className={inputClass} placeholder="번호 또는 제목" value={episodeQuery} onChange={e => setEpisodeQuery(e.target.value)} /></label>}
         <ul className="max-h-[70vh] space-y-2 overflow-y-auto pr-1">{items.filter(item => !series || `${item.episodeNumber}화 ${item.title}`.toLocaleLowerCase().includes(episodeQuery.trim().toLocaleLowerCase())).sort((a, b) => series ? (a.episodeNumber || 0) - (b.episodeNumber || 0) : a.title.localeCompare(b.title, 'ko')).map(item => <li key={item.id}><button disabled={busy} onClick={() => select(item)} className={`w-full rounded-xl border p-4 text-left ${selected?.id === item.id ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 hover:bg-slate-800/60'}`}>
-          <span className="block truncate font-medium text-white">{series ? `${item.episodeNumber}화 · ` : ''}{item.title}</span><span className="mt-1 block text-xs text-slate-400">{item.author} · {item.deleting ? '삭제 대기 · 재시도 필요' : item.published ? '공개 중' : '비공개'}</span>
+          <span className="block truncate font-medium text-white">{series ? `${item.episodeNumber}화 · ` : ''}{item.title}</span><span className="mt-1 block text-xs text-slate-400">{monthly && !series ? `${item.issueMonth || item.publishedContent?.issueMonth} · ${{ ko: '한국어', en: 'English', ja: '日本語' }[item.language || 'ko']} · ` : ''}{item.author} · {item.deleting ? '삭제 대기 · 재시도 필요' : item.published ? '공개 중' : '비공개'}</span>
           {item.published && item.publishedContent?.version !== item.revision && <span className="mt-2 block text-xs text-amber-300">수정된 초안 있음</span>}
         </button></li>)}</ul>
         {cursor && <button className={`${buttonClass} mt-4 w-full`} disabled={busy || loading} onClick={() => void load(cursor)}>더 불러오기</button>}
@@ -217,7 +218,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate }: {
             </div>}
             <label className="block text-sm text-slate-300">출처 (선택)<input maxLength={500} className={inputClass} placeholder="원문 페이지 주소 또는 제공 기관" value={form.source || ''} onChange={e => setForm({ ...form, source: e.target.value })} /></label>
             </>}
-            <MonthlyFields kind={kind} series={series} form={form} onChange={setForm} />
+            {monthly && <MonthlyFields kind={kind} series={series} form={form} onChange={setForm} monthLocked={!!selected?.publishedContent} />}
             <label className="block text-sm text-slate-300">설명 (선택)<textarea rows={3} maxLength={2000} className={inputClass} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
             {!series && <label className="block text-sm text-slate-300">배포 권한 · 이용 조건 (필수)<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>}
             {kind === 'font' && <button type="submit" className={buttonClass} disabled={busy || !valid || (!!selected && !dirty)}>{busy ? '처리 중…' : selected ? '초안 저장' : '초안 만들기'}</button>}
