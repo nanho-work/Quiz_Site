@@ -66,9 +66,8 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
       </section>
       <fieldset disabled={disabled} className="min-w-0 space-y-4 rounded-xl border border-slate-800 p-4">
         <legend className="px-2 text-sm font-medium text-white">발행 · 합본 설정</legend>
-        <label className="block text-sm text-slate-300">예정 회차 수<input type="number" min={1} max={100} className={input} value={form.expectedEpisodes || ''} placeholder="예: 30" onChange={e => onChange({ ...form, expectedEpisodes: Number(e.target.value) })} /></label>
         <label className="flex items-center justify-between gap-3 text-sm text-slate-200">월말 자동 합본 생성<input type="checkbox" className="h-5 w-5 accent-emerald-500" checked={form.autoCompile || false} onChange={e => onChange({ ...form, autoCompile: e.target.checked })} /></label>
-        <p className="text-xs leading-5 text-slate-400">다음 달 1일 0시 이후, 예정 회차가 모두 공개되면 합본을 만듭니다. 한국 시간 기준이며 매시간 확인합니다.</p>
+        <p className="text-xs leading-5 text-slate-400">다음 달 1일 0시 이후, 해당 월에 공개된 회차만 공개 일시 순으로 모아 합본을 만듭니다. 한국 시간 기준이며 매시간 확인합니다.</p>
         <label className="block text-sm text-slate-300">발행 상태<select className={input} value={form.seriesStatus || 'ongoing'} onChange={e => onChange({ ...form, seriesStatus: e.target.value as 'ongoing' | 'completed' })}><option value="ongoing">연재 중</option><option value="completed">완결</option></select></label>
         {selected?.publishedContent?.compilationId && <p className="text-sm text-emerald-300">합본 연결 완료</p>}
         {selected?.compilationError && <p role="alert" className="text-sm text-amber-300">{selected.compilationError}</p>}
@@ -87,7 +86,7 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
     {management}
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-700 bg-slate-950/95 px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur lg:left-72">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-end gap-3">
-        <span role="status" className="w-full text-xs text-slate-400 sm:mr-auto sm:w-auto">{busy ? '저장 중…' : missingExtra ? <button className="text-amber-300 underline" onClick={() => { setExtraOpen(true); document.getElementById('monthly-extra-anchor')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }}>추가 정보의 필수 항목을 입력하세요</button> : form.autoCompile && !form.expectedEpisodes ? '자동 합본의 예정 회차 수를 입력하세요' : dirty ? '저장하지 않은 변경이 있습니다' : selected ? '저장된 상태입니다' : '정보를 입력해 주세요'}</span>
+        <span role="status" className="w-full text-xs text-slate-400 sm:mr-auto sm:w-auto">{busy ? '저장 중…' : missingExtra ? <button className="text-amber-300 underline" onClick={() => { setExtraOpen(true); document.getElementById('monthly-extra-anchor')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }}>추가 정보의 필수 항목을 입력하세요</button> : dirty ? '저장하지 않은 변경이 있습니다' : selected ? '저장된 상태입니다' : '정보를 입력해 주세요'}</span>
         <button className={`${button} flex-1 sm:flex-none`} disabled={disabled || !valid || (!!selected && !dirty)} onClick={() => onSave(false)}>초안 저장</button>
         <button className={`${button} flex-1 border-emerald-600 bg-emerald-700 hover:bg-emerald-600 sm:flex-none`} disabled={disabled || !valid || !publishReady} onClick={() => onSave(true)}>{selected?.published ? '수정하고 공개' : '등록하고 공개'}</button>
       </div>

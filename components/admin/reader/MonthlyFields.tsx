@@ -34,11 +34,8 @@ export default function MonthlyFields({ kind, series, form, onChange, monthLocke
     </label>}
     {form.issueMonth && kind === 'book' && <p className="text-xs text-slate-400">이 월간호의 완성된 합본 EPUB을 올리고 공개한 뒤, 월간호 · 회차 탭에서 해당 월간호에 연결하세요.</p>}
     {form.issueMonth && kind === 'series' && <>
-      {section === 'all' && <><label className="block text-sm text-slate-300"><input type="checkbox" checked={form.autoCompile || false} onChange={e => onChange({ ...form, autoCompile: e.target.checked, expectedEpisodes: form.expectedEpisodes || 1 })} /> 월말 자동 합본 생성</label>
-      <label className="block text-sm text-slate-300">이번 호 예정 회차 수
-        <input type="number" min={1} max={100} className={input} value={form.expectedEpisodes || ''} onChange={e => onChange({ ...form, expectedEpisodes: Number(e.target.value) })} />
-      </label>
-      <p className="text-xs text-slate-400">설정 후 ‘수정하고 공개’를 눌러 적용하세요. 다음 달 1일 한국 시간 0시 이후 매시간 확인합니다. 예정 회차가 모두 공개되고 TXT 원본이 있어야 합본을 만들며, 누락·실패 시 기존 목록을 유지합니다. 원본 TXT와 이미지는 보관됩니다.</p></>}
+      {section === 'all' && <><label className="block text-sm text-slate-300"><input type="checkbox" checked={form.autoCompile || false} onChange={e => onChange({ ...form, autoCompile: e.target.checked })} /> 월말 자동 합본 생성</label>
+      <p className="text-xs text-slate-400">설정 후 ‘수정하고 공개’를 눌러 적용하세요. 다음 달 1일 한국 시간 0시 이후 매시간 확인합니다. 해당 월에 공개된 회차만 공개 일시 순으로 합본을 만듭니다. 초안·비공개·다른 달 회차는 제외하며, 대상 회차의 TXT 원본이 없거나 생성에 실패하면 기존 목록을 유지합니다. 원본 TXT와 이미지는 보관됩니다.</p></>}
       <label className="block text-sm text-slate-300">직접 만든 합본 연결 (선택)
         <select className={input} value={form.compilationId || ''} onChange={e => onChange({ ...form, compilationId: e.target.value, ...(e.target.value ? { seriesStatus: 'completed' } : {}) })}>
           <option value="">아직 연결하지 않음</option>
