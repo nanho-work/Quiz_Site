@@ -61,3 +61,10 @@ export function addReaderCategory(name: string) {
     body: JSON.stringify({ action: 'addCategory', name }),
   });
 }
+
+export function ensureMonthlyIssues(issueMonth: string) {
+  return request<{ items: ReaderContent[] }>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'ensureMonthlyIssues', issueMonth }) });
+}
+export function ensureMonthlyEpisode(seriesId: string, metadata: ReaderMetadata) {
+  return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'ensureMonthlyEpisode', seriesId, metadata }) });
+}
