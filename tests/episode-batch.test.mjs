@@ -11,3 +11,17 @@ test('existing episodes and missing body block registration',()=>{const r=mergeE
 test('unsupported, empty, oversized files are reported',()=>{const r=mergeEpisodeFiles([],[file('설정.md'),file('1_빈글.txt',0),file('2_큰표지.jpg',6*1024*1024)],title);assert.equal(r.rows.length,0);assert.equal(r.rejected.length,3);});
 test('unparsed names require explicit number and missing cover is allowed',()=>{const r=mergeEpisodeFiles([],[file('제목만.txt')],title);assert(episodeIssues(r.rows[0],r.rows,new Set()).includes('회차 번호 확인'));r.rows[0].number='3';assert.deepEqual(episodeIssues(r.rows[0],r.rows,new Set()),[]);});
 test('100 episodes match 100 covers across separate drops',()=>{let r=mergeEpisodeFiles([],Array.from({length:100},(_,i)=>file(`${String(i+1).padStart(3,'0')}_제목.txt`)),title);r=mergeEpisodeFiles(r.rows,Array.from({length:100},(_,i)=>file(`${String(i+1).padStart(3,'0')}_제목.jpg`)),title);assert.equal(r.rows.length,100);assert(r.rows.every(row=>episodeIssues(row,r.rows,new Set()).length===0));});
+test('integrated batch matches Korean Japanese English numeric prefixes with differently named images', () => {
+  for (const [body, cover] of [['1화_겨울.txt', '1화_표지.png'], ['第1話_冬.txt', '1_絵.png'], ['Episode 1_Winter.txt', '1_image.png']]) {
+    const r = mergeEpisodeFiles([], [file(cover), file(body)], '', true);
+    assert.equal(r.rows.length, 1); assert.equal(r.rows[0].number, '1');
+    assert.equal(r.rows[0].books.length, 1); assert.equal(r.rows[0].covers.length, 1);
+    assert.deepEqual(episodeIssues(r.rows[0], r.rows, new Set()), []);
+  }
+});
+test('integrated collisions and existing episodes cannot silently overwrite', () => {
+  const r = mergeEpisodeFiles([], [file('1화_첫글.txt'), file('1화_다른글.txt'), file('1_image.png')], '', true);
+  assert.equal(r.rows.length, 1);
+  assert(episodeIssues(r.rows[0], r.rows, new Set([1])).includes('본문이 여러 개입니다'));
+  assert(episodeIssues(r.rows[0], r.rows, new Set([1])).includes('이미 등록된 회차'));
+});

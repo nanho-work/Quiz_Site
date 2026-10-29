@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { MonthlyEpisodeBatch } from './MonthlyEpisodeBatch';
 import { ReaderContentManager } from './ReaderContentManager';
 import { listReaderContent, mutateReaderContent, uploadReaderAsset, ensureMonthlyIssues, ensureMonthlyEpisode, type ReaderContent, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 import { monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
@@ -30,7 +31,7 @@ export default function MonthlyWorkspace() {
   const [issues, setIssues] = useState<ReaderContent[]>([]);
   const [month, setMonth] = useState('');
   const [createMonth, setCreateMonth] = useState(koreaNow().slice(0, 7));
-  const [tab, setTab] = useState<'settings' | 'episodes'>('settings');
+  const [tab, setTab] = useState<'settings' | 'episodes' | 'batch'>('settings');
   const [legacy, setLegacy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -57,8 +58,8 @@ export default function MonthlyWorkspace() {
       <div className="grid items-start gap-5 lg:grid-cols-[240px_minmax(0,1fr)]">
         <nav aria-label="월간호 목록" className={panel}>{months.length ? months.map(value => <button key={value} disabled={busy} className={`${button} w-full text-left ${month === value ? 'border-emerald-400 bg-emerald-950' : ''}`} onClick={() => { if (guard()) { setMonth(value); setTab('settings'); setDirty(false); } }}>{value} 월간호<span className="mt-2 block text-xs text-slate-400">{languages.map(l => `${names[l]} ${issues.some(x => (x.issueMonth || x.publishedContent?.issueMonth) === value && (x.language || 'ko') === l) ? '등록' : '미등록'}`).join(' · ')}</span></button>) : <p>등록된 월간호가 없습니다.</p>}</nav>
         <div className="min-w-0 space-y-4">{month && <>
-          <div className="flex gap-3">{(['settings', 'episodes'] as const).map(t => <button key={t} disabled={busy} className={`${button} ${tab === t ? 'bg-emerald-900' : ''}`} onClick={() => { if (guard()) { setDirty(false); setTab(t); } }}>{t === 'settings' ? '월간호 설정' : '회차 관리'}</button>)}</div>
-          {duplicates ? <p role="alert">같은 월·언어의 월간호가 여러 개 있습니다. 기존 개별 관리에서 확인해 주세요. 자동으로 합치거나 삭제하지 않습니다.</p> : tab === 'settings' ? <IssueSettings key={`${month}-${version}`} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} /> : <EpisodeEditor key={month} month={month} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onIssueUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} />}
+          <div className="flex gap-3">{(['settings', 'episodes', 'batch'] as const).map(t => <button key={t} disabled={busy} className={`${button} ${tab === t ? 'bg-emerald-900' : ''}`} onClick={() => { if (guard()) { setDirty(false); setTab(t); } }}>{t === 'settings' ? '월간호 설정' : t === 'episodes' ? '한 회차 등록·수정' : '회차 일괄등록'}</button>)}</div>
+          {duplicates ? <p role="alert">같은 월·언어의 월간호가 여러 개 있습니다. 기존 개별 관리에서 확인해 주세요. 자동으로 합치거나 삭제하지 않습니다.</p> : tab === 'settings' ? <IssueSettings key={`${month}-${version}`} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} /> : tab === 'batch' ? <MonthlyEpisodeBatch key={month} issues={selected} setBusy={setBusy} onDirty={setDirty} /> : <EpisodeEditor key={month} month={month} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onIssueUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} />}
         </>}</div>
       </div>
     </>}

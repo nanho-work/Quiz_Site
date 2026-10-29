@@ -11,7 +11,7 @@ export function parseEpisodeName(name: string, seriesTitle: string) {
   const match = rest.match(/^(?:제\s*)?(\d{1,6})(?:\s*화)?(?:[\s.\-]+|$)(.*)$/);
   return { key: stem.toLocaleLowerCase(), number: match ? String(Number(match[1])) : '', title: match ? match[2].trim() : rest };
 }
-export function mergeEpisodeFiles<F extends NamedFile>(rows: EpisodeRow<F>[], files: F[], seriesTitle: string) {
+export function mergeEpisodeFiles<F extends NamedFile>(rows: EpisodeRow<F>[], files: F[], seriesTitle: string, matchByNumber = false) {
   const result = rows.map(row => ({ ...row, books: [...row.books], covers: [...row.covers] }));
   const rejected: string[] = [];
   for (const file of files) {
@@ -19,8 +19,15 @@ export function mergeEpisodeFiles<F extends NamedFile>(rows: EpisodeRow<F>[], fi
     const slot = ['txt', 'epub'].includes(extension || '') ? 'books' : ['jpg', 'jpeg', 'png', 'webp'].includes(extension || '') ? 'covers' : null;
     if (!slot || file.size <= 0 || file.size > (slot === 'books' ? 20 : 5) * 1024 * 1024) { rejected.push(file.name); continue; }
     const parsed = parseEpisodeName(file.name, seriesTitle);
+    if (matchByNumber) {
+      const stem = normalize(file.name.replace(/\.[^.]+$/, ''));
+      const match = stem.match(/^(?:(?:episode|ep|chapter)\s*|第\s*)?(\d{1,6})(?:\s*(?:화|話|章))?(?:[\s.\-:]+|$)(.*)$/i);
+      if (match) { parsed.number = String(Number(match[1])); parsed.title = match[2].trim(); }
+      if (parsed.number) parsed.key = 'episode-' + parsed.number;
+    }
     let row = result.find(item => item.key === parsed.key);
     if (!row) { row = { ...parsed, description: '', books: [], covers: [] }; result.push(row); }
+    if (matchByNumber && slot === 'books' && !row.books.length && parsed.title) row.title = parsed.title;
     if (!row[slot].some(old => old.name === file.name && old.size === file.size && old.lastModified === file.lastModified)) row[slot].push(file);
   }
   return { rows: result.sort((a, b) => (Number(a.number) || Infinity) - (Number(b.number) || Infinity) || a.key.localeCompare(b.key, 'ko')), rejected };
