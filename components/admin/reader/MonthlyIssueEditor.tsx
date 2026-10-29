@@ -2,7 +2,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { BookImage, ChevronDown } from 'lucide-react';
 import type { ReaderContent, ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
-import { monthlyDefaults, monthlyLanguageFields } from '../../../lib/admin/firebase/monthly-defaults';
+import { monthlyDefaults, monthlyIssueFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyFields from './MonthlyFields';
 
 const input = 'mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none';
@@ -55,10 +55,14 @@ export default function MonthlyIssueEditor({ form, onChange, selected, busy, dir
       {selected && <button className={button} disabled={disabled} onClick={onEpisodes}>회차 관리 →</button>}
     </div>
     <fieldset disabled={disabled} className="grid min-w-0 gap-3 sm:grid-cols-2 2xl:grid-cols-[160px_140px_minmax(0,1fr)]">
-      <label className="min-w-0 text-sm text-slate-300">발행 월<input type="month" required className={input} disabled={!!selected?.publishedContent} value={form.issueMonth || ''} onChange={e => onChange({ ...form, issueMonth: e.target.value, compilationId: '', releaseDate: '', releaseAt: '' })} /></label>
-      <label className="min-w-0 text-sm text-slate-300">언어<select className={input} disabled={!!selected?.publishedContent} value={form.language || 'ko'} onChange={e => onChange({ ...monthlyLanguageFields(form, e.target.value as 'ko' | 'en' | 'ja'), compilationId: '' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label>
-      <label className="min-w-0 text-sm text-slate-300 sm:col-span-2 2xl:col-span-1">월간호 제목<input required maxLength={160} className={input} value={form.title} placeholder="월간 쿠피 11월호" onChange={e => onChange({ ...form, title: e.target.value })} /></label>
+      <label className="min-w-0 text-sm text-slate-300">발행 연·월<input type="month" required className={input} disabled={!!selected?.publishedContent} value={form.issueMonth || ''} onChange={e => onChange(monthlyIssueFields(form, e.target.value))} /></label>
+      <label className="min-w-0 text-sm text-slate-300">언어<select className={input} disabled={!!selected?.publishedContent} value={form.language || 'ko'} onChange={e => onChange(monthlyIssueFields(form, form.issueMonth || '', e.target.value as 'ko' | 'en' | 'ja'))}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label>
+      <label className="min-w-0 text-sm text-slate-300 sm:col-span-2 2xl:col-span-1">월간호 제목<input required maxLength={160} className={input} value={form.title} placeholder="월간 쿠피 2026년 11월호" onChange={e => onChange({ ...form, title: e.target.value })} /></label>
     </fieldset>
+    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+      <span>연·월·언어에 맞춰 제목을 채웁니다. 직접 수정한 제목은 유지합니다.</span>
+      <button type="button" className="text-emerald-300 underline" disabled={disabled || !form.issueMonth} onClick={() => onChange({ ...form, title: monthlyTitle(form.issueMonth || '', form.language || 'ko') })}>제목 자동 채우기</button>
+    </div>
     {selected?.publishedContent && <details className="rounded-xl border border-slate-700 p-4">
       <summary className="cursor-pointer text-sm text-slate-300">잘못 등록한 언어 정정</summary>
       <p className="my-3 text-sm text-slate-400">월간호와 연결된 모든 회차의 초안·공개 언어를 함께 변경합니다. 파일과 독서 위치는 유지하며, 본문을 번역하지 않습니다. 합본이 연결된 경우에는 사용할 수 없습니다.</p>

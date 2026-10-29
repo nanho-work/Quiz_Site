@@ -12,3 +12,19 @@ export function monthlyLanguageFields(form: ReaderMetadata, language = form.lang
   return { ...form, language, author: defaults.author,
     license: !license || Object.values(monthlyDefaults).some(value => value.license === license) ? defaults.license : form.license };
 }
+
+/** Titles are derived from the issue month, never from the browser locale. */
+export function monthlyTitle(issueMonth: string, language: 'ko' | 'en' | 'ja' = 'ko'): string {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(issueMonth)) return '';
+  const [year, month] = issueMonth.split('-');
+  const number = Number(month);
+  if (language === 'ja') return `月刊クーフィー ${year}年${number}月号`;
+  if (language === 'en') return `Koofy Monthly — ${['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][number - 1]} ${year}`;
+  return `월간 쿠피 ${year}년 ${number}월호`;
+}
+
+export function monthlyIssueFields(form: ReaderMetadata, issueMonth: string, language = form.language || 'ko'): ReaderMetadata {
+  const automatic = !form.title.trim() || form.title === monthlyTitle(form.issueMonth || '', form.language || 'ko');
+  return { ...monthlyLanguageFields(form, language), issueMonth, compilationId: '', releaseDate: '', releaseAt: '',
+    title: automatic ? monthlyTitle(issueMonth, language) : form.title };
+}

@@ -1,5 +1,5 @@
 'use client';
-import { monthlyDefaults, monthlyLanguageFields } from '../../../lib/admin/firebase/monthly-defaults';
+import { monthlyDefaults, monthlyLanguageFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyIssueEditor from './MonthlyIssueEditor';
 import MonthlyFields from './MonthlyFields';
 
@@ -28,7 +28,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
 }) {
   const newForm = (): ReaderMetadata => series
     ? { ...fields(series), title: '', description: '', episodeNumber: Math.max(0, ...items.map(item => item.episodeNumber || 0)) + 1, seriesStatus: undefined, compilationId: '', releaseDate: '', releaseAt: '', autoCompile: false, byline: '' }
-    : { ...empty, ...(monthly ? { ...monthlyDefaults.ko, issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
+    : { ...empty, ...(monthly ? { ...monthlyDefaults.ko, ...(kind === 'series' ? { title: monthlyTitle(new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7)) } : {}), issueMonth: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7) } : {}), ...(kind === 'series' ? { seriesStatus: 'ongoing' as const } : {}) };
 
   const [items, setItems] = useState<ReaderContent[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -191,11 +191,11 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
         </div></div>
     {series && <button className={`${buttonClass} mb-4 w-full`} disabled={busy || loading} onClick={() => { if (dirty && !window.confirm('저장하지 않은 입력을 닫고 일괄 등록을 열까요?')) return; setPendingFiles({}); setBatchOpen(true); }}>회차 일괄 등록</button>}
     {series && <p className="mb-5 text-sm leading-6 text-slate-400">저자·분류·출처·이용 조건과 대표 표지는 작품에서 이어받습니다. 회차를 공개할 때 작품의 공개된 정보를 사용합니다. 회차 표지는 필요할 때만 추가하세요.</p>}
-    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">{monthly ? '발행 월·언어별로 월간호를 만들고, 회차 관리에서 매일의 글과 표지를 등록하세요. 월간호를 누르면 회차 관리가 열립니다. 기본 정보와 합본 설정은 월간호 설정에서 변경하세요.' : '작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.'}</p>}
+    {kind === 'series' && <p className="mb-5 text-sm leading-6 text-slate-400">{monthly ? '발행 월·언어별로 월간호를 만들고, 회차 관리에서 매일의 글과 표지를 등록하세요. 월간호를 누르면 기본 정보와 합본 설정이 열립니다. 글과 표지는 회차 관리 버튼에서 등록하세요.' : '작품 정보와 대표 표지를 한 번 등록한 뒤 ‘회차 관리’에서 본문을 추가하세요. 새 앱 다운로드 목록에는 작품 하나로 표시됩니다.'}</p>}
         {loading && <p role="status" className="py-4 text-sm text-slate-400">목록을 불러오는 중…</p>}
         {!loading && items.length === 0 && !error && <p className="py-6 text-sm text-slate-400">등록한 {label}이 없습니다. 오른쪽에서 첫 항목을 추가해 주세요.</p>}
         {series && <label className="mb-4 block text-sm text-slate-300">회차 찾기 · {items.length}개<input className={inputClass} placeholder="번호 또는 제목" value={episodeQuery} onChange={e => setEpisodeQuery(e.target.value)} /></label>}
-        <ul className="max-h-[70vh] space-y-2 overflow-y-auto pr-1">{items.filter(item => !series || `${item.episodeNumber}화 ${item.title}`.toLocaleLowerCase().includes(episodeQuery.trim().toLocaleLowerCase())).sort((a, b) => series ? (a.episodeNumber || 0) - (b.episodeNumber || 0) : a.title.localeCompare(b.title, 'ko')).map(item => <li key={item.id}><button disabled={busy} onClick={() => monthlyIssue ? navigate('book', item) : select(item)} className={`w-full rounded-xl border p-4 text-left ${selected?.id === item.id ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 hover:bg-slate-800/60'}`}>
+        <ul className="max-h-[70vh] space-y-2 overflow-y-auto pr-1">{items.filter(item => !series || `${item.episodeNumber}화 ${item.title}`.toLocaleLowerCase().includes(episodeQuery.trim().toLocaleLowerCase())).sort((a, b) => series ? (a.episodeNumber || 0) - (b.episodeNumber || 0) : a.title.localeCompare(b.title, 'ko')).map(item => <li key={item.id}><button disabled={busy} onClick={() => select(item)} className={`w-full rounded-xl border p-4 text-left ${selected?.id === item.id ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 hover:bg-slate-800/60'}`}>
           <span className="block truncate font-medium text-white">{series ? `${item.episodeNumber}화 · ` : ''}{item.title}</span><span className="mt-1 block text-xs text-slate-400">{monthly && !series ? `${item.issueMonth || item.publishedContent?.issueMonth} · ${{ ko: '한국어', en: 'English', ja: '日本語' }[item.language || 'ko']} · ` : ''}{item.author} · {item.deleting ? '삭제 대기 · 재시도 필요' : item.published ? ((item.publishedContent?.releaseAt ? Date.parse(item.publishedContent.releaseAt) : item.publishedContent?.releaseDate ? Date.parse(item.publishedContent.releaseDate + 'T00:00:00+09:00') : 0) > Date.now() ? '공개 예약 · ' + (item.publishedContent?.releaseAt || item.publishedContent?.releaseDate)?.replace('T', ' ').replace(':00+09:00', '') + ' (한국 시간)' : '공개 중') : '초안'}</span>
           {item.published && item.publishedContent?.version !== item.revision && <span className="mt-2 block text-xs text-amber-300">수정된 초안 있음</span>}
         </button></li>)}</ul>
