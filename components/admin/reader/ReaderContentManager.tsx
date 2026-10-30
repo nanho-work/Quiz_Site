@@ -2,6 +2,7 @@
 import { monthlyDefaults, monthlyLanguageFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyIssueEditor from './MonthlyIssueEditor';
 import MonthlyFields from './MonthlyFields';
+import { BookFilePairInput } from './BookFilePairInput';
 
 import { useCallback, useEffect, useState } from 'react';
 import { FileUp, Plus, RefreshCw } from 'lucide-react';
@@ -249,7 +250,12 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
           <h3 className="font-semibold text-white">파일 등록</h3>
           {kind === 'font' && (!selected || dirty) && <p className="text-sm text-amber-300">입력한 정보를 먼저 저장한 뒤 파일을 등록해 주세요.</p>}
           {kind !== 'font' && <p className="text-sm text-slate-400">파일을 선택한 뒤 아래에서 임시 저장하거나 공개하세요.</p>}
-          {kind === 'series' ? fileControl('cover', '대표 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB. 별도 표지가 없는 회차에도 사용합니다.') : kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', monthly && series ? '회차 TXT (공개할 때 EPUB 자동 생성)' : '책 파일', '.epub,.txt', monthly && series ? 'TXT 본문(UTF-8 기준 1MB 이하)과 회차 이미지를 넣으세요. [장]은 필요 없습니다. 첫 줄이 제목과 같으면 본문 제목으로 한 번만 표시합니다. 직접 만든 EPUB도 등록할 수 있으나 자동 합본에는 TXT 원본이 필요합니다.' : 'EPUB 또는 TXT · 최대 20MB. TXT는 각 제목 줄을 [장] 제목으로 작성하면 새 앱에서 목차와 페이지 구분을 만듭니다. [장]은 줄 맨 앞에, 제목은 공백 뒤에 작성하세요. 표식은 숨겨지고 제목만 표시됩니다. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', monthly && series ? '첫 페이지 이미지 (TXT 회차 필수)' : series ? '회차 표지 (선택)' : '책 표지', '.png,.jpg,.jpeg,.webp', series ? '없으면 작품의 대표 표지를 사용합니다. PNG · JPG · WebP · 최대 5MB' : 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
+          {kind === 'book' && !series && !monthly && <BookFilePairInput disabled={fileDisabled} onSelect={({ book, cover, title }) => {
+            setPendingFiles(previous => ({ ...previous, book, cover }));
+            setForm(previous => ({ ...previous, title: previous.title.trim() ? previous.title : title.slice(0, 160) }));
+            setError(null); setNotice('본문과 이미지를 연결했습니다. 저장 후 공개하면 적용됩니다.');
+          }} />}
+          {kind === 'series' ? fileControl('cover', '대표 표지', '.png,.jpg,.jpeg,.webp', 'PNG · JPG · WebP · 최대 5MB. 별도 표지가 없는 회차에도 사용합니다.') : kind === 'book' ? <div className="grid gap-3 md:grid-cols-2">{fileControl('book', monthly && series ? '회차 TXT (공개할 때 EPUB 자동 생성)' : !series && !monthly ? '본문 TXT·EPUB (TXT는 공개 시 EPUB 생성)' : '책 파일', '.epub,.txt', monthly && series ? 'TXT 본문(UTF-8 기준 1MB 이하)과 회차 이미지를 넣으세요. [장]은 필요 없습니다. 첫 줄이 제목과 같으면 본문 제목으로 한 번만 표시합니다. 직접 만든 EPUB도 등록할 수 있으나 자동 합본에는 TXT 원본이 필요합니다.' : !series && !monthly ? '본문 최대 20MB. TXT와 표지로 이미지 첫 페이지 EPUB을 자동 생성합니다. [장]은 선택 사항이며 있으면 목차로 유지됩니다. 직접 만든 EPUB의 본문은 그대로 사용합니다.' : 'EPUB 또는 TXT · 최대 20MB. TXT는 각 제목 줄을 [장] 제목으로 작성하면 새 앱에서 목차와 페이지 구분을 만듭니다. [장]은 줄 맨 앞에, 제목은 공백 뒤에 작성하세요. 표식은 숨겨지고 제목만 표시됩니다. 새 파일을 올리면 초안의 기존 책 파일을 교체합니다.')}{fileControl('cover', monthly && series ? '첫 페이지 이미지 (TXT 회차 필수)' : series ? '회차 표지 (선택)' : '책 표지', '.png,.jpg,.jpeg,.webp', series ? '없으면 작품의 대표 표지를 사용합니다. PNG · JPG · WebP · 최대 5MB' : 'PNG · JPG · WebP · 최대 5MB')}</div> : <>
             <label className="block text-sm text-slate-300">글꼴 굵기<select disabled={busy || !!selected?.deleting} className={inputClass} value={weight} onChange={e => setWeight(e.target.value)}>{[100,200,300,400,500,600,700,800,900].map(w => <option value={w} key={w}>{w}{w === 300 ? ' · Light' : w === 400 ? ' · Regular' : w === 700 ? ' · Bold' : ''}</option>)}</select></label>
             {fileControl(`font${weight}`, '선택한 굵기의 글꼴 파일', '.otf,.ttf', '정적 OTF · TTF · 파일당 최대 10MB. 다른 굵기는 차례로 추가하세요.')}
             <p className="text-xs leading-5 text-slate-400">공개할 때 등록한 글꼴로 이름 미리보기를 자동 생성합니다. 보통 굵기(400)를 우선 사용하며 없으면 가장 가까운 굵기를 사용합니다. 기존 글꼴은 ‘수정 내용 공개’를 누르면 생성됩니다. 글꼴에 이름의 문자가 없으면 앱 기본 글꼴로 표시됩니다.</p>
