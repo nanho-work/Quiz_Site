@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
+import { attachSharedReaderCover, listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
 import { episodeIssues, mergeEpisodeFiles, type EpisodeRow } from '../../../lib/admin/reader/episode-batch';
 
 import { scheduleAt, scheduleIssue } from '../../../lib/admin/reader/monthly-schedule';
@@ -9,7 +9,7 @@ import { scheduleAt, scheduleIssue } from '../../../lib/admin/reader/monthly-sch
 const button = 'rounded-lg border border-slate-600 px-4 py-2 text-sm text-white disabled:opacity-40';
 const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-sm text-white';
 interface Progress { item?: ReaderContent; bookDone?: boolean; coverDone?: boolean; state: 'working' | 'saved' | 'published' | 'failed'; message?: string }
-export function ReaderEpisodeBatch({ series, onClose, integrated = false, active = true, related = [], embedded = false, onState }: { series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
+export function ReaderEpisodeBatch({ series, onClose, integrated = false, active = true, related = [], embedded = false, commonCovers = {}, getSharedCover, onState }: { commonCovers?: Record<string, File>; getSharedCover?: (file: File) => Promise<string>; series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
   const scheduling = Boolean(series.issueMonth || series.collectionType === 'general');
   const [scheduleStart, setScheduleStart] = useState(series.issueMonth ? `${series.issueMonth}-01T09:00` : new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 16));
   const [intervalDays, setIntervalDays] = useState(1);
@@ -57,7 +57,8 @@ export function ReaderEpisodeBatch({ series, onClose, integrated = false, active
   }, [busy, rows, progress]);
   const pending = rows.some(row => !['saved', 'published'].includes(progress[row.key]?.state) && !existing.some(item => item.episodeNumber === Number(row.number) && item.id !== progress[row.key]?.item?.id));
   useEffect(() => { onState?.(busy, pending); }, [busy, pending, onState]);
-  const issues = (row: EpisodeRow, all = existing) => [...episodeIssues(row, rows, new Set(all.filter(item => item.id !== progress[row.key]?.item?.id).map(item => item.episodeNumber!))), ...(series.issueMonth && row.books[0]?.name.toLowerCase().endsWith('.txt') && row.covers.length !== 1 ? ['TXT 회차에는 첫 페이지 이미지가 필요합니다'] : []), ...(series.issueMonth && (row.byline?.length || 0) > 120 ? ['글쓴이는 120자 이하'] : []), ...(!series.issueMonth && row.releaseAt && scheduleAt(row.releaseAt.slice(0,16), 0, 1) !== row.releaseAt ? ['공개 일시를 확인해 주세요'] : []), ...(series.issueMonth && scheduleIssue(row.releaseAt, series.issueMonth) ? [scheduleIssue(row.releaseAt, series.issueMonth)!] : [])];
+  const commonCover = (row: EpisodeRow) => row.covers.length ? undefined : commonCovers[String(Number(row.number))];
+  const issues = (row: EpisodeRow, all = existing) => [...episodeIssues(row, rows, new Set(all.filter(item => item.id !== progress[row.key]?.item?.id).map(item => item.episodeNumber!))), ...(series.issueMonth && row.books[0]?.name.toLowerCase().endsWith('.txt') && row.covers.length !== 1 && !commonCover(row) ? ['TXT 회차에는 첫 페이지 이미지가 필요합니다'] : []), ...(series.issueMonth && (row.byline?.length || 0) > 120 ? ['글쓴이는 120자 이하'] : []), ...(!series.issueMonth && row.releaseAt && scheduleAt(row.releaseAt.slice(0,16), 0, 1) !== row.releaseAt ? ['공개 일시를 확인해 주세요'] : []), ...(series.issueMonth && scheduleIssue(row.releaseAt, series.issueMonth) ? [scheduleIssue(row.releaseAt, series.issueMonth)!] : [])];
   const addFiles = (files: File[]) => {
     if (lock.current || loading || loadFailed) return;
     if (!files.length) { setMessage('폴더 안의 본문·표지 파일들을 선택해서 넣어 주세요.'); return; }
@@ -79,7 +80,7 @@ export function ReaderEpisodeBatch({ series, onClose, integrated = false, active
         if (stop.current) break;
         const previous = progress[row.key];
         if (previous?.state === 'published' || (!publish && previous?.state === 'saved') || issues(row, fresh).length) continue;
-        if (publish && (!series.published || !(row.covers.length || series.publishedContent?.assets.cover))) continue;
+        if (publish && (!series.published || !(row.covers.length || commonCover(row) || series.publishedContent?.assets.cover))) continue;
         let state: Progress = { ...previous, state: 'working', message: undefined };
         const remember = (patch: Partial<Progress>) => { state = { ...state, ...patch }; setProgress(current => ({ ...current, [row.key]: state })); };
         remember({}); setMessage(`${row.number}화 처리 중 · 이번 실행 ${completed}개 완료 · ${failed}개 실패`);
@@ -93,6 +94,7 @@ export function ReaderEpisodeBatch({ series, onClose, integrated = false, active
           }
           if (!state.bookDone) remember({ item: await uploadReaderAsset(state.item!, 'book', row.books[0]), bookDone: true });
           if (row.covers.length && !state.coverDone) remember({ item: await uploadReaderAsset(state.item!, 'cover', row.covers[0]), coverDone: true });
+          if (!state.coverDone && commonCover(row) && getSharedCover) remember({ item: await attachSharedReaderCover(state.item!, await getSharedCover(commonCover(row)!)), coverDone: true });
           if (publish) remember({ item: await mutateReaderContent({ action: 'publish', id: state.item!.id, revision: state.item!.revision }), state: 'published' });
           else remember({ state: 'saved' });
           completed++;
@@ -132,7 +134,7 @@ export function ReaderEpisodeBatch({ series, onClose, integrated = false, active
         return <tr key={row.key} className="border-t border-slate-700 align-top">
           <td className="w-24 p-2"><input aria-label={`${row.title} 회차 번호`} type="number" min={1} max={100000} className={input} value={row.number} disabled={locked} onChange={event => update(row.key, { number: event.target.value })} /></td>
           <td className="min-w-64 p-2"><input aria-label={`${row.number || '미지정'}화 제목`} className={input} maxLength={160} value={row.title} disabled={locked} onChange={event => update(row.key, { title: event.target.value })} />{scheduling && <label className="mt-2 block text-xs">공개 일시 (한국 시간)<input type="datetime-local" className={input} value={row.releaseAt?.slice(0, 16) || ''} disabled={locked} onChange={event => update(row.key, { releaseAt: event.target.value ? event.target.value + ':00+09:00' : '' })} /></label>}<textarea aria-label={`${row.number || '미지정'}화 설명`} className={`${input} mt-2`} placeholder={series.issueMonth ? '글쓴이 (선택 · 이미지 위에 표시)' : '설명 (선택)'} maxLength={series.issueMonth ? 120 : 2000} rows={2} value={series.issueMonth ? row.byline || '' : row.description} disabled={locked} onChange={event => update(row.key, series.issueMonth ? { byline: event.target.value } : { description: event.target.value })} /></td>
-          {(['books', 'covers'] as const).map(slot => <td className="max-w-56 break-all p-2" key={slot}>{row[slot].length ? row[slot].map((file, index) => <div key={index} className="mb-2">{file.name}{!locked && <button aria-label={`${file.name} 제외`} className="ml-2 text-rose-300" onClick={() => update(row.key, { [slot]: row[slot].filter((_, n) => n !== index) })}>×</button>}</div>) : slot === 'covers' ? '작품 표지 사용' : '본문 없음'}</td>)}
+          {(['books', 'covers'] as const).map(slot => <td className="max-w-56 break-all p-2" key={slot}>{row[slot].length ? row[slot].map((file, index) => <div key={index} className="mb-2">{file.name}{!locked && <button aria-label={`${file.name} 제외`} className="ml-2 text-rose-300" onClick={() => update(row.key, { [slot]: row[slot].filter((_, n) => n !== index) })}>×</button>}</div>) : slot === 'covers' ? (commonCover(row) ? `공통 삽화: ${commonCover(row)!.name}` : '작품 표지 사용') : '본문 없음'}</td>)}
           <td className="min-w-40 p-2"><p className={problems.length || state?.state === 'failed' ? 'text-amber-300' : 'text-emerald-300'}>{state?.state === 'published' ? (row.releaseAt && Date.parse(row.releaseAt) > Date.now() ? '공개 예약 완료' : '공개 완료') : state?.state === 'saved' ? '임시 저장 완료' : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}</p>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
         </tr>;
       })}

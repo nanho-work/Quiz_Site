@@ -72,3 +72,11 @@ export function ensureMonthlyEpisode(seriesId: string, metadata: ReaderMetadata)
 export function linkReaderTranslations(items: ReaderContent[]) {
   return request<{ items: ReaderContent[] }>({}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "linkTranslations", items: items.map(({ id, revision }) => ({ id, revision })) }) });
 }
+
+export async function uploadSharedReaderCover(file: File) {
+  if (!file.size || file.size > 5 * 1024 * 1024) throw new Error('공통 삽화는 5MB 이하여야 합니다.');
+  return request<{ hash: string }>({ action: 'uploadSharedCover' }, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
+}
+export function attachSharedReaderCover(item: ReaderContent, hash: string) {
+  return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'attachSharedCover', id: item.id, revision: item.revision, hash }) });
+}

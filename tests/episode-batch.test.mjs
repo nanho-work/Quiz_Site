@@ -25,3 +25,15 @@ test('integrated collisions and existing episodes cannot silently overwrite', ()
   assert(episodeIssues(r.rows[0], r.rows, new Set([1])).includes('본문이 여러 개입니다'));
   assert(episodeIssues(r.rows[0], r.rows, new Set([1])).includes('이미 등록된 회차'));
 });
+test('shared illustration numbers match differently titled Korean English Japanese bodies',()=>{
+  const image=mergeEpisodeFiles([], [file('01.png')], '', true).rows[0];
+  for(const name of ['01_바다 위의 세상.txt','01_The World Above.txt','01_海の上の世界.txt']) {
+    const body=mergeEpisodeFiles([], [file(name)], '', true).rows[0];
+    assert.equal(body.number,image.number);
+    assert.equal(body.key,image.key);
+  }
+});
+test('shared image selection preserves duplicate number conflicts for rejection',()=>{
+  const rows=mergeEpisodeFiles([], [file('01.png'),file('1_other.jpg')], '', true).rows;
+  assert.equal(rows.length,1);assert.equal(rows[0].covers.length,2);
+});
