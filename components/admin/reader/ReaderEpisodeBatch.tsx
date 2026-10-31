@@ -1,4 +1,5 @@
 'use client';
+import {ReaderStatus,ReaderSectionHeading,readerButton,readerPrimaryButton} from './ReaderAdminUI';
 import { ReaderFileInput } from './ReaderFileInput';
 
 import { useEffect, useRef, useState } from 'react';
@@ -7,7 +8,7 @@ import { episodeIssues, mergeEpisodeFiles, type EpisodeRow } from '../../../lib/
 
 import { scheduleAt, scheduleIssue } from '../../../lib/admin/reader/monthly-schedule';
 
-const button = 'rounded-lg border border-slate-600 px-4 py-2 text-sm text-white disabled:opacity-40';
+const button = readerButton;
 const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-sm text-white';
 interface Progress { item?: ReaderContent; bookDone?: boolean; coverDone?: boolean; state: 'working' | 'saved' | 'published' | 'failed'; message?: string }
 export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated = false, active = true, related = [], embedded = false, commonCovers = {}, getSharedCover, onState }: { initialFiles?: File[]; commonCovers?: Record<string, File>; getSharedCover?: (file: File) => Promise<string>; series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
@@ -132,7 +133,7 @@ export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated =
           <td className="w-24 p-2"><input aria-label={`${row.title} 회차 번호`} type="number" min={1} max={100000} className={input} value={row.number} disabled={locked} onChange={event => update(row.key, { number: event.target.value })} /></td>
           <td className="min-w-64 p-2"><input aria-label={`${row.number || '미지정'}화 제목`} className={input} maxLength={160} value={row.title} disabled={locked} onChange={event => update(row.key, { title: event.target.value })} />{scheduling && <label className="mt-2 block text-xs">공개 일시 (한국 시간)<input type="datetime-local" className={input} value={row.releaseAt?.slice(0, 16) || ''} disabled={locked} onChange={event => update(row.key, { releaseAt: event.target.value ? event.target.value + ':00+09:00' : '' })} /></label>}<textarea aria-label={`${row.number || '미지정'}화 설명`} className={`${input} mt-2`} placeholder={series.issueMonth ? '글쓴이 (선택 · 이미지 위에 표시)' : '설명 (선택)'} maxLength={series.issueMonth ? 120 : 2000} rows={2} value={series.issueMonth ? row.byline || '' : row.description} disabled={locked} onChange={event => update(row.key, series.issueMonth ? { byline: event.target.value } : { description: event.target.value })} /></td>
           {(['books', 'covers'] as const).map(slot => <td className="max-w-56 break-all p-2" key={slot}>{row[slot].length ? row[slot].map((file, index) => <div key={index} className="mb-2">{file.name}{!locked && <button aria-label={`${file.name} 제외`} className="ml-2 text-rose-300" onClick={() => update(row.key, { [slot]: row[slot].filter((_, n) => n !== index) })}>×</button>}</div>) : slot === 'covers' ? (commonCover(row) ? `공통 삽화: ${commonCover(row)!.name}` : '작품 표지 사용') : '본문 없음'}</td>)}
-          <td className="min-w-40 p-2"><p className={problems.length || state?.state === 'failed' ? 'text-amber-300' : 'text-emerald-300'}>{state?.state === 'published' ? (row.releaseAt && Date.parse(row.releaseAt) > Date.now() ? '공개 예약 완료' : '공개 완료') : state?.state === 'saved' ? '임시 저장 완료' : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}</p>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
+          <td className="min-w-40 p-2"><ReaderStatus value={state?.state === 'published' ? (row.releaseAt && Date.parse(row.releaseAt) > Date.now() ? '공개 예약 완료' : '공개 완료') : state?.state === 'saved' ? '임시 저장 완료' : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}/>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
         </tr>;
       })}
     </tbody></table></div>

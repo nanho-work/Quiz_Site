@@ -24,7 +24,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <RequireAdmin>
-      <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="admin-shell min-h-screen bg-slate-950 text-slate-100">
         <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center border-b border-slate-800 bg-slate-950/95 px-4 backdrop-blur lg:pl-72">
           <button
             className="mr-3 rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white lg:hidden"

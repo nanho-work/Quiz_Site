@@ -1,0 +1,26 @@
+/* Shared admin theme. Public pages and application reading themes are unaffected. */
+.admin-theme {min-height:100vh;background:#f4f5f1;color:#18201e;color-scheme:light;--admin-background:#f4f5f1;--admin-surface:#fff;--admin-line:#d5ddd8;--admin-muted:#526159;}
+.admin-theme .admin-shell {background:var(--admin-background);color:#18201e;}
+.admin-theme :is(.text-white,.text-slate-50,.text-slate-100,.text-slate-200,.text-slate-300) {color:#18201e;}
+.admin-theme :is(.text-slate-400,.text-slate-500,.text-slate-600) {color:var(--admin-muted);}
+.admin-theme :is([class~="bg-slate-950"],[class*="bg-slate-950/"],[class~="bg-slate-900"],[class*="bg-slate-900/"],[class~="bg-slate-700"],[class~="bg-slate-800"],[class*="bg-slate-800/"]) {background-color:var(--admin-surface);}
+.admin-theme :is(.border-slate-600,.border-slate-700,.border-slate-800) {border-color:var(--admin-line);}
+.admin-theme :is(.text-emerald-200,.text-emerald-300,.text-emerald-400) {color:#215c45;}
+.admin-theme :is(.text-rose-200,.text-rose-300,.text-rose-400) {color:#a02b43;}
+.admin-theme :is(.text-amber-200,.text-amber-300,.text-amber-400) {color:#795716;}
+.admin-theme :is(.text-sky-200,.text-sky-300,.text-blue-300) {color:#245687;}
+.admin-theme :is(.bg-emerald-700,.bg-emerald-800,.bg-emerald-900,.bg-emerald-950,[class*="bg-emerald-500/"]) {background-color:#deeee4;color:#1e4938;}
+.admin-theme :is(.hover\:bg-slate-800,.hover\:bg-slate-900,.hover\:bg-slate-800\/50):hover {background-color:#eaf0eb;}
+.admin-theme .hover\:text-white:hover {color:#101916;}
+.admin-theme :is(input,textarea,select) {color-scheme:light;color:#18201e;}
+.admin-theme :is(input,textarea)::placeholder {color:#68776f;opacity:1;}
+.admin-theme :is(button,a,input,textarea,select,summary):focus-visible {outline:2px solid #397757;outline-offset:3px;}
+.admin-theme ::selection {background:#d2e7d9;color:#14271c;}
+
+.admin-theme :is([class*="text-slate-100/"],[class*="text-slate-200/"],[class*="text-slate-300/"]) {color:#18201e;}
+.admin-theme :is([class*="text-slate-400/"],[class*="text-slate-500/"]) {color:#526159;}
+.admin-theme :is(.text-emerald-100,[class*="text-emerald-100/"]) {color:#215c45;}
+.admin-theme :is(.text-amber-100,[class*="text-amber-100/"]) {color:#795716;}
+.admin-theme [class*="bg-rose-950"] {background-color:#fae9ed;}
+.admin-theme .admin-shell {background:var(--admin-background);}
+.admin-theme .reader-admin thead {background:#eef3ee;}
