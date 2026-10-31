@@ -1,7 +1,7 @@
 import { getAdminFirebaseServices } from './client';
 import { koofyReaderFirebaseConfig } from './koofy-reader';
 export type ReaderKind = 'book' | 'font' | 'series';
-export interface ReaderMetadata { autoCompile?: boolean; expectedEpisodes?: number; byline?: string; issueMonth?: string; releaseDate?: string; releaseAt?: string; compilationId?: string; language?: 'ko' | 'en' | 'ja'; title: string; author: string; description: string; license: string; category?: string; source?: string; seriesId?: string; seriesTitle?: string; episodeNumber?: number; seriesStatus?: 'ongoing' | 'completed' }
+export interface ReaderMetadata { translationGroupId?: string; autoCompile?: boolean; expectedEpisodes?: number; byline?: string; issueMonth?: string; releaseDate?: string; releaseAt?: string; compilationId?: string; language?: 'ko' | 'en' | 'ja'; title: string; author: string; description: string; license: string; category?: string; source?: string; seriesId?: string; seriesTitle?: string; episodeNumber?: number; seriesStatus?: 'ongoing' | 'completed' }
 export interface ReaderAsset { path: string; sha256: string; size: number; extension: string; contentType: string; weight?: number }
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;
@@ -67,4 +67,8 @@ export function ensureMonthlyIssues(issueMonth: string) {
 }
 export function ensureMonthlyEpisode(seriesId: string, metadata: ReaderMetadata) {
   return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'ensureMonthlyEpisode', seriesId, metadata }) });
+}
+
+export function linkReaderTranslations(items: ReaderContent[]) {
+  return request<{ items: ReaderContent[] }>({}, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "linkTranslations", items: items.map(({ id, revision }) => ({ id, revision })) }) });
 }

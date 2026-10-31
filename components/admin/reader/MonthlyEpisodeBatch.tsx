@@ -6,8 +6,8 @@ import type { ReaderContent } from '../../../lib/admin/firebase/reader-api';
 const languages = ['ko', 'en', 'ja'] as const;
 const labels = { ko: '한국어', en: 'English', ja: '日本語' };
 type Language = typeof languages[number];
-export function MonthlyEpisodeBatch({ issues, setBusy, onDirty }: {
-  issues: ReaderContent[]; setBusy: (value: boolean) => void; onDirty: (value: boolean) => void;
+export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false }: {
+  ordinary?: boolean; issues: ReaderContent[]; setBusy: (value: boolean) => void; onDirty: (value: boolean) => void;
 }) {
   const [language, setLanguage] = useState<Language>('ko');
   const [states, setStates] = useState<Partial<Record<Language, { busy: boolean; dirty: boolean }>>>({});
@@ -25,7 +25,7 @@ export function MonthlyEpisodeBatch({ issues, setBusy, onDirty }: {
     {languages.map(l => {
       const issue = issues.find(item => (item.language || 'ko') === l);
       return <div key={l} id={`batch-${l}`} role="tabpanel" aria-label={labels[l]} hidden={language !== l}>
-        {issue ? <ReaderEpisodeBatch series={issue} integrated active={language === l} related={issues} onState={handlers[l]} onClose={() => {}} /> : <p>이 언어의 월간호가 없습니다. 같은 연·월의 ‘3개 언어 월간호 만들기’를 먼저 눌러 주세요.</p>}
+        {issue ? <ReaderEpisodeBatch series={issue} embedded integrated={!ordinary} active={language === l} related={issues} onState={handlers[l]} onClose={() => {}} /> : <p>{ordinary ? '이 언어의 작품을 먼저 저장해 주세요.' : '이 언어의 월간호가 없습니다. 같은 연·월의 3개 언어 월간호 만들기를 먼저 눌러 주세요.'}</p>}
       </div>;
     })}
   </div>;

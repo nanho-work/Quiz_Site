@@ -9,7 +9,7 @@ import { scheduleAt, scheduleIssue } from '../../../lib/admin/reader/monthly-sch
 const button = 'rounded-lg border border-slate-600 px-4 py-2 text-sm text-white disabled:opacity-40';
 const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-sm text-white';
 interface Progress { item?: ReaderContent; bookDone?: boolean; coverDone?: boolean; state: 'working' | 'saved' | 'published' | 'failed'; message?: string }
-export function ReaderEpisodeBatch({ series, onClose, integrated = false, active = true, related = [], onState }: { series: ReaderContent; onClose: () => void; integrated?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
+export function ReaderEpisodeBatch({ series, onClose, integrated = false, active = true, related = [], embedded = false, onState }: { series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
   const [scheduleStart, setScheduleStart] = useState(`${series.issueMonth || ''}-01T09:00`);
   const [intervalDays, setIntervalDays] = useState(1);
   const [rows, setRows] = useState<EpisodeRow[]>([]);
@@ -103,7 +103,7 @@ export function ReaderEpisodeBatch({ series, onClose, integrated = false, active
   };
   const ready = (loadFailed ? [] : rows).filter(row => !issues(row).length && progress[row.key]?.state !== 'published');
   return <section className="space-y-5 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold text-white">{series.title} · 회차 일괄 등록</h2>{!integrated && <button className={button} disabled={busy} onClick={() => { if (rows.some(row => !['saved', 'published'].includes(progress[row.key]?.state)) && !window.confirm('아직 완료하지 않은 파일 선택을 닫을까요? 저장된 회차는 유지됩니다.')) return; onClose(); }}>회차 목록으로</button>}</div>
+    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold text-white">{series.title} · 회차 일괄 등록</h2>{!integrated && !embedded && <button className={button} disabled={busy} onClick={() => { if (rows.some(row => !['saved', 'published'].includes(progress[row.key]?.state)) && !window.confirm('아직 완료하지 않은 파일 선택을 닫을까요? 저장된 회차는 유지됩니다.')) return; onClose(); }}>회차 목록으로</button>}</div>
     <p className="text-sm leading-6 text-slate-400">{integrated ? '본문과 이미지를 앞의 회차 번호로 연결합니다. 예: 1화_제목.txt, 1화_이미지.png / 第1話_題名.txt / Episode 1_Title.txt. 다른 언어의 같은 회차에 공개 일시가 하나로 정해져 있으면 자동으로 가져옵니다.' : '본문과 표지를 함께 또는 따로 넣으세요. 확장자를 뺀 파일명이 같으면 연결합니다.'} 예: 작품명_001_회차제목.txt / .jpg. 설명은 선택이며 표지가 없으면 작품 대표 표지를 사용합니다. 기존 회차는 덮어쓰지 않습니다.</p>
     <label onDragOver={event => { event.preventDefault(); if (!busy && !loading && !loadFailed) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={event => { event.preventDefault(); setDragging(false); addFiles(Array.from(event.dataTransfer.files)); }} className={`block rounded-xl border-2 border-dashed p-7 text-center text-white ${dragging ? 'border-emerald-400 bg-emerald-950/50' : 'border-slate-600'}`}>
       <span className="block">본문·표지 파일을 여기에 끌어다 놓으세요</span><span className="mt-2 block text-xs text-slate-400">TXT·EPUB 최대 20MB / JPG·PNG·WebP 최대 5MB · 표지는 사용할 폴더 하나에서 선택하세요</span>
