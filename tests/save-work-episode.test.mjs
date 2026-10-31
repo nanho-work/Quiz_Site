@@ -22,3 +22,19 @@ test('common image never overwrites a language-specific image on retry',async()=
  await saveWorkEpisode(entry,parent,metadata,{name:'common.png'},api,()=>{});
  assert.equal(entry.item.assets.cover.path,'localized');
 });
+
+test('reports each operation before it starts',async()=>{
+ const events=[];const entry={title:'t',book:{name:'t.txt'},cover:{name:'t.png'}};
+ const api={mutate:async()=>{events.push('mutate');return {id:'i',assets:{}};},upload:async(item,slot)=>{events.push(slot);return item;}};
+ await saveWorkEpisode(entry,parent,metadata,undefined,api,()=>{},stage=>events.push(stage));
+ assert.deepEqual(events,['saving','mutate','body','book','image','cover']);
+});
+
+test('a replacement shared illustration updates an old shared asset, but identical retry skips attachment',async()=>{
+ const entry={title:'t',item:{id:'child',revision:4,assets:{cover:{path:'readerSharedCovers/old/cover.png',sha256:'old'}}}};
+ let attachments=0;
+ const api={mutate:async()=>entry.item,upload:async()=>{throw Error('unexpected');},shared:async()=> 'new',attach:async item=>{attachments++;return {...item,assets:{cover:{path:'readerSharedCovers/new/cover.png',sha256:'new'}}};}};
+ await saveWorkEpisode(entry,parent,metadata,{name:'new.png'},api,()=>{});
+ await saveWorkEpisode(entry,parent,metadata,{name:'new.png'},api,()=>{});
+ assert.equal(attachments,1);assert.equal(entry.item.assets.cover.sha256,'new');
+});

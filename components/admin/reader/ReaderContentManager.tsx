@@ -1,4 +1,5 @@
 'use client';
+import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { ReaderFileInput } from './ReaderFileInput';
 import { contentLicense, monthlyDefaults, monthlyLanguageFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyIssueEditor from './MonthlyIssueEditor';
@@ -49,6 +50,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
   const categoryOptions = Array.from(new Set([...categories, ...items.map(item => item.category || '기타'), form.category || '기타']));
   const metadataDirty = JSON.stringify(form) !== JSON.stringify(selected ? fields(selected) : newForm());
   const dirty = metadataDirty || Object.keys(pendingFiles).length > 0;
+  useReaderLeaveGuard(dirty,busy);
   const valid = (!monthly || !!form.issueMonth) && form.title.trim() && (series ? Number.isSafeInteger(form.episodeNumber) && form.episodeNumber! > 0 : monthly || (form.author.trim() && form.license.trim()));
   const monthlyIssue = monthly && kind === 'series' && !series;
   const monthlyValid = Boolean(valid);

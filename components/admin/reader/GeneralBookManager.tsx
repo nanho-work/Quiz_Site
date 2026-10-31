@@ -1,4 +1,5 @@
 'use client';
+import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { mergeSelectedFiles, validateFileSelection, READER_FILE_ACCEPT } from '../../../lib/admin/reader/file-selection';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { ReaderFileInput } from './ReaderFileInput';
@@ -40,12 +41,13 @@ export default function GeneralBookManager() {
     setItems(result.filter(x => x.collectionType === 'general' && !x.seriesId && !x.issueMonth && !x.deleting));
   }, []);
   useEffect(() => { void reload().catch(e => setError(e.message)).finally(() => setLoading(false)); }, [reload]);
-  useEffect(() => { const warn = (e: BeforeUnloadEvent) => { if (dirty || busy) { e.preventDefault(); e.returnValue = ''; } }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty,busy]);
+  useReaderLeaveGuard(dirty,busy);
   const leave = () => !busy && (!dirty || window.confirm('저장하지 않은 파일과 입력을 닫을까요?'));
   const groups = [...new Set(items.map(x => x.translationGroupId || x.id))].map(id => items.filter(x => (x.translationGroupId || x.id) === id));
   const rows = Object.fromEntries(languages.map(l => [l, mergeEpisodeFiles([], files[l] || [], '', true).rows]));
   const commonRows = mergeEpisodeFiles([], images, '', true).rows;
-  const multiple = languages.some(l => rows[l].filter(r => r.books.length).length > 1);
+  const numberedBooks=languages.flatMap(l=>rows[l].filter(r=>r.books.length));
+  const multiple = languages.some(l => rows[l].filter(r => r.books.length).length > 1) || (numberedBooks.every(r=>!!r.number) && new Set(numberedBooks.map(r=>r.number)).size>1);
   const keys = [...new Set(languages.flatMap(l => rows[l].filter(r => r.books.length).map(r => r.key)))];
   const coverFor = (key: string) => commonRows.find(r => r.key === key)?.covers[0] || (images.length === 1 ? images[0] : undefined);
   function choose(l: Language | 'common', incoming: File[]) {

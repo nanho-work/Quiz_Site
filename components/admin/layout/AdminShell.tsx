@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, LogOut, Menu, ShieldCheck, X } from "lucide-react";
+import { requestAdminLeave } from "../../../lib/admin/use-reader-leave-guard";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -44,6 +45,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             value={project?.id ?? ""}
             onChange={(event) => {
               const selected = adminProjects.find((item) => item.id === event.target.value);
+              if(!requestAdminLeave())return;
               router.push(selected?.href ?? "/admin");
             }}
             className="mr-3 hidden rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 outline-none sm:block"
@@ -56,7 +58,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <p className="max-w-48 truncate text-[11px] text-slate-500">{user?.email}</p>
           </div>
           <button
-            onClick={() => void logout()}
+            onClick={() => {if(requestAdminLeave())void logout();}}
             className="ml-3 rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
             aria-label="로그아웃"
           >

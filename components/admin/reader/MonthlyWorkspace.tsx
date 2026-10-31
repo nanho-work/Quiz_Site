@@ -1,4 +1,5 @@
 'use client';
+import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { ReaderFileInput } from './ReaderFileInput';
 import { useEffect, useRef, useState } from 'react';
@@ -6,6 +7,7 @@ import { MonthlyEpisodeBatch } from './MonthlyEpisodeBatch';
 import { ReaderContentManager } from './ReaderContentManager';
 import { listReaderContent, mutateReaderContent, uploadReaderAsset, ensureMonthlyIssues, ensureMonthlyEpisode, type ReaderContent, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 import { monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
+import { commonRelease } from '../../../lib/admin/reader/work-schedule';
 import { scheduleIssue } from '../../../lib/admin/reader/monthly-schedule';
 
 const languages = ['ko', 'en', 'ja'] as const;
@@ -36,7 +38,7 @@ export default function MonthlyWorkspace() {
   const guard = () => !dirty || window.confirm('저장하지 않은 입력을 닫고 이동할까요?');
   async function reload() { setIssues((await allItems('series')).filter(x => x.issueMonth || x.publishedContent?.issueMonth)); }
   useEffect(() => { void reload().catch(e => setError(String(e.message))); }, []);
-  useEffect(() => { const warn = (e: BeforeUnloadEvent) => { if (dirty) e.preventDefault(); }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty]);
+  useReaderLeaveGuard(dirty,busy);
   const selected = issues.filter(x => (x.issueMonth || x.publishedContent?.issueMonth) === month);
   const duplicates = languages.some(l => selected.filter(x => (x.language || 'ko') === l).length > 1);
   const months = [...new Set(issues.map(x => x.issueMonth || x.publishedContent!.issueMonth!))].sort().reverse();
@@ -113,6 +115,7 @@ function EpisodeEditor({ month, issues, busy, setBusy, onDirty, onIssueUpdate }:
   const [rows, setRows] = useState<Record<Language, Row>>(emptyRows);
   const rowsRef = useRef(rows);
   const dirtyLanguages = useRef(new Set<Language>());
+  const appliedImages=useRef(new Set<Language>());
   const [common, setCommon] = useState<File>();
   const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
@@ -122,9 +125,11 @@ function EpisodeEditor({ month, issues, busy, setBusy, onDirty, onIssueUpdate }:
   function patch(l: Language, value: Partial<Row>, user = true) { rowsRef.current = { ...rowsRef.current, [l]: { ...rowsRef.current[l], ...value } }; setRows(rowsRef.current); if (user) { dirtyLanguages.current.add(l); dirty(); } }
   async function reload() { const all = (await Promise.all(issues.map(i => allItems('book', i.id)))).flat(); setItems(all); return all; }
   function open(n: number, all = items) {
-    dirtyLanguages.current.clear(); setNumber(n); setCommon(undefined); setDate(defaultDate);
+    dirtyLanguages.current.clear(); appliedImages.current.clear(); setNumber(n); setCommon(undefined); setDate(defaultDate);
     const next = emptyRows();
-    for (const l of languages) { const parent = issues.find(x => (x.language || 'ko') === l); const item = all.find(x => x.seriesId === parent?.id && x.episodeNumber === n); if (item) next[l] = { item, title: item.title, byline: item.byline || '', releaseAt: item.releaseAt?.slice(0,16) || (item.releaseDate ? `${item.releaseDate}T00:00` : defaultDate), selected: false }; }
+    for (const l of languages) { const parent = issues.find(x => (x.language || 'ko') === l); const item = all.find(x => x.seriesId === parent?.id && x.episodeNumber === n); if (item) next[l] = { item, title: item.title, byline: item.byline || '', releaseAt: item.releaseAt?.slice(0,16) || (item.releaseDate ? `${item.releaseDate}T09:00` : defaultDate), selected: false }; }
+    const stored=commonRelease(Object.values(next).filter(r=>r.item).map(r=>r.item!));
+    setDate(stored===undefined?'':stored?stored.slice(0,16):defaultDate);
     rowsRef.current = next; setRows(next); setChanged(false); onDirty(false); setError('');
   }
   useEffect(() => { let active = true; void reload().then(all => { if (active) { open(Math.max(0, ...all.map(i => i.episodeNumber || 0)) + 1, all); setLoaded(true); } }).catch(e => { if (active) setError(e.message); }); return () => { active = false; }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -158,7 +163,7 @@ function EpisodeEditor({ month, issues, busy, setBusy, onDirty, onIssueUpdate }:
         }
         item = await mutateReaderContent({ action: 'save', id: item.id, revision: item.revision, metadata }); patch(l, { item }, false);
         if (row.body) { item = await uploadReaderAsset(item, 'book', row.body); patch(l, { item, body: undefined }, false); }
-        if (row.image || common) { item = await uploadReaderAsset(item, 'cover', (row.image || common)!); patch(l, { item, image: undefined }, false); }
+        if (row.image || (common && !appliedImages.current.has(l))) { item = await uploadReaderAsset(item, 'cover', (row.image || common)!); appliedImages.current.add(l); patch(l, { item, image: undefined }, false); }
         if (publish) {
           if (!parent.published || parent.publishedContent?.version !== parent.revision) { parent = await mutateReaderContent({ action: 'publish', id: parent.id, revision: parent.revision }); latestIssues.current[parent.id] = parent; onIssueUpdate(parent); }
           item = await mutateReaderContent({ action: 'publish', id: item.id, revision: item.revision }); patch(l, { item }, false);
@@ -173,8 +178,8 @@ function EpisodeEditor({ month, issues, busy, setBusy, onDirty, onIssueUpdate }:
     else setError('일부 작업이 실패했습니다. 성공한 언어는 유지하며, 실패한 언어만 확인 후 다시 저장해 주세요.');
   }
   return <div className="space-y-4">
-    <div className={panel}><div className="flex flex-wrap gap-3"><label>회차<select disabled={busy || !loaded} className={input} value={number} onChange={e => { if (!changed || window.confirm('저장하지 않은 입력을 닫을까요?')) open(Number(e.target.value)); }}>{[...new Set([...numbers, Math.max(0,...numbers)+1, number])].sort((a,b)=>a-b).map(n => <option key={n} value={n}>{n}회차 {numbers.includes(n) ? '' : '(새 회차)'}</option>)}</select></label><label>공개 일시 · 한국 시간<input disabled={busy} className={input} type="datetime-local" value={date} onChange={e => { setDate(e.target.value); languages.forEach(l => patch(l, { releaseAt: e.target.value })); }} /></label></div><p className="text-xs text-slate-400">같은 월·회차 번호를 같은 이야기의 번역본으로 표시합니다. 기존 회차의 ID·파일·독서 기록은 유지합니다. 공통 일시를 바꾸면 세 언어 입력에 적용되며 선택한 언어만 저장됩니다.</p><label className="block">공통 회차 이미지 (언어별 이미지가 있으면 해당 이미지 우선)<ReaderFileInput key={`common-${number}-${common?.name || "empty"}`} disabled={busy}   accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => { setCommon(selectedFiles[0]); dirty(); }} /></label></div>
-    <div className="grid gap-4 xl:grid-cols-3">{languages.map(l => { const row = rows[l]; return <fieldset disabled={busy || !loaded} className={panel} key={`${number}-${l}`}><legend><label className="flex gap-2"><input type="checkbox" checked={row.selected} onChange={e => patch(l, { selected: e.target.checked })} />{names[l]} 저장·공개 대상</label></legend><label className="block">제목<input className={input} value={row.title} maxLength={160} onChange={e => patch(l, { title: e.target.value })} /></label><label className="block">글쓴이 (선택)<input className={input} value={row.byline} maxLength={120} onChange={e => patch(l, { byline: e.target.value })} /></label><label className="block">본문 TXT·EPUB<ReaderFileInput   accept=".txt,.epub" onFiles={selectedFiles => patch(l, { body: selectedFiles[0] })} /></label><p className="text-xs text-slate-400">{row.body?.name || (row.item?.assets.txt || row.item?.assets.epub ? '기존 본문 유지' : '본문 미등록')}</p><label className="block">언어별 이미지<ReaderFileInput   accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => patch(l, { image: selectedFiles[0] })} /></label><ReaderImagePreview file={row.image || common} /><p className="text-xs text-slate-400">{row.image?.name || common?.name || (row.item?.assets.cover ? '기존 회차 이미지 유지' : '이미지 미등록')}</p><label className="block">이 언어의 공개 일시<input type="datetime-local" className={input} value={row.releaseAt} onChange={e => patch(l, { releaseAt: e.target.value })} /></label><p role="status" className="text-sm text-emerald-200">{row.status || (row.item?.published ? '공개·예약된 회차' : row.item ? '초안' : '미등록')}</p></fieldset>; })}</div>
+    <div className={panel}><div className="flex flex-wrap gap-3"><label>회차<select disabled={busy || !loaded} className={input} value={number} onChange={e => { if (!changed || window.confirm('저장하지 않은 입력을 닫을까요?')) open(Number(e.target.value)); }}>{[...new Set([...numbers, Math.max(0,...numbers)+1, number])].sort((a,b)=>a-b).map(n => <option key={n} value={n}>{n}회차 {numbers.includes(n) ? '' : '(새 회차)'}</option>)}</select></label><label>공개 일시 · 한국 시간<input disabled={busy} className={input} type="datetime-local" value={date} onChange={e => { setDate(e.target.value); languages.forEach(l => patch(l, { releaseAt: e.target.value })); }} /></label></div><p className="text-xs text-slate-400">같은 월·회차 번호를 같은 이야기의 번역본으로 표시합니다. 기존 회차의 ID·파일·독서 기록은 유지합니다. 공통 일시를 바꾸면 세 언어 입력에 적용되며 선택한 언어만 저장됩니다.</p><label className="block">공통 회차 이미지 (언어별 이미지가 있으면 해당 이미지 우선)<ReaderFileInput key={`common-${number}-${common?.name || "empty"}`} disabled={busy}   accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => { appliedImages.current.clear(); setCommon(selectedFiles[0]); dirty(); }} /></label></div>
+    <div className="grid gap-4 xl:grid-cols-3">{languages.map(l => { const row = rows[l]; return <fieldset disabled={busy || !loaded} className={panel} key={`${number}-${l}`}><legend><label className="flex gap-2"><input type="checkbox" checked={row.selected} onChange={e => patch(l, { selected: e.target.checked })} />{names[l]} 저장·공개 대상</label></legend><label className="block">제목<input className={input} value={row.title} maxLength={160} onChange={e => patch(l, { title: e.target.value })} /></label><label className="block">글쓴이 (선택)<input className={input} value={row.byline} maxLength={120} onChange={e => patch(l, { byline: e.target.value })} /></label><label className="block">본문 TXT·EPUB<ReaderFileInput   accept=".txt,.epub" onFiles={selectedFiles => patch(l, { body: selectedFiles[0] })} /></label><p className="text-xs text-slate-400">{row.body?.name || (row.item?.assets.txt || row.item?.assets.epub ? '기존 본문 유지' : '본문 미등록')}</p><label className="block">언어별 이미지<ReaderFileInput   accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => patch(l, { image: selectedFiles[0] })} /></label><ReaderImagePreview file={row.image || (!appliedImages.current.has(l)?common:undefined)} /><p className="text-xs text-slate-400">{row.image?.name || (!appliedImages.current.has(l)?common?.name:undefined) || (row.item?.assets.cover ? '기존 회차 이미지 유지' : '이미지 미등록')}</p><label className="block">이 언어의 공개 일시<input type="datetime-local" className={input} value={row.releaseAt} onChange={e => patch(l, { releaseAt: e.target.value })} /></label><p role="status" className="text-sm text-emerald-200">{row.status || (row.item?.published ? '공개·예약된 회차' : row.item ? '초안' : '미등록')}</p></fieldset>; })}</div>
     {error && <p role="alert" className="text-rose-300">{error}</p>}
     <div className="flex flex-wrap gap-3"><button className={button} disabled={busy || !loaded} onClick={() => void save(false)}>선택 언어 초안 저장</button><button className={`${button} bg-emerald-800`} disabled={busy || !loaded} onClick={() => void save(true)}>선택 언어 공개·예약</button></div><p className="text-xs text-slate-400">미래 일시는 예약, 현재·이전 일시는 즉시 공개됩니다. 언어별로 처리하며 중간에 실패하면 각 카드에 결과를 표시합니다. 합본에는 TXT 원본이 필요합니다.</p>
   </div>;
