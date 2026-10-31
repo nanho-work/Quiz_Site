@@ -45,10 +45,10 @@ export function uploadReaderAsset(item: ReaderContent, slot: string, file: File)
   return request<ReaderContent>({ action: 'upload', id: item.id, revision: String(item.revision), slot }, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
 }
 
-export function deleteReaderContent(item: ReaderContent) {
+export function deleteReaderContent(item: ReaderContent, draftOnly = false) {
   return request<{ id: string; deleted: boolean }>({}, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'delete', id: item.id, revision: item.revision }),
+    body: JSON.stringify({ action: 'delete', id: item.id, revision: item.revision, draftOnly }),
   });
 }
 
