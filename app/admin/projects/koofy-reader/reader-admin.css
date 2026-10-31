@@ -94,3 +94,6 @@
 
 .reader-admin .reader-toolbar-more {margin-left:8px;position:relative;}
 .reader-admin .reader-toolbar-more[open]>button {position:absolute;top:100%;left:0;z-index:10;white-space:nowrap;background:white;box-shadow:0 5px 15px #18201e15;}
+
+.reader-admin .reader-work-status-actions {display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--reader-line);margin-top:16px;padding-top:12px;font-size:12px;color:var(--reader-muted);}
+.reader-admin .reader-work-status-actions button {min-height:32px;padding:5px 10px;font-size:12px;}

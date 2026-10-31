@@ -85,3 +85,8 @@ export function attachSharedReaderCover(item: ReaderContent, hash: string) {
 export function getReaderCoverPreview(item:ReaderContent) {
  return request<{url:string;expiresAt:number}>({action:'coverPreview',id:item.id,revision:String(item.revision)});
 }
+
+/** Status-only update: never publishes a draft or changes episode schedules. */
+export function setReaderSeriesStatus(items:ReaderContent[], status:'ongoing'|'completed', preview=false, acknowledgePending=false) {
+ return request<{items:ReaderContent[];pending:{drafts:number;scheduled:number}}>({}, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'setSeriesStatus',items:items.map(({id,revision})=>({id,revision})),status,preview,acknowledgePending})});
+}
