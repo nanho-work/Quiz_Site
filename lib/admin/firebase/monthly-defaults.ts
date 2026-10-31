@@ -1,9 +1,18 @@
 import type { ReaderMetadata } from './reader-api';
 
+export const contentLicenses = {
+  "ko": "쿠피랩에서 제공하는 읽기 콘텐츠입니다. 개인적인 독서 목적으로 다운로드하여 이용할 수 있습니다. 원작·번역·삽화의 권리는 각 권리자에게 있으며, 저작권이 만료된 원작의 자유로운 이용은 제한하지 않습니다.",
+  "en": "Reading content provided by Koofy Lab. You may download it for personal reading. Rights in the original text, translation, and illustrations belong to their respective rights holders. This notice does not restrict the use of public-domain originals.",
+  "ja": "Koofy Labが提供する読書コンテンツです。個人での読書を目的としてダウンロード・利用できます。原文・翻訳・挿絵の権利は各権利者に帰属します。著作権保護期間が満了した原作の自由な利用を制限するものではありません。"
+};
+export function contentLicense(value: string | undefined, language: 'ko' | 'en' | 'ja') {
+ const text = value?.trim() || '';
+ return !text || Object.values(contentLicenses).includes(text) ? contentLicenses[language] : text;
+}
 export const monthlyDefaults = {
-  ko: { author: '쿠피랩', license: '쿠피랩이 제공하는 콘텐츠입니다. 개인적인 독서 목적으로 다운로드하여 이용할 수 있습니다. 무단 복제·재배포 및 상업적 이용은 허용하지 않습니다.' },
-  en: { author: 'Koofy Lab', license: 'This content is provided by Koofy Lab. You may download it for personal reading. Unauthorized copying, redistribution, and commercial use are not permitted.' },
-  ja: { author: 'Koofy Lab', license: 'このコンテンツはKoofy Labが提供しています。個人での読書を目的としてダウンロード・利用できます。無断での複製・再配布および商用利用は禁止されています。' },
+ ko: { author: '쿠피랩', license: contentLicenses.ko },
+ en: { author: 'Koofy Lab', license: contentLicenses.en },
+ ja: { author: 'Koofy Lab', license: contentLicenses.ja },
 };
 
 export function monthlyLanguageFields(form: ReaderMetadata, language = form.language || 'ko'): ReaderMetadata {

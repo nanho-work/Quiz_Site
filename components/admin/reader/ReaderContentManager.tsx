@@ -1,5 +1,5 @@
 'use client';
-import { monthlyDefaults, monthlyLanguageFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
+import { contentLicense, monthlyDefaults, monthlyLanguageFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyIssueEditor from './MonthlyIssueEditor';
 import MonthlyFields from './MonthlyFields';
 import { BookFilePairInput } from './BookFilePairInput';
@@ -10,7 +10,7 @@ import { addReaderCategory, listReaderCategories, deleteReaderContent, listReade
 import { ReaderEpisodeBatch } from './ReaderEpisodeBatch';
 import { AdminCard } from '../shared/AdminCard';
 
-const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
+const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: monthlyDefaults.ko.license, category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
 function fields(item: ReaderMetadata): ReaderMetadata { return { ...(item.collectionType ? { collectionType: item.collectionType } : {}), autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? monthlyDefaults[item.language || 'ko'].author : item.author, description: item.description, license: item.issueMonth ? monthlyLanguageFields(item).license : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
@@ -227,7 +227,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
             {series && <label className="block text-sm text-slate-300">회차 번호 (필수)<input type="number" min={1} max={100000} step={1} required readOnly={!!selected?.publishedContent} className={inputClass} value={form.episodeNumber ?? ''} onChange={e => setForm({ ...form, episodeNumber: e.target.value === '' ? undefined : Number(e.target.value) })} />{selected?.publishedContent && <span className="mt-1 block text-xs text-slate-400">공개한 회차의 번호는 유지됩니다. 제목과 본문은 수정할 수 있습니다.</span>}</label>}
             {kind === 'series' && <label className="block text-sm text-slate-300">연재 상태<select className={inputClass} value={form.seriesStatus || 'ongoing'} onChange={e => setForm({ ...form, seriesStatus: e.target.value as 'ongoing' | 'completed' })}><option value="ongoing">연재 중</option><option value="completed">완결</option></select></label>}
             {!series && <>
-            {kind !== 'font' && <label className="block text-sm text-slate-300">콘텐츠 언어<select className={inputClass} value={form.language || 'ko'} disabled={Boolean(series || selected?.publishedContent)} onChange={e => setForm(monthly ? monthlyLanguageFields(form, e.target.value as 'ko' | 'en' | 'ja') : { ...form, language: e.target.value as 'ko' | 'en' | 'ja' })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select><span className="mt-1 block text-xs text-slate-400">앱 설정 언어와 같은 콘텐츠만 표시합니다. 회차는 작품 언어를 따릅니다. 공개한 콘텐츠의 번역본은 별도 작품으로 등록하세요.</span></label>}
+            {kind !== 'font' && <label className="block text-sm text-slate-300">콘텐츠 언어<select className={inputClass} value={form.language || 'ko'} disabled={Boolean(series || selected?.publishedContent)} onChange={e => setForm(monthly ? monthlyLanguageFields(form, e.target.value as 'ko' | 'en' | 'ja') : { ...form, language: e.target.value as 'ko' | 'en' | 'ja', license: contentLicense(form.license, e.target.value as 'ko' | 'en' | 'ja') })}><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select><span className="mt-1 block text-xs text-slate-400">앱 설정 언어와 같은 콘텐츠만 표시합니다. 회차는 작품 언어를 따릅니다. 공개한 콘텐츠의 번역본은 별도 작품으로 등록하세요.</span></label>}
             <label className="block text-sm text-slate-300">{kind !== 'font' ? '저자 또는 필명 (필수)' : '제작자 (필수)'}<input required maxLength={120} className={inputClass} value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} /></label>
             {kind !== 'font' && <div className="space-y-2">
               <label className="block text-sm text-slate-300">도서 분류<select className={inputClass} value={form.category || '기타'} onChange={e => setForm({ ...form, category: e.target.value })}>{categoryOptions.map(category => <option key={category} value={category}>{category}</option>)}</select></label>
@@ -242,7 +242,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
             {monthly && series && <label className="block text-sm text-slate-300">글쓴이 (선택 · 이미지 위에 표시)<input className={inputClass} maxLength={120} value={form.byline || ''} onChange={e => setForm({ ...form, byline: e.target.value })} /></label>}
             {monthly && <MonthlyFields kind={kind} series={series} form={form} onChange={setForm} monthLocked={!!selected?.publishedContent} />}
             <label className="block text-sm text-slate-300">설명 (선택)<textarea rows={3} maxLength={2000} className={inputClass} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
-            {!series && <label className="block text-sm text-slate-300">배포 권한 · 이용 조건 (필수)<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>}
+            {!series && <label className="block text-sm text-slate-300">이용조건 (자동 입력 · 수정 가능)<textarea required rows={3} maxLength={2000} className={inputClass} placeholder="앱에서 파일을 배포할 수 있는 라이선스와 출처를 입력해 주세요. 사용자에게도 표시됩니다." value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} /></label>}
             {kind === 'font' && <button type="submit" className={buttonClass} disabled={busy || !valid || (!!selected && !dirty)}>{busy ? '처리 중…' : selected ? '초안 저장' : '초안 만들기'}</button>}
           </fieldset>
         </form>
