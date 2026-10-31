@@ -1,5 +1,6 @@
 'use client';
 import {ReaderStatus,ReaderSectionHeading,readerButton,readerPrimaryButton} from './ReaderAdminUI';
+import {ReaderDeleteActions} from './ReaderDeleteActions';
 import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { ReaderFileInput } from './ReaderFileInput';
@@ -58,14 +59,14 @@ export default function MonthlyWorkspace() {
         <nav aria-label="월간호 목록" className={panel}>{months.length ? months.map(value => <button key={value} disabled={busy} className={`${button} w-full text-left ${month === value ? 'border-emerald-400 bg-emerald-950' : ''}`} onClick={() => { if (guard()) { setMonth(value); setTab('settings'); setDirty(false); } }}>{value} 월간호<span className="mt-2 block text-xs text-slate-400">{languages.map(l => `${names[l]} ${issues.some(x => (x.issueMonth || x.publishedContent?.issueMonth) === value && (x.language || 'ko') === l) ? '등록' : '미등록'}`).join(' · ')}</span></button>) : <p>등록된 월간호가 없습니다.</p>}</nav>
         <div className="min-w-0 space-y-4">{month && <>
           <div className="flex gap-3">{(['settings', 'episodes', 'batch'] as const).map(t => <button key={t} disabled={busy} className={`${button} ${tab === t ? 'bg-emerald-900' : ''}`} onClick={() => { if (guard()) { setDirty(false); setTab(t); } }}>{t === 'settings' ? '월간호 설정' : t === 'episodes' ? '한 회차 등록·수정' : '회차 일괄등록'}</button>)}</div>
-          {duplicates ? <p role="alert">같은 월·언어의 월간호가 여러 개 있습니다. 기존 개별 관리에서 확인해 주세요. 자동으로 합치거나 삭제하지 않습니다.</p> : tab === 'settings' ? <IssueSettings key={`${month}-${version}`} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} /> : tab === 'batch' ? <MonthlyEpisodeBatch key={month} issues={selected} setBusy={setBusy} onDirty={setDirty} /> : <EpisodeEditor key={month} month={month} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onIssueUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} />}
+          {duplicates ? <p role="alert">같은 월·언어의 월간호가 여러 개 있습니다. 기존 개별 관리에서 확인해 주세요. 자동으로 합치거나 삭제하지 않습니다.</p> : tab === 'settings' ? <IssueSettings key={`${month}-${version}`} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} onDeleted={async()=>{await reload();setMonth('');setDirty(false);}} /> : tab === 'batch' ? <MonthlyEpisodeBatch key={month} issues={selected} setBusy={setBusy} onDirty={setDirty} /> : <EpisodeEditor key={month} month={month} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onIssueUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} />}
         </>}</div>
       </div>
     </>}
   </div>;
 }
 
-function IssueSettings({ issues, busy, setBusy, onDirty, onUpdate }: { issues: ReaderContent[]; busy: boolean; setBusy: (v: boolean) => void; onDirty: (v: boolean) => void; onUpdate: (v: ReaderContent) => void }) {
+function IssueSettings({ issues, busy, setBusy, onDirty, onUpdate,onDeleted }: {onDeleted:()=>Promise<void>; issues: ReaderContent[]; busy: boolean; setBusy: (v: boolean) => void; onDirty: (v: boolean) => void; onUpdate: (v: ReaderContent) => void }) {
   const [forms, setForms] = useState<Record<string, ReaderContent>>(Object.fromEntries(issues.map(i => [i.id, i])));
   const [files, setFiles] = useState<Record<string, File | undefined>>({});
   const [common, setCommon] = useState<File>();
@@ -103,6 +104,7 @@ function IssueSettings({ issues, busy, setBusy, onDirty, onUpdate }: { issues: R
     })}</div>
     {status && <p role="status" className="text-sm text-amber-200">{status}</p>}
     <button disabled={busy} className={readerPrimaryButton} onClick={() => void save()}>{busy ? '저장 중…' : '설정 저장'}</button>
+    <ReaderDeleteActions items={issues} busy={busy} setBusy={setBusy} label="월간호" onDeleted={async()=>{onDirty(false);await onDeleted();}}/>
   </div>;
 }
 
@@ -183,5 +185,6 @@ function EpisodeEditor({ month, issues, busy, setBusy, onDirty, onIssueUpdate }:
     <div className="grid gap-4 xl:grid-cols-3">{languages.map(l => { const row = rows[l]; return <fieldset disabled={busy || !loaded} className={panel} key={`${number}-${l}`}><legend><label className="flex gap-2"><input type="checkbox" checked={row.selected} onChange={e => patch(l, { selected: e.target.checked })} />{names[l]} 저장·공개 대상</label></legend><label className="block">제목<input className={input} value={row.title} maxLength={160} onChange={e => patch(l, { title: e.target.value })} /></label><label className="block">글쓴이 (선택)<input className={input} value={row.byline} maxLength={120} onChange={e => patch(l, { byline: e.target.value })} /></label><label className="block">본문 TXT·EPUB<ReaderFileInput   accept=".txt,.epub" onFiles={selectedFiles => patch(l, { body: selectedFiles[0] })} /></label><p className="text-xs text-slate-400">{row.body?.name || (row.item?.assets.txt || row.item?.assets.epub ? '기존 본문 유지' : '본문 미등록')}</p><label className="block">언어별 이미지<ReaderFileInput   accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => patch(l, { image: selectedFiles[0] })} /></label><ReaderImagePreview file={row.image || (!appliedImages.current.has(l)?common:undefined)} /><p className="text-xs text-slate-400">{row.image?.name || (!appliedImages.current.has(l)?common?.name:undefined) || (row.item?.assets.cover ? '기존 회차 이미지 유지' : '이미지 미등록')}</p><label className="block">이 언어의 공개 일시<input type="datetime-local" className={input} value={row.releaseAt} onChange={e => patch(l, { releaseAt: e.target.value })} /></label><p role="status" className="text-sm text-emerald-200"><ReaderStatus value={row.status || (row.item?.published ? (row.item.releaseAt && Date.parse(row.item.releaseAt)>Date.now()?'공개 예약':'공개 중') : row.item ? '임시 저장' : '미등록')}/></p></fieldset>; })}</div>
     {error && <p role="alert" className="text-rose-300">{error}</p>}
     <div className="flex flex-wrap gap-3"><button className={button} disabled={busy || !loaded} onClick={() => void save(false)}>선택 언어 초안 저장</button><button className={readerPrimaryButton} disabled={busy || !loaded} onClick={() => void save(true)}>선택 언어 공개·예약</button></div><p className="text-xs text-slate-400">미래 일시는 예약, 현재·이전 일시는 즉시 공개됩니다. 언어별로 처리하며 중간에 실패하면 각 카드에 결과를 표시합니다. 합본에는 TXT 원본이 필요합니다.</p>
+    <ReaderDeleteActions items={Object.values(rows).flatMap(row=>row.item?[row.item]:[])} busy={busy||!loaded} setBusy={setBusy} label="회차" onDeleted={async()=>{const all=await reload();open(number,all);}}/>
   </div>;
 }

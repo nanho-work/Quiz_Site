@@ -39,7 +39,7 @@ export default function GeneralBookManager() {
       let after: string | undefined;
       do { const page = await listReaderContent(kind, after); result.push(...page.items); after = page.nextCursor || undefined; } while (after);
     }
-    setItems(result.filter(x => x.collectionType === 'general' && !x.seriesId && !x.issueMonth && !x.deleting));
+    setItems(result.filter(x => x.collectionType === 'general' && !x.seriesId && !x.issueMonth));
   }, []);
   useEffect(() => { void reload().catch(e => setError(e.message)).finally(() => setLoading(false)); }, [reload]);
   useReaderLeaveGuard(dirty,busy);

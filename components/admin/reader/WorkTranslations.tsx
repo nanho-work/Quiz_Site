@@ -1,12 +1,13 @@
 'use client';
 import {ReaderStatus,ReaderSectionHeading,readerButton,readerPrimaryButton} from './ReaderAdminUI';
+import {ReaderDeleteActions} from './ReaderDeleteActions';
 import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { UnifiedWorkEpisodes } from './UnifiedWorkEpisodes';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { commonRelease, releaseFields } from '../../../lib/admin/reader/work-schedule';
 import { ReaderFileInput } from './ReaderFileInput';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { listReaderContent, deleteReaderContent, mutateReaderContent, uploadReaderAsset, linkReaderTranslations, type ReaderContent, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
+import { listReaderContent, mutateReaderContent, uploadReaderAsset, linkReaderTranslations, type ReaderContent, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 import { ReaderContentManager } from './ReaderContentManager';
 import { MonthlyEpisodeBatch } from './MonthlyEpisodeBatch';
 import { monthlyDefaults } from '../../../lib/admin/firebase/monthly-defaults';
@@ -29,7 +30,7 @@ export default function WorkTranslations({ kind: defaultKind, general = false }:
     for (const type of (general ? ['book', 'series'] as const : [kind])) { let cursor: string | undefined;
       do { const page = await listReaderContent(type, cursor); all.push(...page.items); cursor = page.nextCursor || undefined; } while (cursor);
     }
-    setItems(all.filter(x => (general ? x.collectionType === 'general' : !x.collectionType) && !x.issueMonth && !x.publishedContent?.issueMonth && !x.seriesId && !x.deleting));
+    setItems(all.filter(x => (general ? x.collectionType === 'general' : !x.collectionType) && !x.issueMonth && !x.publishedContent?.issueMonth && !x.seriesId));
   }, [kind, general]);
   useEffect(() => { void reload().catch(e => setError(e.message)); }, [reload]);
   useReaderLeaveGuard(dirty,busy);
@@ -93,20 +94,7 @@ export function WorkEditor({ general, initial, kind, candidates, onDirty, setBus
     } catch (e) { setStatus(`${messages.join('\n')}\n${(e as Error).message}`); throw e; }
     finally { saving.current=false; lock(false); }
   }
-  async function removeDraft() {
-    if(!window.confirm('이 작품의 모든 언어 초안과 미공개 회차·첨부 파일을 삭제할까요? 되돌릴 수 없습니다.'))return;
-    lock(true);
-    try {
-      if(saved.some(x=>x.published || x.publishedContent))throw new Error('공개 이력이 있는 작품은 초안 삭제할 수 없습니다.');
-      const children:ReaderContent[]=[];
-      for(const parent of saved.filter(x=>x.kind==='series')) {let after:string|undefined;do{const page=await listReaderContent('book',after,parent.id);children.push(...page.items);after=page.nextCursor||undefined;}while(after);}
-      if(children.some(x=>x.published || x.publishedContent))throw new Error('공개 이력이 있는 회차가 있어 작품을 삭제할 수 없습니다.');
-      for(const item of children)await deleteReaderContent(item,true);
-      for(const item of saved){await deleteReaderContent(item,true);setSaved(p=>p.filter(x=>x.id!==item.id));}
-      setChanged(false);setBatchDirty(false);onDirty(false);setDeleted(true);await reload();
-    } catch(e){setStatus((e as Error).message);}finally{lock(false);}
-  }
-  if(deleted)return <p role="status">초안을 삭제했습니다. 도서 목록으로 돌아가세요.</p>;
+  if(deleted)return <p role="status">선택한 작품을 삭제했습니다. 목록으로 돌아가 남은 언어와 작품을 확인하세요.</p>;
   return <section className="min-w-0 space-y-4"><div className="flex gap-2">{(!unified && kind==='series' ? ['settings','episodes'] : []).map(t => <button key={t} className={button} disabled={busy} onClick={() => setTab(t)}>{t === 'settings' ? '작품 정보·파일' : '회차 등록·일괄등록'}</button>)}</div>
     <div hidden={tab !== 'settings'} className="space-y-4"><ReaderSectionHeading title="작품 정보" description="언어별 제목과 대표 표지를 확인하세요. 추가 정보는 아래에서 펼칠 수 있습니다."><ReaderStatus value={changed?'변경사항 미저장':saved.length?(saved.every(x=>x.published)?'공개 중':'임시 저장'):'새 작품'}/></ReaderSectionHeading>
     <fieldset disabled={busy} className="space-y-4"><details><summary className="cursor-pointer text-sm">공통 대표 표지 추가·변경 (선택)</summary><label className="block">책 대표 표지 — 공통 (언어별 대표 표지가 우선)<ReaderFileInput  accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => { coverApplied.current.clear(); setCommon(selectedFiles[0]); onDirty(true); setChanged(true); }} /></label><ReaderImagePreview compact file={common}/></details>
@@ -118,9 +106,10 @@ export function WorkEditor({ general, initial, kind, candidates, onDirty, setBus
     {!unified && <><p className="text-sm text-slate-400">{langs.filter(l => enabled[l] && forms[l].title.trim()).length}개 언어 선택 · {kind === 'series' ? '도서 정보를 저장한 뒤 회차별 공개일을 확인합니다.' : '파일을 확인하고 저장하거나 공개하세요.'}</p><div className="flex gap-3"><button className={button} onClick={() => void save(false).catch(e=>setStatus(e.message))}>초안 저장</button><button className={readerPrimaryButton} onClick={() => { if (window.confirm('체크하고 제목을 입력한 언어의 작품을 공개할까요?')) void save(true).catch(e=>setStatus(e.message)); }}>{kind === 'series' ? '도서 정보 공개' : '일정대로 공개'}</button></div></>}
     {saved.length > 0 && <details className="space-y-2"><summary className="cursor-pointer text-sm">기존 번역본 연결 (선택)</summary><label>기존 번역본 연결<select className={input} value={linkId} onChange={e => setLinkId(e.target.value)}><option value="">작품 선택</option>{candidates.filter(x => x.kind === kind && !saved.some(s => (s.language || 'ko') === (x.language || 'ko')) && !x.translationGroupId).map(x => <option value={x.id} key={x.id}>{labels[x.language || 'ko']} · {x.title}</option>)}</select></label><button className={button} disabled={!linkId || changed || batchDirty} onClick={async () => { lock(true); try { const target = candidates.find(x => x.id === linkId)!; const result = await connect([...saved, target]); setSaved(result); setTranslationVersion(v=>v+1); setForms(p => ({ ...p, [target.language || 'ko']: target })); await reload(); setStatus('기존 파일·독서 기록을 유지하고 연결했습니다.'); } catch(e) { setStatus((e as Error).message); } finally { lock(false); } }}>선택한 번역본 연결</button>{(changed || batchDirty) && <p>입력 중인 내용이 있습니다. 저장 후 목록에서 작품을 다시 열어 연결하세요.</p>}</details>}
     </fieldset></div>
-    {unified && <UnifiedWorkEpisodes key={translationVersion} parents={saved} initialFiles={seedFiles} initialCommon={seedCommonImages} prepare={save} onDirty={setBatchDirty} onBusy={lock}/> }
+    {unified && <UnifiedWorkEpisodes externalBusy={busy} key={translationVersion} parents={saved} initialFiles={seedFiles} initialCommon={seedCommonImages} prepare={save} onDirty={setBatchDirty} onBusy={lock}/> }
     {!unified && kind === 'series' && <div hidden={tab !== 'episodes'}>{saved.length ? <MonthlyEpisodeBatch issues={saved} setBusy={lock} onDirty={setBatchDirty} ordinary initialFiles={seedFiles} initialCommon={seedCommonImages} /> : <p>도서 정보를 임시 저장하면 선택한 원고의 이미지·순서·공개일을 확인할 수 있습니다.</p>}</div>}
-    {saved.length>0 && !saved.some(x=>x.published||x.publishedContent) && <button disabled={busy} className={`${button} text-rose-300`} onClick={()=>void removeDraft()}>작품 초안 삭제 (모든 언어)</button>}
+    <ReaderDeleteActions items={saved} busy={busy} setBusy={lock} onDeleted={async()=>{setChanged(false);setBatchDirty(false);onDirty(false);setDeleted(true);await reload();}}/>
+
     <p role="status" className="whitespace-pre-wrap">{status}</p>
   </section>;
 }

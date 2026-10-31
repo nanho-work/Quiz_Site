@@ -20,8 +20,8 @@ async function children(parent:ReaderContent) {
   do { const page=await listReaderContent('book',after,parent.id);items.push(...page.items);after=page.nextCursor||undefined;if(after && seen.has(after)) throw new Error('회차 목록을 끝까지 읽지 못했습니다.');if(after)seen.add(after); } while(after);
   return items;
 }
-export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,onDirty,onBusy}: {
-  parents:ReaderContent[];initialFiles?:Partial<Record<Language,File[]>>;initialCommon?:File[];
+export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,onDirty,onBusy,externalBusy=false}: {
+  externalBusy?:boolean;parents:ReaderContent[];initialFiles?:Partial<Record<Language,File[]>>;initialCommon?:File[];
   prepare:(publish:boolean,required:readonly Language[])=>Promise<ReaderContent[]>;onDirty:(value:boolean)=>void;onBusy:(value:boolean)=>void;
 }) {
   const [rows,setRows]=useState<Row[]>(()=>{
@@ -86,17 +86,16 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
     });setMessage('');
   }
   async function remove(row:Row) {
-    if(!window.confirm(`${row.number}화의 세 언어 초안과 파일을 삭제할까요? 되돌릴 수 없습니다.`))return;
-    if(locked.current)return;locked.current=true;setBusy(true);onBusy(true);
+    if(!window.confirm(`${row.number}화의 등록된 모든 언어와 첨부 파일을 영구 삭제할까요? 이미 다운로드한 파일은 사용자 기기에 유지됩니다. 되돌릴 수 없습니다.`))return;
+    if(locked.current||externalBusy)return;locked.current=true;setBusy(true);onBusy(true);
     const next={...row,entries:{...row.entries}};
     try{
-      if(Object.values(row.entries).some(e=>e.item?.published||e.item?.publishedContent))throw new Error('공개 이력이 있는 회차는 초안 삭제할 수 없습니다.');
-      for(const l of languages){const item=next.entries[l]?.item;if(item)await deleteReaderContent(item,true);delete next.entries[l];setRows(rs=>rs.map(r=>r.number===row.number?{...next}:r));}
-      setRows(rs=>rs.filter(r=>r.number!==row.number));setStages(p=>{const next={...p};delete next[row.number];return next;});setMessage(`${row.number}화 초안을 삭제했습니다.`);
+      for(const l of languages){const item=next.entries[l]?.item;if(item)await deleteReaderContent(item);delete next.entries[l];setRows(rs=>rs.map(r=>r.number===row.number?{...next}:r));}
+      setRows(rs=>rs.filter(r=>r.number!==row.number));setStages(p=>{const next={...p};delete next[row.number];return next;});setMessage(`${row.number}화를 삭제했습니다.`);
     }catch(e){setMessage((e as Error).message);}finally{locked.current=false;setBusy(false);onBusy(false);}
   }
   async function save(publish:boolean) {
-    if(locked.current||loading||loadError)return;
+    if(locked.current||externalBusy||loading||loadError)return;
     const work=rowsRef.current.filter(r=>r.dirty || (publish && Object.values(r.entries).some(e=>needsPublication(e.item))));
     if(publish&&!rowsRef.current.length){setMessage('공개할 원고를 넣어 주세요.');return;}
     try {
@@ -151,12 +150,12 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
     <ReaderSectionHeading title="회차와 공개 일정" description="세 언어를 한 줄에서 확인하세요. 공개 일시는 한국 시간 기준이며, 비워두면 즉시 공개합니다."><span className="text-xs text-slate-400">전체 {rows.length}회차</span></ReaderSectionHeading>
     <div className="reader-save-bar sticky top-16 z-10 space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-3"><p role="status" aria-live="polite">전체 {rows.length}회{counts.total>0 && ` · 이번 작업 ${counts.total}회 · 완료 ${counts.done} · 처리 중 ${counts.running} · 대기 ${counts.waiting} · 실패 ${counts.failed}`}</p>
-      <div className="flex gap-2"><button disabled={busy||loading||!!loadError} className={button} onClick={()=>void save(false)}>초안 저장</button><button disabled={busy||loading||!!loadError} className={readerPrimaryButton} onClick={()=>void save(true)}>{counts.failed?'미완료 항목 재시도 · 예약·공개':'일정대로 공개'}</button></div></div>
+      <div className="flex gap-2"><button disabled={busy||externalBusy||loading||!!loadError} className={button} onClick={()=>void save(false)}>초안 저장</button><button disabled={busy||externalBusy||loading||!!loadError} className={readerPrimaryButton} onClick={()=>void save(true)}>{counts.failed?'미완료 항목 재시도 · 예약·공개':'일정대로 공개'}</button></div></div>
       {message&&<p role="status" className="text-sm text-slate-300">{message}</p>}
       {busy&&<p className="text-xs text-amber-200">처리 중에는 이 화면을 닫거나 이동하지 마세요. 다른 탭에서 작업할 수 있습니다.</p>}
     </div>
     {loading&&<p>저장된 회차를 불러오는 중입니다…</p>}{loadError&&<p role="alert">{loadError} <button onClick={()=>void load()}>다시 확인</button></p>}
-    <fieldset disabled={busy||loading||!!loadError} className="min-w-0 space-y-4">
+    <fieldset disabled={busy||externalBusy||loading||!!loadError} className="min-w-0 space-y-4">
       <details><summary className="cursor-pointer">원고·삽화 추가 또는 변경</summary><div className="mt-3 grid gap-3 lg:grid-cols-4">{(['common',...languages] as const).map(l=><label key={l}>{l==='common'?'공통 삽화':names[l]+' 원고·삽화'}<ReaderFileInput multiple accept={l==='common'?'.png,.jpg,.jpeg,.webp':'.txt,.epub,.png,.jpg,.jpeg,.webp'} onFiles={fs=>add(l,fs)}/></label>)}</div></details>
       <div className="flex flex-wrap items-end gap-3"><label>시작 일시<input type="datetime-local" className={input} value={start} onChange={e=>setStart(e.target.value)}/></label><label>간격 (일)<input className={input} type="number" min={1} max={31} value={interval} onChange={e=>setInterval(Number(e.target.value))}/></label><button className={button} onClick={()=>{try{const dates=assignSchedule(rows.map(r=>r.number),start,interval);if(rows.some(r=>Object.values(r.entries).some(e=>e.item?.publishedContent))&&!window.confirm('공개 이력이 있는 회차도 일정이 변경됩니다. 계속할까요?'))return;setStages({});setRows(rs=>rs.map(r=>({...r,release:dates[r.number],dirty:true,entries:Object.fromEntries(Object.entries(r.entries).map(([l,e])=>[l,{...e,savedForRun:false,error:undefined}]))})));}catch(e){setMessage((e as Error).message);}}}>전체 회차에 일정 적용</button></div>
       <div className="reader-table-wrap">
@@ -183,7 +182,7 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
               <button className="mt-2 text-xs underline" onClick={()=>change(row.number,{release:''})}>즉시 공개로 지정</button>
               {row.release===undefined&&<p className="text-xs text-amber-300">언어별 일정이 다릅니다. 공통 일정을 선택해 주세요.</p>}</td>
             <td className="p-3"><ReaderStatus value={summary}/>
-              {!entries.some(e=>e.item?.published||e.item?.publishedContent)&&<button className="mt-3 text-xs text-rose-300 underline" onClick={()=>void remove(row)}>회차 초안 삭제</button>}
+              <button className="mt-3 text-xs text-rose-300 underline" onClick={()=>void remove(row)}>회차 삭제</button>
             </td>
           </tr>;
         })}</tbody>
