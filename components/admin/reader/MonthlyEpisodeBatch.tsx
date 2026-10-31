@@ -7,10 +7,10 @@ import { mergeEpisodeFiles } from '../../../lib/admin/reader/episode-batch';
 const languages = ['ko', 'en', 'ja'] as const;
 const labels = { ko: '한국어', en: 'English', ja: '日本語' };
 type Language = typeof languages[number];
-export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false }: {
-  ordinary?: boolean; issues: ReaderContent[]; setBusy: (value: boolean) => void; onDirty: (value: boolean) => void;
+export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false, initialFiles, initialCommon }: {
+  initialCommon?: File[]; initialFiles?: Partial<Record<'ko' | 'en' | 'ja', File[]>>; ordinary?: boolean; issues: ReaderContent[]; setBusy: (value: boolean) => void; onDirty: (value: boolean) => void;
 }) {
-  const [common, setCommon] = useState<Record<string, File>>({});
+  const [common, setCommon] = useState<Record<string, File>>(() => Object.fromEntries(mergeEpisodeFiles([], initialCommon || [], '', true).rows.map(row => [row.number, row.covers[0]])));
   const [commonError, setCommonError] = useState('');
   const uploaded = useRef(new Map<File, Promise<string>>());
   const getShared = async (file: File) => {
@@ -44,7 +44,7 @@ export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false
     {languages.map(l => {
       const issue = issues.find(item => (item.language || 'ko') === l);
       return <div key={l} id={`batch-${l}`} role="tabpanel" aria-label={labels[l]} hidden={language !== l}>
-        {issue ? <ReaderEpisodeBatch series={issue} embedded integrated commonCovers={common} getSharedCover={getShared} active={language === l} related={issues} onState={handlers[l]} onClose={() => {}} /> : <p>{ordinary ? '이 언어의 작품을 먼저 저장해 주세요.' : '이 언어의 월간호가 없습니다. 같은 연·월의 3개 언어 월간호 만들기를 먼저 눌러 주세요.'}</p>}
+        {issue ? <ReaderEpisodeBatch initialFiles={initialFiles?.[l]} series={issue} embedded integrated commonCovers={common} getSharedCover={getShared} active={language === l} related={issues} onState={handlers[l]} onClose={() => {}} /> : <p>{ordinary ? '이 언어의 작품을 먼저 저장해 주세요.' : '이 언어의 월간호가 없습니다. 같은 연·월의 3개 언어 월간호 만들기를 먼저 눌러 주세요.'}</p>}
       </div>;
     })}
   </div>;

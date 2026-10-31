@@ -37,23 +37,24 @@ export default function WorkTranslations({ kind: defaultKind, general = false }:
     <WorkEditor general={general} key={chosen || `${kind}-${newVersion}`} initial={group} kind={group[0]?.kind === 'series' ? 'series' : group.length ? 'book' : kind} candidates={items} onDirty={setDirty} setBusy={setBusy} reload={reload} /></div></>}
   </div>;
 }
-function WorkEditor({ general, initial, kind, candidates, onDirty, setBusy, reload }: { general: boolean; initial: ReaderContent[]; kind: 'book' | 'series'; candidates: ReaderContent[]; onDirty: (v: boolean) => void; setBusy: (v: boolean) => void; reload: () => Promise<void> }) {
+export function WorkEditor({ general, initial, kind, candidates, onDirty, setBusy, reload, seedFiles, seedCommon, seedTitles, seedCommonImages }: { seedCommonImages?: File[]; seedFiles?: Partial<Record<'ko' | 'en' | 'ja', File[]>>; seedCommon?: File; seedTitles?: Partial<Record<'ko' | 'en' | 'ja', string>>; general: boolean; initial: ReaderContent[]; kind: 'book' | 'series'; candidates: ReaderContent[]; onDirty: (v: boolean) => void; setBusy: (v: boolean) => void; reload: () => Promise<void> }) {
   const [saved, setSaved] = useState(initial);
-  const [forms, setForms] = useState<Record<string, ReaderMetadata>>(() => Object.fromEntries(langs.map(l => [l, initial.find(x => (x.language || 'ko') === l) || { ...(general ? { collectionType: 'general' } : {}), language: l, title: '', author: '쿠피랩', description: '', license: monthlyDefaults[l].license, category: '소설', source: '', ...(kind === 'series' ? { seriesStatus: 'ongoing' } : {}) }])));
+  const [forms, setForms] = useState<Record<string, ReaderMetadata>>(() => Object.fromEntries(langs.map(l => [l, initial.find(x => (x.language || 'ko') === l) || { ...(general ? { collectionType: 'general' } : {}), language: l, title: seedTitles?.[l] || '', author: monthlyDefaults[l].author, description: '', license: monthlyDefaults[l].license, category: '소설', source: '', ...(kind === 'series' ? { seriesStatus: 'ongoing' } : {}) }])));
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ ko: true, en: true, ja: true });
-  const [files, setFiles] = useState<Record<string, { book?: File; cover?: File }>>({});
-  const [common, setCommon] = useState<File>();
+  const [files, setFiles] = useState<Record<string, { book?: File; cover?: File }>>(() => Object.fromEntries(langs.map(l => [l, { book: kind === 'book' ? seedFiles?.[l]?.find(f => /\.(txt|epub)$/i.test(f.name)) : undefined, cover: kind === 'book' ? seedFiles?.[l]?.find(f => /\.(png|jpe?g|webp)$/i.test(f.name)) : undefined }])));
+  const [common, setCommon] = useState<File | undefined>(seedCommon);
   const [status, setStatus] = useState('');
   const [busy, busySet] = useState(false);
   const [tab, setTab] = useState('settings');
   const [linkId, setLinkId] = useState('');
-  const [changed, setChanged] = useState(false);
+  const [changed, setChanged] = useState(Boolean(seedFiles));
   const [batchDirty, setBatchDirty] = useState(false);
   useEffect(() => { onDirty(changed || batchDirty); }, [changed, batchDirty, onDirty]);
   const update = (l: string, patch: Partial<ReaderMetadata>) => { setForms(p => ({ ...p, [l]: { ...p[l], ...patch } })); setChanged(true); onDirty(true); };
   const lock = useCallback((v: boolean) => { busySet(v); setBusy(v); }, [setBusy]);
   async function connect(values: ReaderContent[]) { if (values.length < 2) return values; return (await linkReaderTranslations(values)).items; }
   async function save(publish: boolean) {
+    if (!langs.some(l => enabled[l] && forms[l].title.trim())) { setStatus('등록할 언어의 도서 제목을 입력해 주세요.'); return; }
     lock(true); setStatus(''); let current = [...saved]; const messages: string[] = [];
     try {
       for (const l of langs) {
@@ -70,22 +71,22 @@ function WorkEditor({ general, initial, kind, candidates, onDirty, setBusy, relo
       current = await connect(current); setSaved(current); await reload();
       // Keep selections after failures so each language can be corrected and retried.
       setStatus(messages.join('\n'));
+      if (kind === 'series' && seedFiles && current.length && !messages.some(m => m.includes(':'))) setTab('episodes');
       if (!messages.some(m => m.includes(':'))) { setChanged(langs.some(l => !enabled[l] && !!forms[l].title)); setFiles(p => Object.fromEntries(Object.entries(p).filter(([l]) => !enabled[l]))); setCommon(undefined); }
     } catch (e) { setStatus(`${messages.join('\n')}\n번역본 연결: ${(e as Error).message}`); }
     finally { lock(false); }
   }
   return <section className="min-w-0 space-y-4"><div className="flex gap-2">{['settings', ...(kind === 'series' ? ['episodes'] : [])].map(t => <button key={t} className={button} disabled={busy} onClick={() => setTab(t)}>{t === 'settings' ? '작품 정보·파일' : '회차 등록·일괄등록'}</button>)}</div>
-    <div hidden={tab !== 'settings'} className="space-y-4"><p>등록할 언어를 체크하고 제목과 파일을 넣으세요. 실패한 언어만 체크해 재시도할 수 있습니다. 제목이 비어 있는 언어는 건너뜁니다. 번역은 자동으로 생성하지 않습니다.</p>
+    <div hidden={tab !== 'settings'} className="space-y-4"><p className="text-sm text-slate-400">등록할 언어의 제목과 파일을 확인하세요. 빈 제목은 저장하지 않습니다.</p>
     <fieldset disabled={busy} className="space-y-4"><label className="block">공통 표지 (언어별 표지가 우선)<input type="file" accept=".png,.jpg,.jpeg,.webp" onChange={e => { setCommon(e.target.files?.[0]); onDirty(true); setChanged(true); }} /></label>
-    <button className={button} onClick={() => { for (const l of langs) update(l, { author: forms.ko.author, category: forms.ko.category, source: forms.ko.source }); }}>한국어의 저자·분류·출처를 다른 언어에 적용</button>
-    <button className={button} onClick={() => { for (const l of langs) update(l, { license: monthlyDefaults[l].license }); }}>공통 이용조건으로 되돌리기</button>
-    <div className="grid gap-4 xl:grid-cols-3">{langs.map(l => <div key={l} className="min-w-0 space-y-3 rounded-xl border border-slate-700 p-4"><h2><label><input type="checkbox" checked={enabled[l]} onChange={e => setEnabled(p => ({ ...p, [l]: e.target.checked }))} /> {labels[l]}</label></h2>{(['title','author','category','source','description','license'] as const).map(key => <label className="block" key={key}>{{ title:'제목', author:'저자·필명', category:'분류', source:'출처', description:'소개', license:'이용조건' }[key]}<textarea className={input} rows={key === 'description' || key === 'license' ? 3 : 1} value={forms[l][key] || ''} onChange={e => update(l, { [key]: e.target.value })} /></label>)}
+    <div className="grid gap-4 xl:grid-cols-3">{langs.map(l => <div key={l} className="min-w-0 space-y-3 border-t border-slate-700 py-4"><h2><label><input type="checkbox" checked={enabled[l]} onChange={e => setEnabled(p => ({ ...p, [l]: e.target.checked }))} /> {labels[l]}</label></h2>{(['title'] as const).map(key => <label className="block" key={key}>{{ title:'제목', author:'저자·필명', category:'분류', source:'출처', description:'소개', license:'이용조건' }[key]}<textarea className={input} rows={1} value={forms[l][key] || ''} onChange={e => update(l, { [key]: e.target.value })} /></label>)}
     {kind === 'series' && <select className={input} value={forms[l].seriesStatus || 'ongoing'} onChange={e => update(l, { seriesStatus: e.target.value as 'ongoing' | 'completed' })}><option value="ongoing">연재 중</option><option value="completed">완결</option></select>}
-    {(kind === 'book' ? ['book','cover'] as const : ['cover'] as const).map(slot => <label className="block" key={slot}>{slot === 'book' ? '본문 TXT·EPUB' : '언어별 표지'}<input type="file" accept={slot === 'book' ? '.txt,.epub' : '.png,.jpg,.jpeg,.webp'} onChange={e => { setFiles(p => ({ ...p, [l]: { ...p[l], [slot]: e.target.files?.[0] } })); onDirty(true); setChanged(true); }} /></label>)}<small>{saved.find(x => (x.language || 'ko') === l)?.published ? '공개된 작품' : '미공개 / 미등록'}</small></div>)}</div>
-    <div className="flex gap-3"><button className={button} onClick={() => void save(false)}>선택 언어 저장</button><button className={button} onClick={() => { if (window.confirm('체크하고 제목을 입력한 언어의 작품을 공개할까요?')) void save(true); }}>선택 언어 공개</button></div>
+    {(kind === 'book' ? ['book','cover'] as const : ['cover'] as const).map(slot => <label className="block" key={slot}>{slot === 'book' ? '본문 TXT·EPUB' : '언어별 표지'}<input type="file" accept={slot === 'book' ? '.txt,.epub' : '.png,.jpg,.jpeg,.webp'} onChange={e => { setFiles(p => ({ ...p, [l]: { ...p[l], [slot]: e.target.files?.[0] } })); onDirty(true); setChanged(true); }} /></label>)}<p className="break-all text-xs text-slate-400">{files[l]?.book?.name} {files[l]?.cover?.name}</p><small>{saved.find(x => (x.language || 'ko') === l)?.published ? '공개된 작품' : '미공개 / 미등록'}</small></div>)}</div>
+    <details className="border-y border-slate-700 py-4"><summary className="cursor-pointer">추가 정보 <span className="text-sm text-slate-400">저자 · 분류 · 소개 · 이용조건</span></summary><div className="mt-4 grid gap-5 xl:grid-cols-3">{langs.map(l => <div key={l} className="space-y-3"><h3>{labels[l]}</h3>{(['author','category','source','description','license'] as const).map(key => <label className="block text-sm" key={key}>{{author:'저자·필명',category:'분류',source:'출처',description:'소개',license:'이용조건'}[key]}<textarea className={input} rows={key === 'license' || key === 'description' ? 3 : 1} value={forms[l][key] || ''} onChange={e => update(l, {[key]:e.target.value})} /></label>)}</div>)}</div><button className={`${button} mt-3`} onClick={() => { for (const l of langs) update(l, {license:monthlyDefaults[l].license}); }}>공통 이용조건으로 되돌리기</button></details>
+    <p className="text-sm text-slate-400">{langs.filter(l => enabled[l] && forms[l].title.trim()).length}개 언어 선택 · {kind === 'series' ? '도서 정보를 저장한 뒤 회차별 공개일을 확인합니다.' : '파일을 확인하고 저장하거나 공개하세요.'}</p><div className="flex gap-3"><button className={button} onClick={() => void save(false)}>임시 저장</button><button className={button} onClick={() => { if (window.confirm('체크하고 제목을 입력한 언어의 작품을 공개할까요?')) void save(true); }}>{kind === 'series' ? '도서 정보 공개' : '등록하고 공개'}</button></div>
     {saved.length > 0 && <div className="space-y-2"><label>기존 번역본 연결<select className={input} value={linkId} onChange={e => setLinkId(e.target.value)}><option value="">작품 선택</option>{candidates.filter(x => x.kind === kind && !saved.some(s => (s.language || 'ko') === (x.language || 'ko')) && !x.translationGroupId).map(x => <option value={x.id} key={x.id}>{labels[x.language || 'ko']} · {x.title}</option>)}</select></label><button className={button} disabled={!linkId || changed} onClick={async () => { lock(true); try { const target = candidates.find(x => x.id === linkId)!; const result = await connect([...saved, target]); setSaved(result); setForms(p => ({ ...p, [target.language || 'ko']: target })); await reload(); setStatus('기존 파일·독서 기록을 유지하고 연결했습니다.'); } catch(e) { setStatus((e as Error).message); } finally { lock(false); } }}>선택한 번역본 연결</button>{changed && <p>입력 중인 내용이 있습니다. 저장 후 목록에서 작품을 다시 열어 연결하세요.</p>}</div>}
     </fieldset></div>
-    {kind === 'series' && <div hidden={tab !== 'episodes'}>{saved.length ? <MonthlyEpisodeBatch issues={saved} setBusy={lock} onDirty={setBatchDirty} ordinary /> : <p>작품을 먼저 저장한 다음 회차를 등록해 주세요.</p>}</div>}
+    {kind === 'series' && <div hidden={tab !== 'episodes'}>{saved.length ? <MonthlyEpisodeBatch issues={saved} setBusy={lock} onDirty={setBatchDirty} ordinary initialFiles={seedFiles} initialCommon={seedCommonImages} /> : <p>도서 정보를 임시 저장하면 선택한 원고의 이미지·순서·공개일을 확인할 수 있습니다.</p>}</div>}
     <p role="status" className="whitespace-pre-wrap">{status}</p>
   </section>;
 }

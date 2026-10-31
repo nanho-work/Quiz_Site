@@ -9,11 +9,11 @@ import { scheduleAt, scheduleIssue } from '../../../lib/admin/reader/monthly-sch
 const button = 'rounded-lg border border-slate-600 px-4 py-2 text-sm text-white disabled:opacity-40';
 const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-sm text-white';
 interface Progress { item?: ReaderContent; bookDone?: boolean; coverDone?: boolean; state: 'working' | 'saved' | 'published' | 'failed'; message?: string }
-export function ReaderEpisodeBatch({ series, onClose, integrated = false, active = true, related = [], embedded = false, commonCovers = {}, getSharedCover, onState }: { commonCovers?: Record<string, File>; getSharedCover?: (file: File) => Promise<string>; series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
+export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated = false, active = true, related = [], embedded = false, commonCovers = {}, getSharedCover, onState }: { initialFiles?: File[]; commonCovers?: Record<string, File>; getSharedCover?: (file: File) => Promise<string>; series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
   const scheduling = Boolean(series.issueMonth || series.collectionType === 'general');
   const [scheduleStart, setScheduleStart] = useState(series.issueMonth ? `${series.issueMonth}-01T09:00` : new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 16));
   const [intervalDays, setIntervalDays] = useState(1);
-  const [rows, setRows] = useState<EpisodeRow[]>([]);
+  const [rows, setRows] = useState<EpisodeRow[]>(() => mergeEpisodeFiles([], initialFiles || [], series.title, integrated).rows);
   const [referenceDates, setReferenceDates] = useState<Record<number, string>>({});
   const [loadFailed, setLoadFailed] = useState(false);
   const [existing, setExisting] = useState<ReaderContent[]>([]);

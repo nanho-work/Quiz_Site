@@ -1,0 +1,95 @@
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { listReaderContent, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
+import { mergeEpisodeFiles } from '../../../lib/admin/reader/episode-batch';
+import { WorkEditor } from './WorkTranslations';
+
+const languages = ['ko', 'en', 'ja'] as const;
+type Language = typeof languages[number];
+const names = { ko: '한국어', en: 'English', ja: '日本語' };
+const button = 'rounded-lg border border-slate-600 px-4 py-2 text-sm disabled:opacity-40';
+const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-3 text-slate-100';
+type Draft = { key: string; kind: 'book' | 'series'; files: Partial<Record<Language, File[]>>; titles: Partial<Record<Language, string>>; cover?: File; commonImages?: File[] };
+
+function CoverPreview({ file }: { file?: File }) {
+  const [url, setUrl] = useState('');
+  useEffect(() => { if (!file) { setUrl(''); return; } const value = URL.createObjectURL(file); setUrl(value); return () => URL.revokeObjectURL(value); }, [file]);
+  // Local file previews must not be sent to an image optimization server.
+  // eslint-disable-next-line @next/next/no-img-element
+  return url ? <img src={url} alt="선택한 이미지" className="h-16 w-12 rounded object-contain" /> : <span className="text-xs text-slate-500">이미지 없음</span>;
+}
+export default function GeneralBookManager() {
+  const [items, setItems] = useState<ReaderContent[]>([]);
+  const [screen, setScreen] = useState<'list' | 'upload' | 'edit'>('list');
+  const [selected, setSelected] = useState<ReaderContent[]>([]);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [files, setFiles] = useState<Partial<Record<Language, File[]>>>({});
+  const [images, setImages] = useState<File[]>([]);
+  const [layout, setLayout] = useState<'' | 'series' | 'books'>('');
+  const [query, setQuery] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState(0);
+  const [states, setStates] = useState<Record<string, { busy?: boolean; dirty?: boolean }>>({});
+  const busy = Object.values(states).some(s => s.busy);
+  const dirty = Object.values(states).some(s => s.dirty) || (screen === 'upload' && (images.length > 0 || Object.values(files).some(f => f.length)));
+  const reload = useCallback(async () => {
+    const result: ReaderContent[] = [];
+    for (const kind of ['book','series'] as const) {
+      let after: string | undefined;
+      do { const page = await listReaderContent(kind, after); result.push(...page.items); after = page.nextCursor || undefined; } while (after);
+    }
+    setItems(result.filter(x => x.collectionType === 'general' && !x.seriesId && !x.issueMonth && !x.deleting));
+  }, []);
+  useEffect(() => { void reload().catch(e => setError(e.message)).finally(() => setLoading(false)); }, [reload]);
+  useEffect(() => { const warn = (e: BeforeUnloadEvent) => { if (dirty || busy) { e.preventDefault(); e.returnValue = ''; } }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty,busy]);
+  const leave = () => !busy && (!dirty || window.confirm('저장하지 않은 파일과 입력을 닫을까요?'));
+  const groups = [...new Set(items.map(x => x.translationGroupId || x.id))].map(id => items.filter(x => (x.translationGroupId || x.id) === id));
+  const rows = Object.fromEntries(languages.map(l => [l, mergeEpisodeFiles([], files[l] || [], '', true).rows]));
+  const commonRows = mergeEpisodeFiles([], images, '', true).rows;
+  const multiple = languages.some(l => rows[l].filter(r => r.books.length).length > 1);
+  const keys = [...new Set(languages.flatMap(l => rows[l].filter(r => r.books.length).map(r => r.key)))];
+  const coverFor = (key: string) => commonRows.find(r => r.key === key)?.covers[0] || (images.length === 1 ? images[0] : undefined);
+  function choose(l: Language | 'common', incoming: File[]) {
+    const checked = mergeEpisodeFiles([], incoming, '', true);
+    if (checked.rejected.length || (l === 'common' && checked.rows.some(r => r.books.length))) { setError('원고는 TXT·EPUB 20MB 이하, 이미지는 PNG·JPG·WEBP 5MB 이하로 넣어 주세요.'); return; }
+    setError('');
+    if (l === 'common') setImages(incoming); else setFiles(p => ({...p,[l]:incoming}));
+    setLayout('');
+  }
+  function review() {
+    setError('');
+    if (!languages.some(l => rows[l].some(r => r.books.length))) { setError('원고 파일을 먼저 넣어 주세요.'); return; }
+    if (multiple && !layout) { setError('여러 원고가 한 작품의 회차인지, 각각 다른 책인지 선택해 주세요.'); return; }
+    const all = languages.flatMap(l => rows[l]);
+    if (all.some(r => r.books.length > 1 || r.covers.length > 1) || commonRows.some(r => r.covers.length > 1)) { setError('같은 번호에 파일이 중복되었습니다. 언어별 본문과 이미지는 각각 하나씩 넣어 주세요.'); return; }
+    if (multiple && all.some(r => r.books.length && !r.number)) { setError('여러 원고는 01_제목.txt처럼 번호를 붙여 주세요. 언어마다 같은 번호로 연결합니다.'); return; }
+    if (all.some(r => !r.books.length && r.covers.length) || commonRows.some(r => images.length > 1 && !keys.includes(r.key))) { setError('연결할 본문이 없는 이미지가 있습니다. 파일 번호를 확인해 주세요.'); return; }
+    if (multiple && layout === 'series' && commonRows.some(r => !r.number)) { setError('회차 공통 이미지는 01.png처럼 회차 번호를 붙여 주세요.'); return; }
+    if (multiple && layout === 'series') {
+      setDrafts([{key:'series',kind:'series',files,commonImages:images,titles:{}}]);
+    } else if (multiple) {
+      setDrafts(keys.map(key => ({key,kind:'book',cover:coverFor(key),files:Object.fromEntries(languages.map(l => { const row = rows[l].find(r => r.key === key); return [l,row ? [...row.books,...row.covers] : []]; })),titles:Object.fromEntries(languages.map(l => [l,rows[l].find(r => r.key === key)?.title || '']))})));
+    } else {
+      if (images.length > 1) { setError('한 권의 공통 표지는 한 장만 선택해 주세요.'); return; }
+      setDrafts([{key:'book',kind:'book',files,cover:images[0],titles:Object.fromEntries(languages.map(l => [l,rows[l].find(r => r.books.length)?.title || '']))}]);
+    }
+    setSelected([]); setStates({}); setActive(0); setScreen('edit');
+  }
+  const mark = useCallback((key: string, patch: {busy?: boolean;dirty?:boolean}) => setStates(p => Object.entries(patch).every(([k,v]) => p[key]?.[k as 'busy'|'dirty'] === v) ? p : {...p,[key]:{...p[key],...patch}}), []);
+  return <main className="mx-auto max-w-6xl space-y-6 text-slate-100">
+    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700 pb-5"><div>{screen !== 'list' && <button disabled={busy} className="mb-3 text-sm text-slate-400" onClick={() => { if (leave()) {setScreen('list');setStates({});setFiles({});setImages([]);} }}>← 도서 목록</button>}<h1 className="text-2xl font-semibold">{screen === 'list' ? '일반 도서' : selected.length ? '도서 관리' : '도서 등록'}</h1><p className="mt-2 text-sm text-slate-400">{screen === 'list' ? '한 작품의 한국어·영어·일본어 버전을 함께 관리합니다.' : '원고와 이미지 → 등록 내용 확인 → 저장 및 공개'}</p></div>{screen === 'list' && <button className="rounded-lg bg-emerald-600 px-5 py-3 font-medium" onClick={() => {setScreen('upload');setFiles({});setImages([]);setLayout('');setError('');}}>+ 도서 등록</button>}</header>
+    {error && <p role="alert" className="text-amber-300">{error}</p>}
+    {screen === 'list' && <><input className={input} aria-label="도서 검색" placeholder="도서 제목 검색" value={query} onChange={e => setQuery(e.target.value)} />{loading ? <p>도서 목록을 불러오는 중입니다…</p> : <div className="divide-y divide-slate-700">{groups.filter(g => g.some(x => x.title.toLowerCase().includes(query.toLowerCase()))).map(g => <button key={g[0].id} className="flex w-full flex-wrap items-center justify-between gap-3 py-5 text-left hover:bg-slate-800/50" onClick={() => {setSelected(g);setDrafts([]);setScreen('edit');setStates({});}}><span><strong className="block">{(g.find(x => x.language === 'ko') || g[0]).title}</strong><span className="mt-1 block text-sm text-slate-400">{g[0].kind === 'series' ? '회차가 있는 도서' : '한 권의 도서'}</span></span><span className="flex gap-4 text-sm">{languages.map(l => <span key={l} className={g.some(x => (x.language || 'ko') === l) ? 'text-slate-200' : 'text-slate-600'}>{names[l]} {g.find(x => (x.language || 'ko') === l)?.published ? '공개' : g.some(x => (x.language || 'ko') === l) ? '초안' : '—'}</span>)}</span><span aria-hidden>→</span></button>)}{!groups.length && <p className="py-12 text-center text-slate-400">등록된 도서가 없습니다. ‘도서 등록’에서 원고를 넣어 주세요.</p>}</div>}</>}
+    {screen === 'upload' && <><section className="space-y-4"><h2 className="text-lg font-semibold">원고와 이미지를 넣어 주세요</h2><p className="text-sm text-slate-400">한 권은 파일 하나, 여러 회차는 01_제목.txt처럼 번호를 붙여 넣으세요. 번역본은 같은 번호로 연결됩니다.</p><label className="block border-y border-slate-700 py-5">공통 이미지 <span className="text-sm text-slate-400">각 언어에서 함께 사용 · 언어별 이미지 우선</span><input className="mt-3 block w-full" type="file" multiple accept=".png,.jpg,.jpeg,.webp" onChange={e => choose('common',Array.from(e.target.files || []))}/><span className="text-sm text-slate-400">{images.map(f => f.name).join(' · ')}</span></label><div className="grid gap-6 md:grid-cols-3">{languages.map(l => <label key={l} className="min-w-0 border-b border-slate-700 pb-5"><strong>{names[l]}</strong><input className="mt-3 block w-full text-sm" type="file" multiple accept=".txt,.epub,.png,.jpg,.jpeg,.webp" onChange={e => choose(l,Array.from(e.target.files || []))}/><span className="mt-3 block break-all text-xs text-slate-400">{files[l]?.map(f => f.name).join(' · ') || '원고와 언어별 이미지를 함께 선택'}</span></label>)}</div></section>
+    {multiple && <fieldset className="space-y-3"><legend className="mb-2 font-semibold">여러 원고를 어떻게 등록할까요?</legend><label className="mr-6 inline-flex gap-2"><input type="radio" name="layout" checked={layout === 'series'} onChange={() => setLayout('series')} />한 작품 안의 회차</label><label className="inline-flex gap-2"><input type="radio" name="layout" checked={layout === 'books'} onChange={() => setLayout('books')} />각각 다른 책</label></fieldset>}
+    {keys.length > 0 && <div className="overflow-x-auto"><table className="w-full text-left text-sm"><caption className="pb-3 text-left font-semibold">파일 연결 미리보기</caption><thead><tr className="border-b border-slate-700"><th className="py-3">이미지</th><th>번호</th>{languages.map(l => <th key={l}>{names[l]}</th>)}</tr></thead><tbody>{(multiple ? keys : ['single']).map(key => <tr key={key} className="border-b border-slate-800"><td className="py-3"><CoverPreview file={multiple ? coverFor(key) || languages.flatMap(l => rows[l].find(r => r.key === key)?.covers || [])[0] : images[0] || languages.flatMap(l => rows[l].flatMap(r => r.covers))[0]} /></td><td>{multiple ? key.replace('episode-','') : '1'}</td>{languages.map(l => {const row = multiple ? rows[l].find(r => r.key === key) : rows[l].find(r => r.books.length);return <td className="max-w-60 break-words p-2" key={l}>{row?.books[0]?.name || '미등록'}</td>;})}</tr>)}</tbody></table></div>}
+    <div className="flex justify-end"><button className="rounded-lg bg-emerald-600 px-6 py-3" onClick={review}>등록 내용 확인 →</button></div></>}
+    {screen === 'edit' && <>{drafts.length > 1 && <div className="flex flex-wrap gap-2">{drafts.map((d,i) => <button disabled={busy} className={`${button} ${active === i ? 'border-emerald-400' : ''}`} key={d.key} onClick={() => setActive(i)}>{i+1}. {d.titles.ko || d.titles.en || d.titles.ja}</button>)}</div>}{selected.length ? <EditorPanel id="existing" initial={selected} candidates={items} reload={reload} mark={mark}/> : drafts.map((draft,i) => <div key={draft.key} hidden={active !== i}><EditorPanel id={draft.key} draft={draft} initial={[]} candidates={items} reload={reload} mark={mark}/></div>)}</>}
+  </main>;
+}
+function EditorPanel({ id, draft, initial, candidates, reload, mark }: {id:string;draft?:Draft;initial:ReaderContent[];candidates:ReaderContent[];reload:()=>Promise<void>;mark:(key:string,patch:{busy?:boolean;dirty?:boolean})=>void}) {
+  const onDirty = useCallback((dirty:boolean)=>mark(id,{dirty}),[id,mark]);
+  const setBusy = useCallback((busy:boolean)=>mark(id,{busy}),[id,mark]);
+  return <WorkEditor general initial={initial} kind={draft?.kind || (initial[0]?.kind === 'series' ? 'series':'book')} seedFiles={draft?.files} seedTitles={draft?.titles} seedCommon={draft?.cover} seedCommonImages={draft?.commonImages} candidates={candidates} onDirty={onDirty} setBusy={setBusy} reload={reload}/>;
+}
