@@ -1,5 +1,6 @@
 'use client';
-import {ReaderStatus,ReaderSectionHeading,readerButton,readerPrimaryButton} from './ReaderAdminUI';
+import {ReaderStatus,ReaderSectionHeading,ReaderPageFrame,readerButton,readerPrimaryButton} from './ReaderAdminUI';
+import {ReaderWorkList} from './ReaderWorkList';
 import {ReaderDeleteActions} from './ReaderDeleteActions';
 import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { ReaderImagePreview } from './ReaderImagePreview';
@@ -30,6 +31,9 @@ function checkImage(file?: File) { if (file && (!/\.(png|jpe?g|webp)$/i.test(fil
 export default function MonthlyWorkspace() {
   const [issues, setIssues] = useState<ReaderContent[]>([]);
   const [month, setMonth] = useState('');
+  const [screen,setScreen]=useState<'list'|'create'|'edit'>('list');
+  const [query,setQuery]=useState('');
+  const [loading,setLoading]=useState(true);
   const [createMonth, setCreateMonth] = useState(koreaNow().slice(0, 7));
   const [tab, setTab] = useState<'settings' | 'episodes' | 'batch'>('settings');
   const [legacy, setLegacy] = useState(false);
@@ -39,7 +43,7 @@ export default function MonthlyWorkspace() {
   const [version, setVersion] = useState(0);
   const guard = () => !dirty || window.confirm('저장하지 않은 입력을 닫고 이동할까요?');
   async function reload() { setIssues((await allItems('series')).filter(x => x.issueMonth || x.publishedContent?.issueMonth)); }
-  useEffect(() => { void reload().catch(e => setError(String(e.message))); }, []);
+  useEffect(() => { void reload().catch(e => setError(String(e.message))).finally(()=>setLoading(false)); }, []);
   useReaderLeaveGuard(dirty,busy);
   const selected = issues.filter(x => (x.issueMonth || x.publishedContent?.issueMonth) === month);
   const duplicates = languages.some(l => selected.filter(x => (x.language || 'ko') === l).length > 1);
@@ -47,23 +51,21 @@ export default function MonthlyWorkspace() {
   async function create() {
     if (!guard()) return;
     setBusy(true); setError('');
-    try { await ensureMonthlyIssues(createMonth); await reload(); setMonth(createMonth); setTab('settings'); setDirty(false); setVersion(v => v + 1); }
+    try { await ensureMonthlyIssues(createMonth); await reload(); setMonth(createMonth); setTab('settings'); setScreen('edit'); setDirty(false); setVersion(v => v + 1); }
     catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
-  return <div className="space-y-5 text-slate-200">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-xl font-semibold">월간 쿠피</h1><button disabled={busy} className={button} onClick={() => { if ((legacy ? window.confirm('개별 관리에서 저장을 마쳤나요? 저장하지 않은 입력은 사라집니다.') : guard())) { setDirty(false); setLegacy(!legacy); void reload().catch(e => setError(e.message)); } }}>{legacy ? '통합 관리로 돌아가기' : '기존 개별 관리'}</button></div>
-    {legacy ? <ReaderContentManager kind="series" monthly /> : <>
-      <div className={panel}><div className="flex flex-wrap items-end gap-3"><label>발행 연·월<input aria-label="생성할 발행 연월" type="month" min="2000-01" max="2099-12" className={input} value={createMonth} disabled={busy} onChange={e => setCreateMonth(e.target.value)} /></label><button className={button} disabled={busy || !createMonth} onClick={() => void create()}>3개 언어 월간호 만들기</button></div><p className="text-sm text-slate-400">한국어·영어·일본어의 틀만 생성합니다. 기존 월간호는 유지하고 없는 언어만 추가합니다. 본문과 이미지는 자동 번역되지 않습니다.</p></div>
-      {error && <p role="alert" className="text-rose-300">{error}</p>}
-      <div className="grid items-start gap-5 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <nav aria-label="월간호 목록" className={panel}>{months.length ? months.map(value => <button key={value} disabled={busy} className={`${button} w-full text-left ${month === value ? 'border-emerald-400 bg-emerald-950' : ''}`} onClick={() => { if (guard()) { setMonth(value); setTab('settings'); setDirty(false); } }}>{value} 월간호<span className="mt-2 block text-xs text-slate-400">{languages.map(l => `${names[l]} ${issues.some(x => (x.issueMonth || x.publishedContent?.issueMonth) === value && (x.language || 'ko') === l) ? '등록' : '미등록'}`).join(' · ')}</span></button>) : <p>등록된 월간호가 없습니다.</p>}</nav>
-        <div className="min-w-0 space-y-4">{month && <>
-          <div className="flex gap-3">{(['settings', 'episodes', 'batch'] as const).map(t => <button key={t} disabled={busy} className={`${button} ${tab === t ? 'bg-emerald-900' : ''}`} onClick={() => { if (guard()) { setDirty(false); setTab(t); } }}>{t === 'settings' ? '월간호 설정' : t === 'episodes' ? '한 회차 등록·수정' : '회차 일괄등록'}</button>)}</div>
-          {duplicates ? <p role="alert">같은 월·언어의 월간호가 여러 개 있습니다. 기존 개별 관리에서 확인해 주세요. 자동으로 합치거나 삭제하지 않습니다.</p> : tab === 'settings' ? <IssueSettings key={`${month}-${version}`} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} onDeleted={async()=>{await reload();setMonth('');setDirty(false);}} /> : tab === 'batch' ? <MonthlyEpisodeBatch key={month} issues={selected} setBusy={setBusy} onDirty={setDirty} /> : <EpisodeEditor key={month} month={month} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onIssueUpdate={item => setIssues(prev => prev.map(x => x.id === item.id ? item : x))} />}
-        </>}</div>
-      </div>
-    </>}
-  </div>;
+  const back=()=>{if(busy)return;if(legacy?!window.confirm('개별 관리에서 저장을 마쳤나요? 저장하지 않은 입력은 사라집니다.'):!guard())return;setScreen('list');setMonth('');setLegacy(false);setDirty(false);};
+  return <ReaderPageFrame toolbar={screen==='list'?<>
+    <button className={readerPrimaryButton} disabled={busy} onClick={()=>{setScreen('create');setError('');}}>+ 월간호 등록</button>
+    <input className="reader-general-search" aria-label="월간호 검색" placeholder="월간호 제목·연월 검색" value={query} onChange={e=>setQuery(e.target.value)}/>
+    <details className="reader-toolbar-more"><summary>추가 관리</summary><button className={button} onClick={()=>{setLegacy(true);setScreen('edit');}}>기존 개별 관리</button></details>
+  </>:<><button className={button} disabled={busy} onClick={back}>← 월간호 목록</button><h1 className="reader-page-title">{legacy?'기존 개별 관리':screen==='create'?'월간호 등록':`${month} 월간호 관리`}</h1></>}>
+    {error&&<p role="alert" className="text-rose-300">{error}</p>}
+    {screen==='list'?<ReaderWorkList loading={loading} busy={busy} query={query} rows={months.map(value=>{const members=issues.filter(x=>(x.issueMonth||x.publishedContent?.issueMonth)===value);return {id:value,title:(members.find(x=>(x.language||'ko')==='ko')||members[0]).title,detail:value+' 월간호',items:members};})} onOpen={value=>{setMonth(value);setTab('settings');setDirty(false);setScreen('edit');}}/>:legacy?<ReaderContentManager kind="series" monthly/>:screen==='create'?<div className={panel}><div className="flex flex-wrap items-end gap-3"><label>발행 연·월<input aria-label="생성할 발행 연월" type="month" min="2000-01" max="2099-12" className={input} value={createMonth} disabled={busy} onChange={e=>setCreateMonth(e.target.value)}/></label><button className={readerPrimaryButton} disabled={busy||!createMonth} onClick={()=>void create()}>3개 언어 월간호 만들기</button></div><p className="text-sm text-slate-400">한국어·영어·일본어의 틀만 생성합니다. 기존 월간호는 유지하고 없는 언어만 추가합니다. 본문과 이미지는 자동 번역되지 않습니다.</p></div>:month&&<div className="min-w-0 space-y-4">
+      <div className="flex flex-wrap gap-3">{(['settings','episodes','batch'] as const).map(t=><button key={t} disabled={busy} aria-pressed={tab===t} className={`${button} ${tab===t?'reader-button-primary':''}`} onClick={()=>{if(guard()){setDirty(false);setTab(t);}}}>{t==='settings'?'월간호 설정':t==='episodes'?'한 회차 등록·수정':'회차 일괄등록'}</button>)}</div>
+      {duplicates?<p role="alert">같은 월·언어의 월간호가 여러 개 있습니다. 기존 개별 관리에서 확인해 주세요. 자동으로 합치거나 삭제하지 않습니다.</p>:tab==='settings'?<IssueSettings key={`${month}-${version}`} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onUpdate={item=>setIssues(prev=>prev.map(x=>x.id===item.id?item:x))} onDeleted={async()=>{await reload();setMonth('');setDirty(false);setScreen('list');}}/>:tab==='batch'?<MonthlyEpisodeBatch key={month} issues={selected} setBusy={setBusy} onDirty={setDirty}/>:<EpisodeEditor key={month} month={month} issues={selected} busy={busy} setBusy={setBusy} onDirty={setDirty} onIssueUpdate={item=>setIssues(prev=>prev.map(x=>x.id===item.id?item:x))}/>}
+    </div>}
+  </ReaderPageFrame>;
 }
 
 function IssueSettings({ issues, busy, setBusy, onDirty, onUpdate,onDeleted }: {onDeleted:()=>Promise<void>; issues: ReaderContent[]; busy: boolean; setBusy: (v: boolean) => void; onDirty: (v: boolean) => void; onUpdate: (v: ReaderContent) => void }) {

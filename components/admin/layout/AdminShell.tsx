@@ -112,7 +112,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         {mobileOpen ? <button className="fixed inset-0 z-40 bg-black/60 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="관리 메뉴 닫기" /> : null}
 
         <main className="min-h-screen px-4 pb-12 pt-24 sm:px-6 lg:ml-72 lg:px-10">
-          <div className={`mx-auto ${pathname === "/admin/projects/koofy-reader/general-books" ? "w-full" : "max-w-7xl"}`}>{children}</div>
+          <div className={`mx-auto ${["general-books","books","series","monthly"].some(section=>pathname === `/admin/projects/koofy-reader/${section}`) ? "w-full" : "max-w-7xl"}`}>{children}</div>
         </main>
       </div>
     </RequireAdmin>
