@@ -13,7 +13,7 @@ import { AdminCard } from '../shared/AdminCard';
 const empty: ReaderMetadata = { language: 'ko', title: '', author: '', description: '', license: '', category: '기타', source: '' };
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white focus:border-emerald-400 focus:outline-none';
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
-function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? monthlyDefaults[item.language || 'ko'].author : item.author, description: item.description, license: item.issueMonth ? monthlyLanguageFields(item).license : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
+function fields(item: ReaderMetadata): ReaderMetadata { return { ...(item.collectionType ? { collectionType: item.collectionType } : {}), autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? monthlyDefaults[item.language || 'ko'].author : item.author, description: item.description, license: item.issueMonth ? monthlyLanguageFields(item).license : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
 export function ReaderContentManager({ kind, monthly = false, fixedKind = false }: { kind: ReaderKind; monthly?: boolean; fixedKind?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
@@ -68,7 +68,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
         listReaderContent(kind, after, series?.id),
         kind !== 'font' && !series && !monthly ? listReaderCategories() : Promise.resolve(null),
       ]);
-      const inScope = (item: ReaderContent) => !!series || kind === 'font' || Boolean(item.issueMonth || item.publishedContent?.issueMonth) === monthly;
+      const inScope = (item: ReaderContent) => !!series || kind === 'font' || (Boolean(item.issueMonth || item.publishedContent?.issueMonth) === monthly && !item.collectionType);
       page.items = page.items.filter(inScope);
       const seen = new Set<string>();
       while (page.nextCursor && (series || page.items.length === 0)) {

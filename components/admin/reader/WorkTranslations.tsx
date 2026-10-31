@@ -8,37 +8,38 @@ const langs = ['ko', 'en', 'ja'] as const;
 const labels = { ko: '한국어', en: 'English', ja: '日本語' };
 const input = 'block w-full rounded-lg border border-slate-700 bg-slate-950 p-2';
 const button = 'rounded-lg border border-slate-600 px-3 py-2 disabled:opacity-40';
-export default function WorkTranslations({ kind }: { kind: 'book' | 'series' }) {
+export default function WorkTranslations({ kind: defaultKind, general = false }: { kind: 'book' | 'series'; general?: boolean }) {
+  const [kind, setKind] = useState(defaultKind);
   const [items, setItems] = useState<ReaderContent[]>([]);
   const [chosen, setChosen] = useState('');
   const [newVersion, setNewVersion] = useState(0);
-  const title = kind === 'series' ? '연재 소설' : '일반 소설';
+  const title = general ? '일반 도서' : kind === 'series' ? '연재 소설' : '일반 소설';
   const [legacy, setLegacy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState('');
   const reload = useCallback(async () => {
     const all: ReaderContent[] = [];
-    for (const type of [kind]) { let cursor: string | undefined;
+    for (const type of (general ? ['book', 'series'] as const : [kind])) { let cursor: string | undefined;
       do { const page = await listReaderContent(type, cursor); all.push(...page.items); cursor = page.nextCursor || undefined; } while (cursor);
     }
-    setItems(all.filter(x => !x.issueMonth && !x.publishedContent?.issueMonth && !x.seriesId && !x.deleting));
-  }, [kind]);
+    setItems(all.filter(x => (general ? x.collectionType === 'general' : !x.collectionType) && !x.issueMonth && !x.publishedContent?.issueMonth && !x.seriesId && !x.deleting));
+  }, [kind, general]);
   useEffect(() => { void reload().catch(e => setError(e.message)); }, [reload]);
   useEffect(() => { const warn = (e: BeforeUnloadEvent) => { if (dirty || busy) e.preventDefault(); }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty, busy]);
   const guard = () => !dirty || window.confirm('저장하지 않은 입력을 닫을까요?');
   const groups = [...new Set(items.map(x => x.translationGroupId || x.id))];
   const group = items.filter(x => (x.translationGroupId || x.id) === chosen);
-  return <div className="space-y-5 text-slate-200"><div className="flex justify-between"><h1 className="text-xl font-semibold">{title}</h1><button className={button} disabled={busy} onClick={() => { if (guard()) { setLegacy(!legacy); setDirty(false); void reload().catch(e => setError(e.message)); } }}>{legacy ? '통합 관리' : '기존 개별 관리'}</button></div>
+  return <div className="space-y-5 text-slate-200"><div className="flex justify-between"><h1 className="text-xl font-semibold">{title}</h1>{!general && <button className={button} disabled={busy} onClick={() => { if (guard()) { setLegacy(!legacy); setDirty(false); void reload().catch(e => setError(e.message)); } }}>{legacy ? '통합 관리' : '기존 개별 관리'}</button>}</div>
     {error && <p role="alert">{error}</p>}
-    {legacy ? <ReaderContentManager kind={kind} fixedKind /> : <><div className="flex gap-3"><button className={button} disabled={busy} onClick={() => { if (guard()) { setChosen(''); setNewVersion(v => v + 1); setDirty(false); } }}>새 {title} 등록</button></div>
+    {legacy ? <ReaderContentManager kind={kind} fixedKind /> : <><div className="flex gap-3">{general && <select className={input} disabled={busy} value={kind} onChange={e => { if (guard()) { setKind(e.target.value as 'book' | 'series'); setChosen(''); setDirty(false); } }}><option value="book">한 권으로 등록</option><option value="series">회차로 등록</option></select>}<button className={button} disabled={busy} onClick={() => { if (guard()) { setChosen(''); setNewVersion(v => v + 1); setDirty(false); } }}>새 {title} 등록</button></div>
     <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]"><nav className="space-y-2">{groups.map(id => { const members = items.filter(x => (x.translationGroupId || x.id) === id); return <button className={`${button} w-full text-left ${chosen === id ? 'border-emerald-400' : ''}`} disabled={busy} key={id} onClick={() => { if (guard()) { setChosen(id); setDirty(false); } }}>{members[0].title}<small className="block">{members[0].kind === 'series' ? '연재' : '단권'} · {members.map(x => labels[x.language || 'ko']).join(' / ')}</small></button>; })}</nav>
-    <WorkEditor key={chosen || `${kind}-${newVersion}`} initial={group} kind={group[0]?.kind === 'series' ? 'series' : group.length ? 'book' : kind} candidates={items} onDirty={setDirty} setBusy={setBusy} reload={reload} /></div></>}
+    <WorkEditor general={general} key={chosen || `${kind}-${newVersion}`} initial={group} kind={group[0]?.kind === 'series' ? 'series' : group.length ? 'book' : kind} candidates={items} onDirty={setDirty} setBusy={setBusy} reload={reload} /></div></>}
   </div>;
 }
-function WorkEditor({ initial, kind, candidates, onDirty, setBusy, reload }: { initial: ReaderContent[]; kind: 'book' | 'series'; candidates: ReaderContent[]; onDirty: (v: boolean) => void; setBusy: (v: boolean) => void; reload: () => Promise<void> }) {
+function WorkEditor({ general, initial, kind, candidates, onDirty, setBusy, reload }: { general: boolean; initial: ReaderContent[]; kind: 'book' | 'series'; candidates: ReaderContent[]; onDirty: (v: boolean) => void; setBusy: (v: boolean) => void; reload: () => Promise<void> }) {
   const [saved, setSaved] = useState(initial);
-  const [forms, setForms] = useState<Record<string, ReaderMetadata>>(() => Object.fromEntries(langs.map(l => [l, initial.find(x => (x.language || 'ko') === l) || { language: l, title: '', author: '쿠피랩', description: '', license: '', category: '소설', source: '', ...(kind === 'series' ? { seriesStatus: 'ongoing' } : {}) }])));
+  const [forms, setForms] = useState<Record<string, ReaderMetadata>>(() => Object.fromEntries(langs.map(l => [l, initial.find(x => (x.language || 'ko') === l) || { ...(general ? { collectionType: 'general' } : {}), language: l, title: '', author: '쿠피랩', description: '', license: '', category: '소설', source: '', ...(kind === 'series' ? { seriesStatus: 'ongoing' } : {}) }])));
   const [enabled, setEnabled] = useState<Record<string, boolean>>({ ko: true, en: true, ja: true });
   const [files, setFiles] = useState<Record<string, { book?: File; cover?: File }>>({});
   const [common, setCommon] = useState<File>();

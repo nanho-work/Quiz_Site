@@ -46,6 +46,7 @@ export const adminProjects: AdminProject[] = [
     description: "책, 표지와 글꼴을 등록하고 앱 다운로드 목록을 관리합니다.",
     status: "active", href: "/admin/projects/koofy-reader", accent: "from-amber-500 to-orange-300", icon: BookOpen,
     navigation: [
+      { label: "일반 도서", href: "/admin/projects/koofy-reader/general-books", icon: BookOpen, requiredRole: "superAdmin" },
       { label: "일반 소설", href: "/admin/projects/koofy-reader/books", icon: BookOpen, requiredRole: "superAdmin" },
       { label: "연재 소설", href: "/admin/projects/koofy-reader/series", icon: BookOpen, requiredRole: "superAdmin" },
       { label: "월간 쿠피", href: "/admin/projects/koofy-reader/monthly", icon: CalendarDays, requiredRole: "superAdmin" },
