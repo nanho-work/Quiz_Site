@@ -15,16 +15,16 @@ const inputClass = 'mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 
 const buttonClass = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40';
 function fields(item: ReaderMetadata): ReaderMetadata { return { autoCompile: item.autoCompile || false, byline: item.byline || '', issueMonth: item.issueMonth || '', releaseDate: item.releaseDate || '', releaseAt: item.releaseAt || '', compilationId: item.compilationId || '', language: item.language || 'ko', title: item.title, author: item.issueMonth ? monthlyDefaults[item.language || 'ko'].author : item.author, description: item.description, license: item.issueMonth ? monthlyLanguageFields(item).license : item.license, category: item.category || '기타', source: item.source || '', ...(item.episodeNumber !== undefined ? { episodeNumber: item.episodeNumber } : {}), ...(item.seriesStatus ? { seriesStatus: item.seriesStatus } : {}) }; }
 
-export function ReaderContentManager({ kind, monthly = false }: { kind: ReaderKind; monthly?: boolean }) {
+export function ReaderContentManager({ kind, monthly = false, fixedKind = false }: { kind: ReaderKind; monthly?: boolean; fixedKind?: boolean }) {
   const [mode, setMode] = useState<ReaderKind>(kind);
   const [series, setSeries] = useState<ReaderContent | null>(null);
   const [initialItem, setInitialItem] = useState<ReaderContent | null>(null);
-  return <ContentEditor key={`${monthly}-${mode}-${series?.id || 'root'}`} monthly={monthly} kind={mode} series={series} initialItem={initialItem}
+  return <ContentEditor key={`${monthly}-${mode}-${series?.id || 'root'}`} fixedKind={fixedKind} monthly={monthly} kind={mode} series={series} initialItem={initialItem}
     onNavigate={(nextMode, parent = null, item = null) => { setMode(nextMode); setSeries(parent); setInitialItem(item); }} />;
 }
 
-function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
-  monthly: boolean; kind: ReaderKind; series: ReaderContent | null; initialItem: ReaderContent | null;
+function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKind = false }: {
+  fixedKind?: boolean; monthly: boolean; kind: ReaderKind; series: ReaderContent | null; initialItem: ReaderContent | null;
   onNavigate: (kind: ReaderKind, series?: ReaderContent | null, item?: ReaderContent | null) => void;
 }) {
   const newForm = (): ReaderMetadata => series
@@ -183,7 +183,7 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly }: {
       <AdminCard className="p-5">
     {kind !== 'font' && <div className="mb-5 flex flex-wrap items-center gap-2">
       {series ? <><button disabled={busy} className={buttonClass} onClick={() => navigate('series', null, series)}>{monthly ? '← 월간호 설정' : '← 작품 정보'}</button><h2 className="text-lg font-semibold text-white">{series.title} · 회차 관리</h2></> : <>
-        {(monthly ? ['series', 'book'] as const : ['book', 'series'] as const).map(tab => <button key={tab} disabled={busy} aria-pressed={kind === tab} className={`${buttonClass} ${kind === tab ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate(tab)}>{tab === 'series' ? (monthly ? '월간호 · 회차' : '연재 작품') : (monthly ? '완결 합본' : '단권 도서')}</button>) }
+        {(fixedKind ? [kind] : monthly ? ['series', 'book'] as const : ['book', 'series'] as const).map(tab => <button key={tab} disabled={busy} aria-pressed={kind === tab} className={`${buttonClass} ${kind === tab ? 'border-emerald-500 bg-emerald-950' : ''}`} onClick={() => navigate(tab)}>{tab === 'series' ? (monthly ? '월간호 · 회차' : '연재 작품') : (monthly ? '완결 합본' : '단권 도서')}</button>) }
       </>}
     </div>}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold text-white">{label} 목록</h2><div className="flex gap-2">
