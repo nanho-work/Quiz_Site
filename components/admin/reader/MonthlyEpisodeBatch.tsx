@@ -1,4 +1,6 @@
 'use client';
+import { mergeSelectedFiles, validateFileSelection, READER_FILE_ACCEPT } from '../../../lib/admin/reader/file-selection';
+import { ReaderFileInput } from './ReaderFileInput';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ReaderEpisodeBatch } from './ReaderEpisodeBatch';
 import { uploadSharedReaderCover, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
@@ -28,8 +30,11 @@ export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false
   useEffect(() => { setBusy(busy); onDirty(dirty); }, [busy, dirty, setBusy, onDirty]);
   return <div className="space-y-4">
     <label className="block rounded-lg border border-slate-700 p-4">공통 삽화 (01.png, 02.png · 회차 번호로 연결)
-      <input type="file" multiple accept=".png,.jpg,.jpeg,.webp" disabled={busy} onChange={e => {
-        const result = mergeEpisodeFiles([], Array.from(e.target.files || []), '', true);
+      <ReaderFileInput  multiple accept=".png,.jpg,.jpeg,.webp" disabled={busy} onFiles={selectedFiles => {
+        const merged = mergeSelectedFiles(Object.values(common), selectedFiles);
+        const problem = validateFileSelection(merged, READER_FILE_ACCEPT.image, true);
+        if (problem) { setCommonError(problem); return; }
+        const result = mergeEpisodeFiles([], merged, '', true);
         if (result.rejected.length || result.rows.some(x => !x.number || Number(x.number) < 1 || Number(x.number) > 100000 || x.books.length || x.covers.length !== 1)) { setCommonError('회차 번호가 있는 5MB 이하 이미지 한 장씩 선택하세요. 같은 번호의 중복 이미지는 등록할 수 없습니다.'); return; }
         setCommon(Object.fromEntries(result.rows.map(x => [x.number, x.covers[0]]))); setCommonError('');
       }} />
@@ -37,6 +42,7 @@ export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false
       <p className="text-sm">언어별 이미지가 있으면 우선 사용합니다. 공통 이미지는 첫 회차 저장 때 한 번 업로드됩니다. 이미 저장한 회차는 변경하지 않습니다.</p>
       {commonError && <p role="alert">{commonError}</p>}
     </label>
+    {Object.keys(common).length > 0 && <button disabled={busy} className="rounded-lg border border-slate-600 px-3 py-2 text-sm disabled:opacity-40" onClick={() => {setCommon({});setCommonError('');}}>공통 삽화 선택 비우기</button>}
     <p className="text-sm text-slate-400">언어별로 원고·이미지를 여러 개 넣으세요. 탭을 바꿔도 파일 선택은 유지됩니다. 저장은 현재 언어만 처리하며 기존 회차는 제외합니다.</p>
     <div role="tablist" aria-label="일괄등록 언어" className="flex gap-2">
       {languages.map(l => <button key={l} role="tab" aria-selected={language === l} aria-controls={`batch-${l}`} disabled={busy} onClick={() => setLanguage(l)} className={`rounded-lg border px-4 py-2 text-sm ${language === l ? 'border-emerald-400 bg-emerald-950' : 'border-slate-700'}`}>{labels[l]}{states[l]?.dirty ? ' •' : ''}</button>)}

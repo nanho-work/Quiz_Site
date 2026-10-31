@@ -1,4 +1,5 @@
 'use client';
+import { ReaderFileInput } from './ReaderFileInput';
 import { contentLicense, monthlyDefaults, monthlyLanguageFields, monthlyTitle } from '../../../lib/admin/firebase/monthly-defaults';
 import MonthlyIssueEditor from './MonthlyIssueEditor';
 import MonthlyFields from './MonthlyFields';
@@ -43,7 +44,6 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
   const [categories, setCategories] = useState<string[]>(['시', '소설', '에세이', '기타']);
   const [newCategory, setNewCategory] = useState('');
   const [batchOpen, setBatchOpen] = useState(false);
-  const [dragSlot, setDragSlot] = useState<string | null>(null);
   const [episodeQuery, setEpisodeQuery] = useState('');
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const categoryOptions = Array.from(new Set([...categories, ...items.map(item => item.category || '기타'), form.category || '기타']));
@@ -163,16 +163,11 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
   const fileDisabled = busy || !!selected?.deleting || (kind === 'font' && (dirty || !selected));
   const contentPublishReady = kind === 'series' ? !!(pendingFiles.cover || selected?.assets.cover) : !series ? !!(pendingFiles.book || selected?.assets.txt || selected?.assets.epub) && !!(pendingFiles.cover || selected?.assets.cover) : !!series?.published && !!(pendingFiles.book || selected?.assets.txt || selected?.assets.epub) && !!(pendingFiles.cover || selected?.assets.cover || series?.publishedContent?.assets.cover);
   const fileControl = (slot: string, title: string, accept: string, hint: string) => (
-    <label onDragOver={event => { event.preventDefault(); if (!fileDisabled) setDragSlot(slot); }} onDragLeave={() => setDragSlot(null)} onDrop={event => {
-      event.preventDefault(); setDragSlot(null); if (fileDisabled) return;
-      const files = Array.from(event.dataTransfer.files);
-      if (files.length !== 1) { setError('이 영역에는 파일 한 개를 넣어 주세요. 여러 회차는 회차 일괄 등록을 이용하세요.'); return; }
-      if (kind !== 'font') queueFile(slot, files[0]); else upload(slot, files[0]);
-    }} className={`block rounded-xl border border-dashed ${dragSlot === slot ? 'bg-emerald-950/50 ring-2 ring-emerald-400' : ''} border-slate-700 p-4 ${fileDisabled ? 'opacity-40' : 'hover:border-emerald-500'}`}>
+    <label className="block">
       <span className="flex items-center gap-2 text-sm font-medium text-slate-100"><FileUp className="h-4 w-4" />{title}</span>
       <span className="mt-1 block text-xs text-slate-400">{hint}<span className="mt-2 block">파일을 이 영역에 끌어다 놓거나 아래에서 선택하세요.</span></span>
       {kind !== 'font' && pendingFiles[slot] && <span className="mt-2 block break-all text-xs text-emerald-300">{pendingFiles[slot].name} · 저장 대기</span>}
-      <input aria-label={title} style={kind !== 'font' ? { color: 'transparent' } : undefined} type="file" accept={accept} disabled={fileDisabled} className="mt-3 block w-full text-xs text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-slate-200" onChange={event => { if (kind !== 'font') queueFile(slot, event.target.files?.[0]); else upload(slot, event.target.files?.[0]); event.target.value = ''; }} />
+      <ReaderFileInput aria-label={title}   accept={accept} disabled={fileDisabled}  onFiles={selectedFiles => { if (kind !== 'font') queueFile(slot, selectedFiles[0]); else upload(slot, selectedFiles[0]);  }} />
     </label>
   );
   if (batchOpen && series) return <ReaderEpisodeBatch series={series} onClose={() => { setBatchOpen(false); setSelected(null); setForm(newForm()); void load(); }} />;

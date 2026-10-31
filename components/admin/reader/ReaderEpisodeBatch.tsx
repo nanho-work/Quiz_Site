@@ -1,4 +1,5 @@
 'use client';
+import { ReaderFileInput } from './ReaderFileInput';
 
 import { useEffect, useRef, useState } from 'react';
 import { attachSharedReaderCover, listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
@@ -23,7 +24,6 @@ export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated =
   const lock = useRef(false);
   const stop = useRef(false);
   const [message, setMessage] = useState('');
-  const [dragging, setDragging] = useState(false);
   const readExisting = async () => {
     const all: ReaderContent[] = []; let cursor: string | undefined; const seen = new Set<string>();
     do {
@@ -108,10 +108,7 @@ export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated =
   return <section className="space-y-5 rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold text-white">{series.title} · 회차 일괄 등록</h2>{!integrated && !embedded && <button className={button} disabled={busy} onClick={() => { if (rows.some(row => !['saved', 'published'].includes(progress[row.key]?.state)) && !window.confirm('아직 완료하지 않은 파일 선택을 닫을까요? 저장된 회차는 유지됩니다.')) return; onClose(); }}>회차 목록으로</button>}</div>
     <p className="text-sm leading-6 text-slate-400">{integrated ? '본문과 이미지를 앞의 회차 번호로 연결합니다. 예: 1화_제목.txt, 1화_이미지.png / 第1話_題名.txt / Episode 1_Title.txt. 다른 언어의 같은 회차에 공개 일시가 하나로 정해져 있으면 자동으로 가져옵니다.' : '본문과 표지를 함께 또는 따로 넣으세요. 확장자를 뺀 파일명이 같으면 연결합니다.'} 예: 작품명_001_회차제목.txt / .jpg. 설명은 선택이며 표지가 없으면 작품 대표 표지를 사용합니다. 기존 회차는 덮어쓰지 않습니다.</p>
-    <label onDragOver={event => { event.preventDefault(); if (!busy && !loading && !loadFailed) setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={event => { event.preventDefault(); setDragging(false); addFiles(Array.from(event.dataTransfer.files)); }} className={`block rounded-xl border-2 border-dashed p-7 text-center text-white ${dragging ? 'border-emerald-400 bg-emerald-950/50' : 'border-slate-600'}`}>
-      <span className="block">본문·표지 파일을 여기에 끌어다 놓으세요</span><span className="mt-2 block text-xs text-slate-400">TXT·EPUB 최대 20MB / JPG·PNG·WebP 최대 5MB · 표지는 사용할 폴더 하나에서 선택하세요</span>
-      <input aria-label="회차 파일 여러 개 선택" type="file" multiple accept=".txt,.epub,.jpg,.jpeg,.png,.webp" disabled={busy || loading || loadFailed} className="mt-4 max-w-full text-sm" onChange={event => { addFiles(Array.from(event.target.files || [])); event.target.value = ''; }} />
-    </label>
+    <ReaderFileInput aria-label="회차 파일 여러 개 선택" multiple accept=".txt,.epub,.jpg,.jpeg,.png,.webp" disabled={busy || loading || loadFailed} onFiles={addFiles} />
     {series.issueMonth && <p className="text-sm text-slate-300">TXT와 회차 이미지를 함께 등록하면 공개 시 이미지 첫 장 → 본문 순서의 EPUB이 만들어집니다. 자동 합본을 쓰려면 모든 회차를 TXT로 등록해 주세요. [장] 표시는 필요 없습니다.</p>}
     {scheduling && <div className="space-y-3 rounded-xl border border-slate-700 p-4">
       <p className="text-sm text-slate-300">{series.issueMonth ? `발행 월: ${series.issueMonth} · ` : ''}한국 시간 기준입니다. 회차 번호 순서로 일정을 넣고, 아래에서 각각 수정할 수 있습니다.</p>

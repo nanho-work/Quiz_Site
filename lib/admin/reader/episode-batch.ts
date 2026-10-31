@@ -1,3 +1,4 @@
+import { validateFileSelection, READER_FILE_ACCEPT } from './file-selection';
 export interface NamedFile { name: string; size: number; lastModified: number }
 export interface EpisodeRow<F extends NamedFile = File> {
   key: string; number: string; title: string; description: string; releaseAt?: string; byline?: string;
@@ -17,7 +18,7 @@ export function mergeEpisodeFiles<F extends NamedFile>(rows: EpisodeRow<F>[], fi
   for (const file of files) {
     const extension = file.name.split('.').pop()?.toLowerCase();
     const slot = ['txt', 'epub'].includes(extension || '') ? 'books' : ['jpg', 'jpeg', 'png', 'webp'].includes(extension || '') ? 'covers' : null;
-    if (!slot || file.size <= 0 || file.size > (slot === 'books' ? 20 : 5) * 1024 * 1024) { rejected.push(file.name); continue; }
+    if (!slot || validateFileSelection([file], READER_FILE_ACCEPT.content)) { rejected.push(file.name); continue; }
     const parsed = parseEpisodeName(file.name, seriesTitle);
     if (matchByNumber) {
       const stem = normalize(file.name.replace(/\.[^.]+$/, ''));
