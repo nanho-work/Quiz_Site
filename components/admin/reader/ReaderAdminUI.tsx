@@ -15,3 +15,11 @@ export function ReaderStatus({value}:{value:string}) {
 export function ReaderSectionHeading({title,description,children}:{title:string;description?:string;children?:ReactNode}) {
  return <div className="reader-section-heading"><div><h2>{title}</h2>{description&&<p>{description}</p>}</div>{children}</div>;
 }
+
+/** Shared page geometry: screens supply actions and content, never their own width. */
+export function ReaderPageFrame({toolbar,children}:{toolbar:ReactNode;children:ReactNode}) {
+ return <main className="reader-page-frame text-slate-100">
+  <header className="reader-page-toolbar">{toolbar}</header>
+  <div className="reader-page-content">{children}</div>
+ </main>;
+}

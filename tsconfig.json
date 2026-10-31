@@ -27,9 +27,12 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next/types/**/*.ts",
+    "components/Header.tsx",
     "next-env.d.ts",
-    ".next/types/**/*.ts"
-, "tailwind.config.ts", "components/Header.tsx"  ],
+    "tailwind.config.ts",
+    ".next-dev/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

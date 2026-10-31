@@ -31,7 +31,7 @@ export function initializeAdminAppCheck(app: FirebaseApp): void {
     process.env.NEXT_PUBLIC_SLIME_APPCHECK_SITE_KEY,
   );
   const debugToken = process.env.NEXT_PUBLIC_SLIME_APPCHECK_DEBUG_TOKEN;
-  if (debugToken) {
+  if (process.env.NODE_ENV === "development" && debugToken) {
     (globalThis as typeof globalThis & { FIREBASE_APPCHECK_DEBUG_TOKEN?: string | boolean })
       .FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken === "true" ? true : debugToken;
   }

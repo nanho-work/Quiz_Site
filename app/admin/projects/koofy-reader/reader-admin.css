@@ -80,3 +80,14 @@
 .reader-admin .reader-book-languages>span {display:inline-flex;align-items:center;gap:7px;font-size:12px;}
 .reader-admin .reader-book-arrow {color:#65796e;font-size:18px;}
 @media(max-width:640px){.reader-admin .reader-book-row{grid-template-columns:60px minmax(0,1fr) 16px;gap:12px;}.reader-admin .reader-saved-cover{width:60px;height:82px;}.reader-admin .reader-book-info>.reader-episode-title{font-size:14px;}.reader-admin .reader-book-languages{gap:7px 12px;margin-top:9px;}}
+
+/* General books use the available desktop width, with two books per row. */
+/* One geometry for the list, upload and edit screens. */
+.reader-admin .reader-page-frame {width:100%;min-width:0;margin:0 auto;}
+.reader-admin .reader-page-toolbar {display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:12px;min-height:44px;margin-bottom:24px;}
+.reader-admin .reader-page-content {display:flex;flex-direction:column;gap:24px;min-width:0;}
+.reader-admin h1.reader-page-title {font-size:18px;line-height:1.5;margin:0;}
+.reader-admin .reader-general-search {width:280px;max-width:40vw;}
+.reader-admin .reader-general-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 20px;}
+.reader-admin .reader-general-card {border:1px solid var(--reader-line);background:#fff;padding:20px;border-radius:8px;min-width:0;}
+@media(max-width:1000px){.reader-admin .reader-general-grid{grid-template-columns:minmax(0,1fr);}}
