@@ -80,3 +80,8 @@ export async function uploadSharedReaderCover(file: File) {
 export function attachSharedReaderCover(item: ReaderContent, hash: string) {
   return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'attachSharedCover', id: item.id, revision: item.revision, hash }) });
 }
+
+/** Admin-only preview of the saved cover, including unpublished drafts. */
+export function getReaderCoverPreview(item:ReaderContent) {
+ return request<{url:string;expiresAt:number}>({action:'coverPreview',id:item.id,revision:String(item.revision)});
+}
