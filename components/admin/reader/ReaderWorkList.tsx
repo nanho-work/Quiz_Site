@@ -1,15 +1,30 @@
-import { useState } from 'react';
+import { useEffect,useRef,useState } from 'react';
+import {readerCacheNamespace} from '../../../lib/admin/firebase/reader-api';
 import { setReaderSeriesStatus } from '../../../lib/admin/firebase/reader-api';
 import {readerButton} from './ReaderAdminUI';
 import type { ReaderContent } from '../../../lib/admin/firebase/reader-api';
 import { ReaderSavedCover } from './ReaderSavedCover';
 import { ReaderStatus } from './ReaderAdminUI';
+import {onReaderSessionCleared} from '../../../lib/admin/reader/query-cache';
+const views=new Map<string,{limit:number;top:number}>();
+onReaderSessionCleared(()=>views.clear());
 const languages = ['ko', 'en', 'ja'] as const;
 const names = {ko:'한국어', en:'English', ja:'日本語'};
 export interface ReaderWorkRow {id:string; title:string; detail:string; items:ReaderContent[]}
 /** Shared saved-work list. Each row represents one work, keeping translations together. */
-export function ReaderWorkList({rows,query,onOpen,busy=false,loading=false,onStatusChanged,onStatusBusy}:{rows:ReaderWorkRow[];query:string;onOpen:(id:string)=>void;busy?:boolean;loading?:boolean;onStatusChanged?:()=>Promise<void>;onStatusBusy?:(busy:boolean)=>void}) {
+export function ReaderWorkList({rows,query,onOpen,busy=false,loading=false,onStatusChanged,onStatusBusy,hasMore=false,fetching=false,onLoadMore,cacheKey='works'}:{cacheKey?:string;hasMore?:boolean;fetching?:boolean;onLoadMore?:()=>Promise<void>;rows:ReaderWorkRow[];query:string;onOpen:(id:string)=>void;busy?:boolean;loading?:boolean;onStatusChanged?:()=>Promise<void>;onStatusBusy?:(busy:boolean)=>void}) {
  const [changing,setChanging]=useState(false);
+ const viewKey=`${readerCacheNamespace()}|${cacheKey}|${query}`;
+ const [limit,setLimit]=useState(()=>views.get(viewKey)?.limit||24);
+ const host=useRef<HTMLDivElement>(null);const latest=useRef(limit);latest.current=limit;
+ useEffect(()=>{setLimit(views.get(viewKey)?.limit||24);let parent=host.current?.parentElement;
+  while(parent&&parent!==document.body&&!/(auto|scroll)/.test(getComputedStyle(parent).overflowY))parent=parent.parentElement;
+  const scroll=parent&&parent!==document.body?parent:null;
+  const timer=requestAnimationFrame(()=>{const top=views.get(viewKey)?.top||0;if(scroll)scroll.scrollTop=top;else window.scrollTo(0,top);});
+  return()=>{cancelAnimationFrame(timer);views.set(viewKey,{limit:latest.current,top:scroll?scroll.scrollTop:window.scrollY});};
+ },[viewKey]);
+ async function more(){setLimit(value=>value+24);if(onLoadMore&&rows.length<=limit+24&&hasMore)try{await onLoadMore();}catch{/* Parent exposes retry. */}}
+
  const [message,setMessage]=useState('');
  async function toggle(row:ReaderWorkRow) {
   if(busy||changing||!onStatusChanged)return;
@@ -26,10 +41,10 @@ export function ReaderWorkList({rows,query,onOpen,busy=false,loading=false,onSta
   } catch(error) {setMessage(error instanceof Error?error.message:'상태 변경에 실패했습니다.');}
   finally {setChanging(false);onStatusBusy?.(false);}
  }
- if(loading)return <p role="status">목록을 불러오는 중입니다…</p>;
+ if(loading&&!rows.length)return <p role="status">목록을 불러오는 중입니다…</p>;
  const visible=rows.filter(row=>[row.title,row.detail,...row.items.map(item=>item.title)].some(text=>text.toLowerCase().includes(query.trim().toLowerCase())));
- return <>{message&&<p role="status">{message}</p>}<div className="reader-general-grid">{visible.map(row=><div key={row.id} className="reader-general-card"><button disabled={busy||changing} className="reader-book-row w-full text-left" onClick={()=>onOpen(row.id)}>
+ return <>{message&&<p role="status">{message}</p>}<div ref={host} className="reader-general-grid">{visible.slice(0,limit).map(row=><div key={row.id} className="reader-general-card"><button disabled={busy||changing} className="reader-book-row w-full text-left" onClick={()=>onOpen(row.id)}>
   <ReaderSavedCover item={row.items.find(x=>(x.language||'ko')==='ko'&&x.assets.cover)||row.items.find(x=>x.assets.cover)||row.items[0]}/>
   <span className="reader-book-info"><strong className="reader-episode-title">{row.title}</strong><span className="mt-1 block text-sm text-slate-400">{row.detail}</span><span className="reader-book-languages">{languages.map(language=>{const item=row.items.find(x=>(x.language||'ko')===language);return <span key={language}>{names[language]} <ReaderStatus value={!item?'미등록':item.published?'공개 중':'임시 저장'}/></span>;})}</span></span><span className="reader-book-arrow" aria-hidden>→</span>
- </button>{row.items.every(x=>x.kind==='series'&&!x.issueMonth&&!x.publishedContent?.issueMonth)&&onStatusChanged&&<div className="reader-work-status-actions"><span>{row.items.every(x=>x.seriesStatus==='completed')?'완결':row.items.some(x=>x.seriesStatus==='completed')?'언어별 상태 다름':'연재 중'}</span><button className={readerButton} disabled={busy||changing} aria-label={`${row.title} ${row.items.every(x=>x.seriesStatus==='completed')?'연재 중으로 변경':'완결로 변경'}`} onClick={()=>void toggle(row)}>{changing?'처리 중…':row.items.every(x=>x.seriesStatus==='completed')?'연재 중으로 변경':'완결로 변경'}</button></div>}</div>)}{!visible.length&&<p className="col-span-full py-12 text-center text-slate-400">{rows.length?'검색 결과가 없습니다.':'등록된 항목이 없습니다. 등록 버튼에서 시작해 주세요.'}</p>}</div></>;
+ </button>{row.items.every(x=>x.kind==='series'&&!x.issueMonth&&!x.publishedContent?.issueMonth)&&onStatusChanged&&<div className="reader-work-status-actions"><span>{row.items.every(x=>x.seriesStatus==='completed')?'완결':row.items.some(x=>x.seriesStatus==='completed')?'언어별 상태 다름':'연재 중'}</span><button className={readerButton} disabled={busy||changing} aria-label={`${row.title} ${row.items.every(x=>x.seriesStatus==='completed')?'연재 중으로 변경':'완결로 변경'}`} onClick={()=>void toggle(row)}>{changing?'처리 중…':row.items.every(x=>x.seriesStatus==='completed')?'연재 중으로 변경':'완결로 변경'}</button></div>}</div>)}{!visible.length&&<p className="col-span-full py-12 text-center text-slate-400">{fetching||hasMore?'목록을 확인하는 중입니다…':rows.length?'검색 결과가 없습니다.':'등록된 항목이 없습니다. 등록 버튼에서 시작해 주세요.'}</p>}</div>{fetching&&<p role="status">전체 목록을 확인하는 중입니다…</p>}{(visible.length>limit||hasMore)&&<button className={readerButton} disabled={fetching} onClick={()=>void more()}>{fetching?'불러오는 중…':'더 보기'}</button>}</>;
 }

@@ -1,6 +1,7 @@
 'use client';
 import {ReaderStatus,ReaderSectionHeading,ReaderPageFrame,readerButton,readerPrimaryButton} from './ReaderAdminUI';
 import {ReaderWorkList} from './ReaderWorkList';
+import {useReaderWorkIndex} from './useReaderWorkIndex';
 import {ReaderDeleteActions} from './ReaderDeleteActions';
 import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
 import { UnifiedWorkEpisodes } from './UnifiedWorkEpisodes';
@@ -8,7 +9,7 @@ import { ReaderImagePreview } from './ReaderImagePreview';
 import { commonRelease, releaseFields } from '../../../lib/admin/reader/work-schedule';
 import { ReaderFileInput } from './ReaderFileInput';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { listReaderContent, mutateReaderContent, uploadReaderAsset, linkReaderTranslations, type ReaderContent, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
+import { getReaderWork, listReaderContent, mutateReaderContent, uploadReaderAsset, linkReaderTranslations, type ReaderContent, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
 import { ReaderContentManager } from './ReaderContentManager';
 import { MonthlyEpisodeBatch } from './MonthlyEpisodeBatch';
 import { monthlyDefaults } from '../../../lib/admin/firebase/monthly-defaults';
@@ -18,25 +19,19 @@ const input = 'block w-full rounded-lg border border-slate-700 bg-slate-950 p-2'
 const button = readerButton;
 export default function WorkTranslations({ kind: defaultKind, general = false }: { kind: 'book' | 'series'; general?: boolean }) {
   const [kind, setKind] = useState(defaultKind);
-  const [items, setItems] = useState<ReaderContent[]>([]);
+
   const [chosen, setChosen] = useState('');
   const [screen,setScreen]=useState<'list'|'edit'>('list');
   const [query,setQuery]=useState('');
-  const [loading,setLoading]=useState(true);
+
   const [newVersion, setNewVersion] = useState(0);
   const title = general ? '일반 도서' : kind === 'series' ? '연재 소설' : '일반 소설';
   const [legacy, setLegacy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState('');
-  const reload = useCallback(async () => {
-    const all: ReaderContent[] = [];
-    for (const type of (general ? ['book', 'series'] as const : [kind])) { let cursor: string | undefined;
-      do { const page = await listReaderContent(type, cursor); all.push(...page.items); cursor = page.nextCursor || undefined; } while (cursor);
-    }
-    setItems(all.filter(x => (general ? x.collectionType === 'general' : !x.collectionType) && !x.issueMonth && !x.publishedContent?.issueMonth && !x.seriesId));
-  }, [kind, general]);
-  useEffect(() => { void reload().catch(e => setError(e.message)).finally(()=>setLoading(false)); }, [reload]);
+  const index=useReaderWorkIndex(general?['book','series']:[kind],general?'general':'novel',query);
+  const {items,loading,reload}=index;
   useReaderLeaveGuard(dirty,busy);
   const guard = () => !dirty || window.confirm('저장하지 않은 입력을 닫을까요?');
   const groups = [...new Set(items.map(x => x.translationGroupId || x.id))];
@@ -47,8 +42,8 @@ export default function WorkTranslations({ kind: defaultKind, general = false }:
     <input className="reader-general-search" aria-label="작품 검색" placeholder="작품 제목 검색" value={query} onChange={e=>setQuery(e.target.value)}/>
     {!general&&<details className="reader-toolbar-more"><summary>추가 관리</summary><button className={button} onClick={()=>{setLegacy(true);setScreen('edit');}}>기존 개별 관리</button></details>}
   </>:<><button className={button} disabled={busy} onClick={goBack}>← 작품 목록</button><h1 className="reader-page-title">{legacy?'기존 개별 관리':chosen?'작품 관리':`${title} 등록`}</h1></>}>
-    {error&&<p role="alert">{error}</p>}
-    {screen==='list'?<ReaderWorkList onStatusChanged={reload} onStatusBusy={setBusy} loading={loading} busy={busy} query={query} rows={groups.map(id=>{const members=items.filter(x=>(x.translationGroupId||x.id)===id);return {id,title:(members.find(x=>(x.language||'ko')==='ko')||members[0]).title,detail:kind==='series'?'연재 작품':'한 권의 작품',items:members};})} onOpen={id=>{setChosen(id);setDirty(false);setScreen('edit');}}/>:legacy?<ReaderContentManager kind={kind} fixedKind/>:<WorkEditor general={general} key={chosen||`${kind}-${newVersion}`} initial={group} kind={group[0]?.kind==='series'?'series':group.length?'book':kind} candidates={items} onDirty={setDirty} setBusy={setBusy} reload={reload}/>}
+    {(error||index.error)&&<p role="alert">{error||index.error}</p>}
+    {screen==='list'?<ReaderWorkList cacheKey={`novel-${kind}`} hasMore={index.hasMore} fetching={index.fetching} onLoadMore={index.loadMore} onStatusChanged={reload} onStatusBusy={setBusy} loading={loading} busy={busy} query={query} rows={groups.map(id=>{const members=items.filter(x=>(x.translationGroupId||x.id)===id);return {id,title:(members.find(x=>(x.language||'ko')==='ko')||members[0]).title,detail:kind==='series'?'연재 작품':'한 권의 작품',items:members};})} onOpen={id=>{const seed=items.find(item=>(item.translationGroupId||item.id)===id);if(!seed)return;setBusy(true);void getReaderWork(seed.id).then(({items:work})=>{index.setItems(previous=>[...previous.filter(item=>!work.some(value=>value.id===item.id)),...work]);setChosen(id);setDirty(false);setScreen('edit');}).catch(e=>setError(e.message)).finally(()=>setBusy(false));}}/>:legacy?<ReaderContentManager kind={kind} fixedKind/>:<WorkEditor general={general} key={chosen||`${kind}-${newVersion}`} initial={group} kind={group[0]?.kind==='series'?'series':group.length?'book':kind} candidates={items} onDirty={setDirty} setBusy={setBusy} reload={reload}/>}
   </ReaderPageFrame>;
 }
 

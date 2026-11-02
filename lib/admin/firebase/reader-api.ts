@@ -1,3 +1,5 @@
+import {clearReaderQueries, clearReaderSession, rememberReaderWrites, readerQuery} from '../reader/query-cache';
+import {onAuthStateChanged} from 'firebase/auth';
 import { getAdminFirebaseServices } from './client';
 import { koofyReaderFirebaseConfig } from './koofy-reader';
 export type ReaderKind = 'book' | 'font' | 'series';
@@ -9,6 +11,15 @@ export interface ReaderContent extends ReaderMetadata {
   published: boolean; publishedContent: (ReaderMetadata & { assets: Record<string, ReaderAsset>; version: number; preview?: ReaderAsset }) | null; updatedAt: string;
 }
 const endpoint = process.env.NEXT_PUBLIC_READER_ADMIN_URL || `https://asia-northeast3-${koofyReaderFirebaseConfig.projectId}.cloudfunctions.net/readerAdmin`;
+let watchedAuth:ReturnType<typeof getAdminFirebaseServices>['auth']|undefined;
+let watchedUid:string|undefined;
+export function readerCacheNamespace() {
+ const auth=getAdminFirebaseServices().auth;
+ if(watchedAuth!==auth){watchedAuth=auth;watchedUid=auth.currentUser?.uid;onAuthStateChanged(auth,user=>{if(user?.uid!==watchedUid){watchedUid=user?.uid;clearReaderSession();}});}
+ const user=auth.currentUser;
+ if(!user){clearReaderSession();throw new Error('관리자 로그인이 필요합니다.');}
+ return `${endpoint}|${user.uid}`;
+}
 async function request<T>(query: Record<string, string>, init: RequestInit = {}): Promise<T> {
   const user = getAdminFirebaseServices().auth.currentUser;
   if (!user) throw new Error('관리자 로그인이 필요합니다.');
@@ -20,8 +31,9 @@ async function request<T>(query: Record<string, string>, init: RequestInit = {})
   try {
     const response = await fetch(url, { ...init, signal: controller.signal, cache: 'no-store', headers: { ...init.headers, Authorization: `Bearer ${await user.getIdToken()}` } });
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(data?.error || '서버에 연결하지 못했습니다. 배포 상태와 관리자 권한을 확인해 주세요.');
+    if (!response.ok) { if(response.status===401||response.status===403)clearReaderSession(); throw new Error(data?.error || '서버에 연결하지 못했습니다. 배포 상태와 관리자 권한을 확인해 주세요.'); }
     if (!data) throw new Error('서버 응답을 읽지 못했습니다.');
+    if(init.method&&init.method!=='GET'){rememberReaderWrites(`${endpoint}|${user.uid}`,data);clearReaderQueries();}
     return data as T;
   } catch (error) {
     if (error instanceof TypeError || (error instanceof Error && error.name === 'AbortError')) throw new Error('서버 연결이 중단되었습니다. 목록을 새로고침해 저장 여부를 확인해 주세요.');
@@ -89,4 +101,14 @@ export function getReaderCoverPreview(item:ReaderContent) {
 /** Status-only update: never publishes a draft or changes episode schedules. */
 export function setReaderSeriesStatus(items:ReaderContent[], status:'ongoing'|'completed', preview=false, acknowledgePending=false) {
  return request<{items:ReaderContent[];pending:{drafts:number;scheduled:number}}>({}, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'setSeriesStatus',items:items.map(({id,revision})=>({id,revision})),status,preview,acknowledgePending})});
+}
+
+/** Translation-complete pages for saved-work lists. Search loads subsequent pages. */
+export function listReaderWorks(kind:ReaderKind, scope:'general'|'monthly'|'novel', after?:string) {
+ const namespace=readerCacheNamespace();
+ const query={action:'works',kind,scope,...(after?{after}:{})};
+ return readerQuery(`${namespace}|works|${JSON.stringify(query)}`,()=>request<{items:ReaderContent[];nextCursor:string|null}>(query));
+}
+export function getReaderWork(id:string) {
+ return request<{items:ReaderContent[]}>({action:'work',id});
 }
