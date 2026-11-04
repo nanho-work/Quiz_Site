@@ -106,7 +106,7 @@ export function setReaderSeriesStatus(items:ReaderContent[], status:'ongoing'|'c
 /** Translation-complete pages for saved-work lists. Search loads subsequent pages. */
 export function listReaderWorks(kind:ReaderKind, scope:'general'|'monthly'|'novel', after?:string) {
  const namespace=readerCacheNamespace();
- const query={action:'works',kind,scope,...(after?{after}:{})};
+ const query={action:'works',pagination:'works-v2',kind,scope,...(after?{after}:{})};
  return readerQuery(`${namespace}|works|${JSON.stringify(query)}`,()=>request<{items:ReaderContent[];nextCursor:string|null}>(query));
 }
 export function getReaderWork(id:string) {

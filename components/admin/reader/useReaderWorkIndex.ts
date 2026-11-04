@@ -7,7 +7,7 @@ type Snapshot={items:ReaderContent[];cursors:Record<string,string|undefined>;don
 const snapshots=new Map<string,Snapshot>();
 onReaderSessionCleared(()=>snapshots.clear());
 export function useReaderWorkIndex(kinds:ReaderKind[],scope:Scope,query:string) {
- const namespace=readerCacheNamespace();const types=kinds.join(',');const key=`${namespace}|${scope}|${types}`;
+ const namespace=readerCacheNamespace();const types=kinds.join(',');const key=`${namespace}|works-v2|${scope}|${types}`;
  const currentKey=useRef(key);currentKey.current=key;
  const initial=snapshots.get(key);
  const state=useRef<Snapshot>(initial||{items:[],cursors:{},done:{},pages:0,at:0,revision:-1});
@@ -23,10 +23,13 @@ export function useReaderWorkIndex(kinds:ReaderKind[],scope:Scope,query:string) 
    const previous=state.current;
    const next:Snapshot=reset?{items:[],cursors:{},done:{},pages:0,at:0,revision:readerQueryRevision()}:{...previous,cursors:{...previous.cursors},done:{...previous.done},items:[...previous.items]};
    const result=new Map(next.items.map(item=>[item.id,item]));
+   const workKey=(item:ReaderContent)=>scope==='monthly'?(item.issueMonth||item.publishedContent?.issueMonth||item.id):(item.translationGroupId||item.id);
+   const previousWorks=new Set(next.items.map(workKey));
+   const hasNewWork=()=>[...result.values()].some(item=>!previousWorks.has(workKey(item)));
    // Refresh only the portion already browsed, preserving its current order and scroll.
    const rounds=reset?Math.max(1,previous.pages):1;
    const seen=new Set<string>();
-   for(let round=0;round<rounds || (!result.size&&!types.split(',').every(kind=>next.done[kind]));round++){
+   for(let round=0;round<rounds || (!hasNewWork()&&!types.split(',').every(kind=>next.done[kind]));round++){
     const pages=await Promise.all(types.split(',').filter(kind=>!next.done[kind]).map(async type=>{
      const kind=type as ReaderKind;const page=await listReaderWorks(kind,scope,next.cursors[kind]);
      if(page.nextCursor&&(page.nextCursor===next.cursors[kind]||seen.has(`${kind}:${page.nextCursor}`)))throw new Error('목록의 다음 페이지를 확인하지 못했습니다.');
@@ -53,7 +56,7 @@ export function useReaderWorkIndex(kinds:ReaderKind[],scope:Scope,query:string) 
  useEffect(()=>{active.current=true;running.current=null;const saved=snapshots.get(key);state.current=saved||{items:[],cursors:{},done:{},pages:0,at:0,revision:-1};setItemsState(state.current.items);setComplete(types.split(',').every(kind=>state.current.done[kind]));
   if(!saved||saved.revision!==readerQueryRevision()||Date.now()-saved.at>=30000)void load(true).catch(()=>{});
   return()=>{active.current=false;};
- },[key,load]);
+ },[key,load,types]);
  useEffect(()=>{
   let stop=false;
   if(query.trim())void (async()=>{try{do{if(stop||types.split(',').every(kind=>state.current.done[kind]))return;await load();}while(!stop);}catch{/* Keep previous results and show retry. */}})();
