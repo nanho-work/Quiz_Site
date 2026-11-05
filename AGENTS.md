@@ -9,3 +9,10 @@ Before modifying `/koofy-image`, read `docs/koofy-image/README.md`, `open-source
 For a future mobile repository, carry over the behavioral contract and verification gaps in those documents; native photo selection/save/share and codecs require independent validation.
 
 Checks: `npm run test:image-tools`, `npx tsc --noEmit`, `npm run build`. Use real browser conversions/downloads as well as pure rule tests. Do not equate responsive Chrome checks with iOS Safari validation.
+
+## Reader admin reuse
+
+- Reuse shared components for repeated admin UI and utilities for repeated domain logic; menu pages compose them rather than copying implementations.
+- All episode batch editors provide scheduled publishing, regardless of collection/category. Use `ReaderPublicationSchedule` and `ReaderReleaseDateField` for Korean-time schedule controls and `work-schedule.ts` for schedule assignment/validation.
+- Use `collectEpisodePages` for complete episode pagination and `entryStatus`/`ReaderStatus` for saved-versus-published status. Do not silently return partial lists or show draft schedules as live publication status.
+- Preserve uploaded content, IDs, published snapshots, language-specific files, retry checkpoints and existing permission checks during refactoring.

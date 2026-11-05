@@ -10,6 +10,7 @@ export function releaseFields(value: string) {
   return { releaseAt: value, releaseDate: value.slice(0,10) };
 }
 export function assignSchedule(numbers: number[], start: string, interval: number): Record<number,string> {
+  if (numbers.some(number => !Number.isSafeInteger(number) || number < 0 || number > 100000)) throw new Error('회차 번호를 확인해 주세요.');
   if (!scheduleAt(start,0,interval)) throw new Error('시작 일시와 발행 간격을 확인해 주세요.');
   return Object.fromEntries([...new Set(numbers)].sort((a,b)=>a-b).map((n,i)=>[n,scheduleAt(start,i,interval)]));
 }

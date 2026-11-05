@@ -23,3 +23,8 @@ test('saved edits to published episodes still need publication, also after reloa
  assert.equal(needsPublication({published:false,revision:8,publishedContent:{version:8}}),true);
  assert.equal(needsPublication(),true);
 });
+
+test('schedule rejects invalid episode numbers without producing partial dates',()=>{
+ for(const numbers of [[NaN,1],[-1,1],[1.5],[100001]]) assert.throws(()=>assignSchedule(numbers,'2026-11-01T09:00',1));
+ assert.deepEqual(assignSchedule([2,0,1,0],'2026-11-01T09:00',1),{0:'2026-11-01T09:00:00+09:00',1:'2026-11-02T09:00:00+09:00',2:'2026-11-03T09:00:00+09:00'});
+});

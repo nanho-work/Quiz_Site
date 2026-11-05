@@ -3,10 +3,12 @@ import {ReaderStatus,ReaderSectionHeading,readerButton,readerPrimaryButton} from
 import { useEffect, useRef, useState } from 'react';
 import {saveWorkEpisode,type WorkEpisodeEntry} from '../../../lib/admin/reader/save-work-episode';
 import {entryStatus,runCounts,type EpisodeStage} from '../../../lib/admin/reader/episode-status';
+import { ReaderPublicationSchedule, ReaderReleaseDateField } from './ReaderPublicationSchedule';
+import { collectEpisodePages } from '../../../lib/admin/reader/episode-pages';
 import { ReaderFileInput } from './ReaderFileInput';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { mergeEpisodeFiles } from '../../../lib/admin/reader/episode-batch';
-import { commonRelease, releaseFields, assignSchedule, needsPublication } from '../../../lib/admin/reader/work-schedule';
+import { commonRelease, releaseFields, needsPublication } from '../../../lib/admin/reader/work-schedule';
 import { listReaderContent, mutateReaderContent, uploadReaderAsset, uploadSharedReaderCover, attachSharedReaderCover, deleteReaderContent, type ReaderContent } from '../../../lib/admin/firebase/reader-api';
 const languages = ['ko','en','ja'] as const;
 type Language = typeof languages[number];
@@ -15,11 +17,6 @@ const input = 'w-full rounded-lg border border-slate-700 bg-slate-950 p-2';
 const button = readerButton;
 type Entry = WorkEpisodeEntry;
 type Row = {number:number; release:string | undefined; entries:Partial<Record<Language,Entry>>; common?:File; dirty:boolean};
-async function children(parent:ReaderContent) {
-  const items:ReaderContent[]=[]; let after:string|undefined; const seen=new Set<string>();
-  do { const page=await listReaderContent('book',after,parent.id);items.push(...page.items);after=page.nextCursor||undefined;if(after && seen.has(after)) throw new Error('회차 목록을 끝까지 읽지 못했습니다.');if(after)seen.add(after); } while(after);
-  return items;
-}
 export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,onDirty,onBusy,externalBusy=false}: {
   externalBusy?:boolean;parents:ReaderContent[];initialFiles?:Partial<Record<Language,File[]>>;initialCommon?:File[];
   prepare:(publish:boolean,required:readonly Language[])=>Promise<ReaderContent[]>;onDirty:(value:boolean)=>void;onBusy:(value:boolean)=>void;
@@ -44,7 +41,6 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
   useEffect(()=>{const warn=(e:BeforeUnloadEvent)=>{if(locked.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[]);
   const counts=runCounts(stages);
   const stage=(n:number,l:Language,value:EpisodeStage)=>setStages(p=>({...p,[n]:{...p[n],[l]:value}}));
-  const [start,setStart]=useState('');const [interval,setInterval]=useState(1);
   const cache=useRef(new Map<File,string>());
   const initialParents=useRef(parents);
   const rowsRef=useRef(rows);rowsRef.current=rows;
@@ -53,7 +49,7 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
   async function load() {
     setLoading(true);setLoadError('');
     try {
-      const all=(await Promise.all(initialParents.current.map(children))).flat();
+      const all=(await Promise.all(initialParents.current.map(parent=>collectEpisodePages(after=>listReaderContent('book',after,parent.id))))).flat();
       const map=new Map<number,Row>();
       for(const item of all) {const n=item.episodeNumber!;const row=map.get(n)||{number:n,release:'',entries:{},dirty:false};row.entries[item.language||'ko']={title:item.title,item};map.set(n,row);}
       for(const row of map.values())row.release=commonRelease(Object.values(row.entries).map(e=>e.item!));
@@ -157,7 +153,11 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
     {loading&&<p>저장된 회차를 불러오는 중입니다…</p>}{loadError&&<p role="alert">{loadError} <button onClick={()=>void load()}>다시 확인</button></p>}
     <fieldset disabled={busy||externalBusy||loading||!!loadError} className="min-w-0 space-y-4">
       <details><summary className="cursor-pointer">원고·삽화 추가 또는 변경</summary><div className="mt-3 grid gap-3 lg:grid-cols-4">{(['common',...languages] as const).map(l=><label key={l}>{l==='common'?'공통 삽화':names[l]+' 원고·삽화'}<ReaderFileInput multiple accept={l==='common'?'.png,.jpg,.jpeg,.webp':'.txt,.epub,.png,.jpg,.jpeg,.webp'} selectedFiles={l === 'common' ? rows.flatMap(row => row.common ? [row.common] : []) : rows.flatMap(row => { const entry = row.entries[l]; return [entry?.book, entry?.cover].filter((file): file is File => Boolean(file)); })} onFiles={fs=>add(l,fs)}/></label>)}</div></details>
-      <div className="flex flex-wrap items-end gap-3"><label>시작 일시<input type="datetime-local" className={input} value={start} onChange={e=>setStart(e.target.value)}/></label><label>간격 (일)<input className={input} type="number" min={1} max={31} value={interval} onChange={e=>setInterval(Number(e.target.value))}/></label><button className={button} onClick={()=>{try{const dates=assignSchedule(rows.map(r=>r.number),start,interval);if(rows.some(r=>Object.values(r.entries).some(e=>e.item?.publishedContent))&&!window.confirm('공개 이력이 있는 회차도 일정이 변경됩니다. 계속할까요?'))return;setStages({});setRows(rs=>rs.map(r=>({...r,release:dates[r.number],dirty:true,entries:Object.fromEntries(Object.entries(r.entries).map(([l,e])=>[l,{...e,savedForRun:false,error:undefined}]))})));}catch(e){setMessage((e as Error).message);}}}>전체 회차에 일정 적용</button></div>
+      <ReaderPublicationSchedule numbers={rows.map(row=>row.number)} onError={setMessage} onApply={dates=>{
+        if(rows.some(row=>Object.values(row.entries).some(entry=>entry.item?.publishedContent))&&!window.confirm('공개 이력이 있는 회차도 일정이 변경됩니다. 계속할까요?'))return;
+        setStages({});
+        setRows(current=>current.map(row=>({...row,release:dates[row.number],dirty:true,entries:Object.fromEntries(Object.entries(row.entries).map(([language,entry])=>[language,{...entry,savedForRun:false,error:undefined}]))})));
+      }}/>
       <div className="reader-table-wrap">
       <table className="w-full min-w-[940px] table-fixed text-left text-sm">
         <caption className="sr-only">회차별 언어 파일과 공개 일정 및 처리 상태</caption>
@@ -178,9 +178,7 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
                 <p className="break-all text-xs">{e.cover?.name||row.common?.name||(e.item?.assets.cover?'삽화 저장됨':'작품 표지 사용')}</p>
               </details>{e.error&&<p className="mt-2 break-words text-xs text-rose-300">{e.error}</p>}
             </>:<span className="text-slate-500">미등록</span>}</td>;})}
-            <td className="p-3"><input aria-label={`${row.number}화 공통 공개일`} type="datetime-local" className={input} value={row.release?.slice(0,16)||''} onChange={e=>change(row.number,{release:e.target.value?e.target.value+':00+09:00':''})}/>
-              <button className="mt-2 text-xs underline" onClick={()=>change(row.number,{release:''})}>즉시 공개로 지정</button>
-              {row.release===undefined&&<p className="text-xs text-amber-300">언어별 일정이 다릅니다. 공통 일정을 선택해 주세요.</p>}</td>
+            <td className="p-3"><ReaderReleaseDateField label={`${row.number}화 공통 공개일 (한국 시간)`} value={row.release} onChange={release=>change(row.number,{release})}/></td>
             <td className="p-3"><ReaderStatus value={summary}/>
               <button className="mt-3 text-xs text-rose-300 underline" onClick={()=>void remove(row)}>회차 삭제</button>
             </td>

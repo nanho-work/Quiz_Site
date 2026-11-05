@@ -1,5 +1,8 @@
 'use client';
-import {ReaderStatus,ReaderSectionHeading,readerButton,readerPrimaryButton} from './ReaderAdminUI';
+import {ReaderStatus,readerButton} from './ReaderAdminUI';
+import { ReaderPublicationSchedule, ReaderReleaseDateField } from './ReaderPublicationSchedule';
+import { entryStatus } from '../../../lib/admin/reader/episode-status';
+import { collectEpisodePages } from '../../../lib/admin/reader/episode-pages';
 import { ReaderFileInput } from './ReaderFileInput';
 
 import { useEffect, useRef, useState } from 'react';
@@ -12,9 +15,6 @@ const button = readerButton;
 const input = 'w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-sm text-white';
 interface Progress { item?: ReaderContent; bookDone?: boolean; coverDone?: boolean; state: 'working' | 'saved' | 'published' | 'failed'; message?: string }
 export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated = false, active = true, related = [], embedded = false, commonCovers = {}, getSharedCover, onState }: { initialFiles?: File[]; commonCovers?: Record<string, File>; getSharedCover?: (file: File) => Promise<string>; series: ReaderContent; onClose: () => void; integrated?: boolean; embedded?: boolean; active?: boolean; related?: ReaderContent[]; onState?: (busy: boolean, dirty: boolean) => void }) {
-  const scheduling = Boolean(series.issueMonth || series.collectionType === 'general');
-  const [scheduleStart, setScheduleStart] = useState(series.issueMonth ? `${series.issueMonth}-01T09:00` : new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 16));
-  const [intervalDays, setIntervalDays] = useState(1);
   const [rows, setRows] = useState<EpisodeRow[]>(() => mergeEpisodeFiles([], initialFiles || [], series.title, integrated).rows);
   const [referenceDates, setReferenceDates] = useState<Record<number, string>>({});
   const [loadFailed, setLoadFailed] = useState(false);
@@ -26,26 +26,16 @@ export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated =
   const stop = useRef(false);
   const [message, setMessage] = useState('');
   const readExisting = async () => {
-    const all: ReaderContent[] = []; let cursor: string | undefined; const seen = new Set<string>();
-    do {
-      const page = await listReaderContent('book', cursor, series.id); all.push(...page.items);
-      cursor = page.nextCursor || undefined;
-      if (cursor && seen.has(cursor)) throw new Error('회차 목록을 끝까지 읽지 못했습니다. 다시 확인해 주세요.');
-      if (cursor) seen.add(cursor);
-    } while (cursor);
+    const all = await collectEpisodePages(after => listReaderContent('book', after, series.id));
     setExisting(all); setLoadFailed(false);
     if (integrated) {
       const dates: Record<number, Set<string>> = {};
       for (const other of related.filter(item => item.id !== series.id)) {
-        let after: string | undefined;
-        do {
-          const page = await listReaderContent('book', after, other.id);
-          for (const item of page.items) {
-            const value = item.releaseAt || (item.releaseDate ? item.releaseDate + 'T09:00:00+09:00' : '');
-            if (value && item.episodeNumber) (dates[item.episodeNumber] ||= new Set()).add(value);
-          }
-          after = page.nextCursor || undefined;
-        } while (after);
+        const episodes = await collectEpisodePages(after => listReaderContent('book', after, other.id));
+        for (const item of episodes) {
+          const value = item.releaseAt || (item.releaseDate ? item.releaseDate + 'T09:00:00+09:00' : '');
+          if (value && item.episodeNumber !== undefined) (dates[item.episodeNumber] ||= new Set()).add(value);
+        }
       }
       setReferenceDates(Object.fromEntries(Object.entries(dates).filter(([, values]) => values.size === 1).map(([n, values]) => [n, [...values][0]])));
     }
@@ -111,34 +101,29 @@ export function ReaderEpisodeBatch({ initialFiles, series, onClose, integrated =
     <p className="text-sm leading-6 text-slate-400">{integrated ? '본문과 이미지를 앞의 회차 번호로 연결합니다. 예: 1화_제목.txt, 1화_이미지.png / 第1話_題名.txt / Episode 1_Title.txt. 다른 언어의 같은 회차에 공개 일시가 하나로 정해져 있으면 자동으로 가져옵니다.' : '본문과 표지를 함께 또는 따로 넣으세요. 확장자를 뺀 파일명이 같으면 연결합니다.'} 예: 작품명_001_회차제목.txt / .jpg. 설명은 선택이며 표지가 없으면 작품 대표 표지를 사용합니다. 기존 회차는 덮어쓰지 않습니다.</p>
     <ReaderFileInput aria-label="회차 파일 여러 개 선택" multiple accept=".txt,.epub,.jpg,.jpeg,.png,.webp" disabled={busy || loading || loadFailed} onFiles={addFiles} />
     {series.issueMonth && <p className="text-sm text-slate-300">TXT와 회차 이미지를 함께 등록하면 공개 시 이미지 첫 장 → 본문 순서의 EPUB이 만들어집니다. 자동 합본을 쓰려면 모든 회차를 TXT로 등록해 주세요. [장] 표시는 필요 없습니다.</p>}
-    {scheduling && <div className="space-y-3 rounded-xl border border-slate-700 p-4">
-      <p className="text-sm text-slate-300">{series.issueMonth ? `발행 월: ${series.issueMonth} · ` : ''}한국 시간 기준입니다. 회차 번호 순서로 일정을 넣고, 아래에서 각각 수정할 수 있습니다.</p>
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="text-sm text-slate-300">시작 일시<input type="datetime-local" className={input} value={scheduleStart} disabled={busy} onChange={e => setScheduleStart(e.target.value)} /></label>
-        <label className="text-sm text-slate-300">발행 간격 (일)<input type="number" min={1} max={31} className={input} value={intervalDays} disabled={busy} onChange={e => setIntervalDays(Number(e.target.value))} /></label>
-        <button className={button} disabled={busy || !rows.length || !scheduleAt(scheduleStart, 0, intervalDays)} onClick={() => {
-          if (rows.some(row => row.releaseAt && !progress[row.key]?.item) && !window.confirm('아직 저장하지 않은 회차의 공개 일시를 다시 배정할까요?')) return;
-          let index = 0;
-          setRows(rows.map(row => progress[row.key]?.item || existing.some(item => item.episodeNumber === Number(row.number)) ? row : { ...row, releaseAt: scheduleAt(scheduleStart, index++, intervalDays) }));
-        }}>미저장 회차에 일정 적용</button>{!series.issueMonth && <button className={button} disabled={busy} onClick={() => setRows(rows.map(row => progress[row.key]?.item || existing.some(item => item.episodeNumber === Number(row.number)) ? row : { ...row, releaseAt: '' }))}>미저장 회차 즉시 공개로 변경</button>}
-      </div>
-      <p className="text-xs text-slate-400">일정을 확인한 뒤 아래 ‘등록하고 예약·공개’를 누르세요. 과거 일시는 바로 공개됩니다. {series.issueMonth ? '발행 월을 넘긴 회차는 등록되지 않습니다.' : '일시를 비워두면 즉시 공개됩니다.'}</p>
-    </div>}
+    <ReaderPublicationSchedule issueMonth={series.issueMonth} disabled={busy || loading || loadFailed}
+      numbers={rows.filter(row => !progress[row.key]?.item && !existing.some(item => item.episodeNumber === Number(row.number))).map(row => Number(row.number))}
+      applyLabel="미저장 회차에 일정 적용" onError={setMessage}
+      onApply={dates => {
+        if (rows.some(row => row.releaseAt && !progress[row.key]?.item) && !window.confirm('아직 저장하지 않은 회차의 공개 일시를 다시 배정할까요?')) return;
+        setRows(current => current.map(row => dates[Number(row.number)] === undefined ? row : { ...row, releaseAt: dates[Number(row.number)] }));
+      }}
+      onImmediate={() => setRows(current => current.map(row => progress[row.key]?.item || existing.some(item => item.episodeNumber === Number(row.number)) ? row : { ...row, releaseAt: '' }))} />
     {loadFailed && <button className={button} onClick={() => { setLoading(true); void readExisting().catch(e => { setLoadFailed(true); setMessage(e.message); }).finally(() => setLoading(false)); }}>목록 다시 확인</button>}
     {message && <p role="status" className="break-words text-sm text-amber-200">{message}</p>}
     <p className="text-sm text-slate-300">{rows.length}개 회차 · 등록 가능 {ready.length}개 {loading ? '· 기존 회차 확인 중…' : ''}</p>
-    <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm text-slate-300"><thead><tr>{['회차', scheduling ? '제목·공개 일정' : '제목·설명', '본문', '표지', '상태'].map(label => <th className="p-2" key={label}>{label}</th>)}</tr></thead><tbody>
+    <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm text-slate-300"><thead><tr>{['회차', '제목·공개 일정', '본문', '표지', '상태'].map(label => <th className="p-2" key={label}>{label}</th>)}</tr></thead><tbody>
       {rows.map(row => { const state = progress[row.key]; const problems = issues(row); const locked = busy || !!state?.item || existing.some(item => item.episodeNumber === Number(row.number));
         return <tr key={row.key} className="border-t border-slate-700 align-top">
-          <td className="w-24 p-2"><input aria-label={`${row.title} 회차 번호`} type="number" min={1} max={100000} className={input} value={row.number} disabled={locked} onChange={event => update(row.key, { number: event.target.value })} /></td>
-          <td className="min-w-64 p-2"><input aria-label={`${row.number || '미지정'}화 제목`} className={input} maxLength={160} value={row.title} disabled={locked} onChange={event => update(row.key, { title: event.target.value })} />{scheduling && <label className="mt-2 block text-xs">공개 일시 (한국 시간)<input type="datetime-local" className={input} value={row.releaseAt?.slice(0, 16) || ''} disabled={locked} onChange={event => update(row.key, { releaseAt: event.target.value ? event.target.value + ':00+09:00' : '' })} /></label>}<textarea aria-label={`${row.number || '미지정'}화 설명`} className={`${input} mt-2`} placeholder={series.issueMonth ? '글쓴이 (선택 · 이미지 위에 표시)' : '설명 (선택)'} maxLength={series.issueMonth ? 120 : 2000} rows={2} value={series.issueMonth ? row.byline || '' : row.description} disabled={locked} onChange={event => update(row.key, series.issueMonth ? { byline: event.target.value } : { description: event.target.value })} /></td>
+          <td className="w-24 p-2"><input aria-label={`${row.title} 회차 번호`} type="number" min={0} max={100000} className={input} value={row.number} disabled={locked} onChange={event => update(row.key, { number: event.target.value })} /></td>
+          <td className="min-w-64 p-2"><input aria-label={`${row.number || '미지정'}화 제목`} className={input} maxLength={160} value={row.title} disabled={locked} onChange={event => update(row.key, { title: event.target.value })} /><ReaderReleaseDateField value={row.releaseAt || ''} disabled={locked} allowImmediate={!series.issueMonth} onChange={releaseAt => update(row.key, { releaseAt })} /><textarea aria-label={`${row.number || '미지정'}화 설명`} className={`${input} mt-2`} placeholder={series.issueMonth ? '글쓴이 (선택 · 이미지 위에 표시)' : '설명 (선택)'} maxLength={series.issueMonth ? 120 : 2000} rows={2} value={series.issueMonth ? row.byline || '' : row.description} disabled={locked} onChange={event => update(row.key, series.issueMonth ? { byline: event.target.value } : { description: event.target.value })} /></td>
           {(['books', 'covers'] as const).map(slot => <td className="max-w-56 break-all p-2" key={slot}>{row[slot].length ? row[slot].map((file, index) => <div key={index} className="mb-2">{file.name}{!locked && <button aria-label={`${file.name} 제외`} className="ml-2 text-rose-300" onClick={() => update(row.key, { [slot]: row[slot].filter((_, n) => n !== index) })}>×</button>}</div>) : slot === 'covers' ? (commonCover(row) ? `공통 삽화: ${commonCover(row)!.name}` : '작품 표지 사용') : '본문 없음'}</td>)}
-          <td className="min-w-40 p-2"><ReaderStatus value={state?.state === 'published' ? (row.releaseAt && Date.parse(row.releaseAt) > Date.now() ? '공개 예약 완료' : '공개 완료') : state?.state === 'saved' ? '임시 저장 완료' : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}/>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
+          <td className="min-w-40 p-2"><ReaderStatus value={state?.state === 'published' || state?.state === 'saved' ? entryStatus({title:row.title,item:state.item},false) : state?.state === 'working' ? '처리 중…' : state?.message || problems.join(' · ') || '등록 가능'}/>{!locked && <button className="mt-2 text-rose-300" onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); setProgress(current => { const next = { ...current }; delete next[row.key]; return next; }); }}>목록에서 제외</button>}</td>
         </tr>;
       })}
     </tbody></table></div>
-    <div className="flex flex-wrap gap-3"><button className={button} disabled={busy || loading || !ready.some(row => progress[row.key]?.state !== 'saved')} onClick={() => void start(false)}>전체 임시 저장</button><button className={`${button} bg-emerald-700`} disabled={busy || loading || !series.published || !ready.length} onClick={() => void start(true)}>{series.issueMonth ? '등록하고 예약·공개' : '전체 등록하고 공개'}</button>{busy && <button className={button} onClick={() => { stop.current = true; setMessage('현재 회차를 마친 뒤 중단합니다.'); }}>다음 회차부터 중단</button>}</div>
-    {!series.published && <p className="text-sm text-amber-300">월간호 설정에서 표지를 넣고 설정 저장을 먼저 해 주세요.</p>}
+    <div className="flex flex-wrap gap-3"><button className={button} disabled={busy || loading || !ready.some(row => progress[row.key]?.state !== 'saved')} onClick={() => void start(false)}>전체 임시 저장</button><button className={`${button} bg-emerald-700`} disabled={busy || loading || !series.published || !ready.length} onClick={() => void start(true)}>등록하고 예약·공개</button>{busy && <button className={button} onClick={() => { stop.current = true; setMessage('현재 회차를 마친 뒤 중단합니다.'); }}>다음 회차부터 중단</button>}</div>
+    {!series.published && <p className="text-sm text-amber-300">작품 설정에서 대표 표지를 넣고 도서 정보를 먼저 공개해 주세요.</p>}
     <p className="text-xs text-slate-400">파일 선택은 이 화면에서만 유지됩니다. 등록 중에는 페이지를 닫지 마세요. 임시 저장·공개가 끝난 행은 개별 회차 화면에서 수정할 수 있습니다.</p>
   </section>;
 }
