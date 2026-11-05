@@ -30,7 +30,7 @@ export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false
   useEffect(() => { setBusy(busy); onDirty(dirty); }, [busy, dirty, setBusy, onDirty]);
   return <div className="space-y-4">
     <label className="block rounded-lg border border-slate-700 p-4">공통 삽화 (01.png, 02.png · 회차 번호로 연결)
-      <ReaderFileInput  multiple accept=".png,.jpg,.jpeg,.webp" disabled={busy} onFiles={selectedFiles => {
+      <ReaderFileInput  multiple accept=".png,.jpg,.jpeg,.webp" selectedFiles={Object.values(common)} disabled={busy} onFiles={selectedFiles => {
         const merged = mergeSelectedFiles(Object.values(common), selectedFiles);
         const problem = validateFileSelection(merged, READER_FILE_ACCEPT.image, true);
         if (problem) { setCommonError(problem); return; }
