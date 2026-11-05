@@ -31,12 +31,12 @@ export function mergeEpisodeFiles<F extends NamedFile>(rows: EpisodeRow<F>[], fi
     if (matchByNumber && slot === 'books' && !row.books.length && parsed.title) row.title = parsed.title;
     if (!row[slot].some(old => old.name === file.name && old.size === file.size && old.lastModified === file.lastModified)) row[slot].push(file);
   }
-  return { rows: result.sort((a, b) => (Number(a.number) || Infinity) - (Number(b.number) || Infinity) || a.key.localeCompare(b.key, 'ko')), rejected };
+  return { rows: result.sort((a, b) => (a.number === '' ? Infinity : Number(a.number)) - (b.number === '' ? Infinity : Number(b.number)) || a.key.localeCompare(b.key, 'ko')), rejected };
 }
 export function episodeIssues(row: EpisodeRow<NamedFile>, rows: EpisodeRow<NamedFile>[], existingNumbers: Set<number>) {
   const problems: string[] = [];
   const number = Number(row.number);
-  if (!/^\d+$/.test(row.number) || !Number.isSafeInteger(number) || number < 1 || number > 100000) problems.push('회차 번호 확인');
+  if (!/^\d+$/.test(row.number) || !Number.isSafeInteger(number) || number < 0 || number > 100000) problems.push('회차 번호 확인');
   else {
     if (rows.filter(other => Number(other.number) === number).length > 1) problems.push('목록 안 회차 번호 중복');
     if (existingNumbers.has(number)) problems.push('이미 등록된 회차');

@@ -37,3 +37,14 @@ test('shared image selection preserves duplicate number conflicts for rejection'
   const rows=mergeEpisodeFiles([], [file('01.png'),file('1_other.jpg')], '', true).rows;
   assert.equal(rows.length,1);assert.equal(rows[0].covers.length,2);
 });
+
+test('prologue images and translated manuscripts match episode zero and sort first',()=>{
+  for(const body of ['00_프롤로그.txt','Episode 0_Prologue.txt','第0話_プロローグ.txt']) {
+    const rows=mergeEpisodeFiles([], [file('02.png'),file('01.png'),file('00.png'),file(body)],'',true).rows;
+    assert.deepEqual(rows.map(r=>r.number),['0','1','2']);
+    assert.equal(rows[0].books.length,1);
+    assert.equal(rows[0].covers[0].name,'00.png');
+    assert.deepEqual(episodeIssues(rows[0],rows,new Set()),[]);
+    assert(episodeIssues(rows[0],rows,new Set([0])).includes('이미 등록된 회차'));
+  }
+});

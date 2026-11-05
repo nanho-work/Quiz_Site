@@ -29,13 +29,13 @@ export function MonthlyEpisodeBatch({ issues, setBusy, onDirty, ordinary = false
   const dirty = Object.keys(common).length > 0 || Object.values(states).some(s => s.dirty);
   useEffect(() => { setBusy(busy); onDirty(dirty); }, [busy, dirty, setBusy, onDirty]);
   return <div className="space-y-4">
-    <label className="block rounded-lg border border-slate-700 p-4">공통 삽화 (01.png, 02.png · 회차 번호로 연결)
+    <label className="block rounded-lg border border-slate-700 p-4">공통 삽화 (00.png: 프롤로그 · 01.png, 02.png: 각 회차)
       <ReaderFileInput  multiple accept=".png,.jpg,.jpeg,.webp" selectedFiles={Object.values(common)} disabled={busy} onFiles={selectedFiles => {
         const merged = mergeSelectedFiles(Object.values(common), selectedFiles);
         const problem = validateFileSelection(merged, READER_FILE_ACCEPT.image, true);
         if (problem) { setCommonError(problem); return; }
         const result = mergeEpisodeFiles([], merged, '', true);
-        if (result.rejected.length || result.rows.some(x => !x.number || Number(x.number) < 1 || Number(x.number) > 100000 || x.books.length || x.covers.length !== 1)) { setCommonError('회차 번호가 있는 5MB 이하 이미지 한 장씩 선택하세요. 같은 번호의 중복 이미지는 등록할 수 없습니다.'); return; }
+        if (result.rejected.length || result.rows.some(x => !x.number || Number(x.number) < 0 || Number(x.number) > 100000 || x.books.length || x.covers.length !== 1)) { setCommonError('00.png(프롤로그), 01.png처럼 0~100000 회차 번호가 있는 이미지를 선택하세요. 같은 번호의 이미지는 한 장만 등록할 수 있습니다.'); return; }
         setCommon(Object.fromEntries(result.rows.map(x => [x.number, x.covers[0]]))); setCommonError('');
       }} />
       <p className="text-sm">{Object.entries(common).map(([n, f]) => `${n}화: ${f.name}`).join(' / ')}</p>

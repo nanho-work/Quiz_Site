@@ -73,7 +73,7 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
   }
   function add(l:Language|'common',files:File[]) {
     const parsed=mergeEpisodeFiles([],files,'',true);
-    if(parsed.rejected.length || parsed.rows.some(r=>!Number(r.number)||Number(r.number)>100000||r.books.length>1||r.covers.length>1)) {setMessage('01_제목.txt / 01.png처럼 회차 번호를 붙여 주세요. 같은 번호의 파일은 종류별 한 개만 넣으세요.');return;}
+    if(parsed.rejected.length || parsed.rows.some(r=>r.number === ''||!Number.isSafeInteger(Number(r.number))||Number(r.number)<0||Number(r.number)>100000||r.books.length>1||r.covers.length>1)) {setMessage('00_프롤로그.txt / 00.png, 01_제목.txt / 01.png처럼 회차 번호를 붙여 주세요. 같은 번호의 파일은 종류별 한 개만 넣으세요.');return;}
     setStages({});
     setRows(previous=>{
       const map=new Map(previous.map(r=>[r.number,{...r,entries:{...r.entries}}]));
@@ -100,7 +100,7 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
     if(publish&&!rowsRef.current.length){setMessage('공개할 원고를 넣어 주세요.');return;}
     try {
       for(const row of work) {
-        if(!Number.isSafeInteger(row.number)||row.number<1||row.number>100000)throw new Error('회차 번호를 확인해 주세요.');
+        if(!Number.isSafeInteger(row.number)||row.number<0||row.number>100000)throw new Error('회차 번호를 확인해 주세요.');
         if(row.release===undefined)throw new Error(`${row.number}화의 기존 언어별 일정이 다릅니다. 공통 공개일을 선택해 주세요.`);
         releaseFields(row.release);
         if(!Object.keys(row.entries).length)throw new Error(`${row.number}화에 원고가 없습니다.`);
