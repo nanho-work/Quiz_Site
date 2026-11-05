@@ -13,6 +13,7 @@ Checks: `npm run test:image-tools`, `npx tsc --noEmit`, `npm run build`. Use rea
 ## Reader admin reuse
 
 - Reuse shared components for repeated admin UI and utilities for repeated domain logic; menu pages compose them rather than copying implementations.
+- General-book serials and serial novels use the same `WorkEditor` and `UnifiedWorkEpisodes` detail screen. Choose episode UI by `kind`, never by `collectionType` or the entry menu. Keep monthly-only publishing/compilation rules separate.
 - All episode batch editors provide scheduled publishing, regardless of collection/category. Use `ReaderPublicationSchedule` and `ReaderReleaseDateField` for Korean-time schedule controls and `work-schedule.ts` for schedule assignment/validation.
 - Use `collectEpisodePages` for complete episode pagination and `entryStatus`/`ReaderStatus` for saved-versus-published status. Do not silently return partial lists or show draft schedules as live publication status.
 - Preserve uploaded content, IDs, published snapshots, language-specific files, retry checkpoints and existing permission checks during refactoring.
