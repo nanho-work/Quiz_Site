@@ -112,3 +112,6 @@ export function listReaderWorks(kind:ReaderKind, scope:'general'|'monthly'|'nove
 export function getReaderWork(id:string) {
  return request<{items:ReaderContent[]}>({action:'work',id});
 }
+
+export interface ReaderStatisticsResult {source:string;status:'ready'|'setup'|'error';message?:string;start:string;end:string;fetchedAt:string;cached?:boolean;reports:Record<string,{label:string;rows:Record<string,string|number>[];note?:string}>}
+export function getReaderStatistics(source:'analytics'|'googlePlay'|'apple',days:string,platform:string){return request<ReaderStatisticsResult>({action:'statistics',source,days,platform});}
