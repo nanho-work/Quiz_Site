@@ -9,6 +9,7 @@ import { BookFilePairInput } from './BookFilePairInput';
 import { useCallback, useEffect, useState } from 'react';
 import { FileUp, Plus, RefreshCw } from 'lucide-react';
 import { addReaderCategory, listReaderCategories, deleteReaderContent, listReaderContent, mutateReaderContent, uploadReaderAsset, type ReaderContent, type ReaderKind, type ReaderMetadata } from '../../../lib/admin/firebase/reader-api';
+import { ReaderWebPublication } from './ReaderWebPublication';
 import { ReaderEpisodeBatch } from './ReaderEpisodeBatch';
 import { AdminCard } from '../shared/AdminCard';
 
@@ -265,6 +266,11 @@ function ContentEditor({ kind, series, initialItem, onNavigate, monthly, fixedKi
           <button className={`${buttonClass} border-emerald-600 bg-emerald-700 hover:bg-emerald-600`} disabled={busy || !valid || !contentPublishReady || !!selected?.deleting} onClick={() => void saveContent(true)}>{busy ? '처리 중…' : form.releaseAt && Date.parse(form.releaseAt) > Date.now() ? '공개 예약 저장' : selected?.published ? '수정하고 공개' : '등록하고 공개'}</button>
           {Object.keys(pendingFiles).length > 0 && <button className={buttonClass} disabled={busy} onClick={() => setPendingFiles({})}>파일 선택 취소</button>}
         </div>}
+        <ReaderWebPublication item={selected || undefined} disabled={busy} onBusy={setBusy}
+          onChange={item => {
+            setSelected(item);
+            setItems(previous => previous.map(value => value.id === item.id ? item : value));
+          }} />
         {kind === 'series' && selected && <button className={`${buttonClass} mt-6`} disabled={busy || dirty || !!selected.deleting} onClick={() => navigate('book', selected)}>회차 관리 · 추가</button>}
         {series && !series.published && <p className="mt-4 text-sm text-amber-300">작품 정보와 대표 표지를 먼저 공개해야 회차를 공개할 수 있습니다.</p>}
         {selected && <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-slate-800 pt-6">

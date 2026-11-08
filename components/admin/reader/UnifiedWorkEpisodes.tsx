@@ -6,6 +6,7 @@ import {entryStatus,runCounts,type EpisodeStage} from '../../../lib/admin/reader
 import { ReaderPublicationSchedule, ReaderReleaseDateField } from './ReaderPublicationSchedule';
 import { collectEpisodePages } from '../../../lib/admin/reader/episode-pages';
 import { ReaderFileInput } from './ReaderFileInput';
+import { ReaderWebPublication } from './ReaderWebPublication';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { mergeEpisodeFiles } from '../../../lib/admin/reader/episode-batch';
 import { commonRelease, releaseFields, needsPublication } from '../../../lib/admin/reader/work-schedule';
@@ -171,6 +172,10 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
             {languages.map(l=>{const e=row.entries[l];return <td key={l} className="min-w-0 p-3">{e?<>
               <p className="reader-episode-title">{e.title||'제목 없음'}</p>
               <div className="mt-2"><ReaderStatus value={entryStatus(e,row.dirty,stages[row.number]?.[l],now)}/></div>
+              <ReaderWebPublication item={e.item} disabled={busy || externalBusy} onBusy={onBusy}
+                onChange={item => setRows(previous => previous.map(value => value.number !== row.number ? value : {
+                  ...value, entries: { ...value.entries, [l]: { ...value.entries[l]!, item } },
+                }))} />
               <details className="reader-episode-details"><summary className="cursor-pointer text-xs text-slate-400">파일 확인·수정</summary>
                 <input aria-label={`${row.number}화 ${names[l]} 제목`} className={input+' mt-2'} value={e.title} maxLength={160} onChange={event=>change(row.number,{entries:{...row.entries,[l]:{...e,title:event.target.value}}})}/>
                 <p className="mt-2 break-all text-xs">{e.book?.name||(e.item?.assets.txt||e.item?.assets.epub?'본문 저장됨':'본문 없음')}</p>

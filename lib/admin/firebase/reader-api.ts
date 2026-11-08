@@ -7,7 +7,7 @@ export interface ReaderMetadata { collectionType?: 'general'; translationGroupId
 export interface ReaderAsset { path: string; sha256: string; size: number; extension: string; contentType: string; weight?: number }
 export interface ReaderContent extends ReaderMetadata {
   id: string; kind: ReaderKind; revision: number; assets: Record<string, ReaderAsset>;
-  compilationError?: string; deleting?: boolean;
+  compilationError?: string; deleting?: boolean; webPublic?: boolean;
   published: boolean; publishedContent: (ReaderMetadata & { assets: Record<string, ReaderAsset>; version: number; preview?: ReaderAsset }) | null; updatedAt: string;
 }
 const endpoint = process.env.NEXT_PUBLIC_READER_ADMIN_URL || `https://asia-northeast3-${koofyReaderFirebaseConfig.projectId}.cloudfunctions.net/readerAdmin`;
@@ -45,6 +45,12 @@ export function listReaderContent(kind: ReaderKind, after?: string, seriesId?: s
 }
 export function mutateReaderContent(input: { action: 'create'; kind: ReaderKind; seriesId?: string; metadata: ReaderMetadata } | { action: 'save' | 'publish' | 'unpublish' | 'removeAsset' | 'compileMonthly' | 'correctMonthlyLanguage'; language?: 'ko' | 'en' | 'ja'; id: string; revision: number; metadata?: ReaderMetadata; slot?: string }) {
   return request<ReaderContent>({}, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });
+}
+export function setReaderWebPublication(item: ReaderContent, enabled: boolean) {
+  return request<ReaderContent>({}, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'setWebPublication', id: item.id, revision: item.revision, enabled }),
+  });
 }
 export function uploadReaderAsset(item: ReaderContent, slot: string, file: File) {
   if (slot === 'book') {
