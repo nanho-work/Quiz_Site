@@ -5,7 +5,7 @@ import {ReaderWorkList} from './ReaderWorkList';
 import {useReaderWorkIndex} from './useReaderWorkIndex';
 import {ReaderDeleteActions} from './ReaderDeleteActions';
 import {useReaderLeaveGuard} from '../../../lib/admin/use-reader-leave-guard';
-import { ReaderWebPublication } from './ReaderWebPublication';
+import { ReaderBulkWebPublication, ReaderWebPublication } from './ReaderWebPublication';
 import { UnifiedWorkEpisodes } from './UnifiedWorkEpisodes';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { commonRelease, releaseFields } from '../../../lib/admin/reader/work-schedule';
@@ -102,6 +102,11 @@ export function WorkEditor({ general, initial, kind, candidates, onDirty, setBus
   if(deleted)return <p role="status">선택한 작품을 삭제했습니다. 목록으로 돌아가 남은 언어와 작품을 확인하세요.</p>;
   return <section className="min-w-0 space-y-4">
     <div className="space-y-4"><ReaderSectionHeading title="작품 정보" description="언어별 제목과 대표 표지를 확인하세요. 추가 정보는 아래에서 펼칠 수 있습니다."><ReaderStatus value={changed?'변경사항 미저장':saved.length?(saved.every(x=>x.published)?'공개 중':'임시 저장'):'새 작품'}/></ReaderSectionHeading>
+    {kind === 'book' && <ReaderBulkWebPublication items={saved} scope="translations" disabled={busy}
+      onBusy={lock} onChange={updated => {
+        const byId = new Map(updated.map(item => [item.id, item]));
+        setSaved(previous => previous.map(item => byId.get(item.id) ?? item));
+      }} />}
     <fieldset disabled={busy} className="space-y-4"><details><summary className="cursor-pointer text-sm">공통 대표 표지 추가·변경 (선택)</summary><label className="block">책 대표 표지 — 공통 (언어별 대표 표지가 우선)<ReaderFileInput  accept=".png,.jpg,.jpeg,.webp" onFiles={selectedFiles => { coverApplied.current.clear(); setCommon(selectedFiles[0]); onDirty(true); setChanged(true); }} /></label><ReaderImagePreview compact file={common}/></details>
     <div className="reader-language-grid grid xl:grid-cols-3">{langs.map(l => <div key={l} className="reader-language-panel min-w-0 space-y-3"><h2><label>{!unified && <input type="checkbox" checked={enabled[l]} onChange={e => {setEnabled(p => ({ ...p, [l]: e.target.checked }));setChanged(true);}} />} {labels[l]}</label><ReaderStatus value={saved.find(x=>(x.language||'ko')===l)?.published?'공개 중':saved.some(x=>(x.language||'ko')===l)?'임시 저장':'미등록'}/></h2>{(['title'] as const).map(key => <label className="block" key={key}>{{ title:'제목', author:'저자·필명', category:'분류', source:'출처', description:'소개', license:'이용조건' }[key]}<textarea className={input} rows={1} value={forms[l][key] || ''} onChange={e => update(l, { [key]: e.target.value })} /></label>)}
     {kind === 'book' && <ReaderWebPublication item={saved.find(item => (item.language || 'ko') === l)}

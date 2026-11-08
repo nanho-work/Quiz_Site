@@ -6,7 +6,7 @@ import {entryStatus,runCounts,type EpisodeStage} from '../../../lib/admin/reader
 import { ReaderPublicationSchedule, ReaderReleaseDateField } from './ReaderPublicationSchedule';
 import { collectEpisodePages } from '../../../lib/admin/reader/episode-pages';
 import { ReaderFileInput } from './ReaderFileInput';
-import { ReaderWebPublication } from './ReaderWebPublication';
+import { ReaderBulkWebPublication, ReaderWebPublication } from './ReaderWebPublication';
 import { ReaderImagePreview } from './ReaderImagePreview';
 import { mergeEpisodeFiles } from '../../../lib/admin/reader/episode-batch';
 import { commonRelease, releaseFields, needsPublication } from '../../../lib/admin/reader/work-schedule';
@@ -46,6 +46,19 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
   const initialParents=useRef(parents);
   const rowsRef=useRef(rows);rowsRef.current=rows;
   const dirty=rows.some(r=>r.dirty);
+  const savedEpisodes = rows.flatMap(row => Object.values(row.entries).flatMap(entry => entry.item ? [entry.item] : []));
+  function updateWebPublication(items: ReaderContent[]) {
+    const byId = new Map(items.map(item => [item.id, item]));
+    setRows(previous => previous.map(row => {
+      const entries = { ...row.entries };
+      for (const language of languages) {
+        const entry = entries[language];
+        const item = entry?.item && byId.get(entry.item.id);
+        if (entry && item) entries[language] = { ...entry, item };
+      }
+      return { ...row, entries };
+    }));
+  }
   useEffect(()=>{onDirty(dirty);},[dirty,onDirty]);
   async function load() {
     setLoading(true);setLoadError('');
@@ -148,6 +161,8 @@ export function UnifiedWorkEpisodes({parents,initialFiles,initialCommon,prepare,
     <div className="reader-save-bar sticky top-16 z-10 space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-3"><p role="status" aria-live="polite">전체 {rows.length}회{counts.total>0 && ` · 이번 작업 ${counts.total}회 · 완료 ${counts.done} · 처리 중 ${counts.running} · 대기 ${counts.waiting} · 실패 ${counts.failed}`}</p>
       <div className="flex gap-2"><button disabled={busy||externalBusy||loading||!!loadError} className={button} onClick={()=>void save(false)}>초안 저장</button><button disabled={busy||externalBusy||loading||!!loadError} className={readerPrimaryButton} onClick={()=>void save(true)}>{counts.failed?'미완료 항목 재시도 · 예약·공개':'일정대로 공개'}</button></div></div>
+      <ReaderBulkWebPublication items={savedEpisodes} scope="episodes"
+        disabled={busy || externalBusy || loading || !!loadError} onBusy={onBusy} onChange={updateWebPublication} />
       {message&&<p role="status" className="text-sm text-slate-300">{message}</p>}
       {busy&&<p className="text-xs text-amber-200">처리 중에는 이 화면을 닫거나 이동하지 마세요. 다른 탭에서 작업할 수 있습니다.</p>}
     </div>
