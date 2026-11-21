@@ -121,3 +121,27 @@ export function getReaderWork(id:string) {
 
 export interface ReaderStatisticsResult {source:string;status:'ready'|'setup'|'error';message?:string;start:string;end:string;fetchedAt:string;cached?:boolean;reports:Record<string,{label:string;rows:Record<string,string|number>[];note?:string}>}
 export function getReaderStatistics(source:'analytics'|'googlePlay'|'apple',days:string,platform:string){return request<ReaderStatisticsResult>({action:'statistics',source,days,platform});}
+
+export type InterviewBlock =
+  | { type: 'text'; text: string }
+  | { type: 'qa'; question: string; answer: string }
+  | { type: 'photo'; photo: string; caption: string; alt: string };
+export interface InterviewArticle {
+  title: string; subtitle: string; person: string; summary: string;
+  cover: string; coverAlt: string; releaseAt: string; blocks: InterviewBlock[];
+}
+export interface InterviewRecord {
+  id: string; revision: number; draft: InterviewArticle; live: InterviewArticle | null;
+}
+export function listInterviews() {
+  return request<{ items: InterviewRecord[] }>({ action: 'interviews' });
+}
+export function saveInterview(action: 'save' | 'publish' | 'unpublish', article: InterviewRecord) {
+  return request<InterviewRecord>({ action: 'interviews' }, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, id: article.id, revision: article.revision, draft: article.draft }),
+  });
+}
+export function interviewPhotoPreview(photo: string) {
+  return request<{ url: string }>({ action: 'interviews', photo });
+}

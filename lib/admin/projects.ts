@@ -50,6 +50,7 @@ export const adminProjects: AdminProject[] = [
       { label: "일반 도서", href: "/admin/projects/koofy-reader/general-books", icon: BookOpen, requiredRole: "superAdmin" },
       { label: "일반 소설", href: "/admin/projects/koofy-reader/books", icon: BookOpen, requiredRole: "superAdmin" },
       { label: "연재 소설", href: "/admin/projects/koofy-reader/series", icon: BookOpen, requiredRole: "superAdmin" },
+      { label: "사람을 만나다", href: "/admin/projects/koofy-reader/interviews", icon: CalendarDays, requiredRole: "superAdmin" },
       { label: "월간 쿠피", href: "/admin/projects/koofy-reader/monthly", icon: CalendarDays, requiredRole: "superAdmin" },
       { label: "글꼴", href: "/admin/projects/koofy-reader/fonts", icon: Type, requiredRole: "superAdmin" },
     ],
