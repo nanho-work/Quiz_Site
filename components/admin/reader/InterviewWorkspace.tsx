@@ -1,23 +1,46 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   interviewPhotoPreview, listInterviews, saveInterview, uploadSharedReaderCover,
   type InterviewArticle, type InterviewBlock, type InterviewRecord,
 } from '../../../lib/admin/firebase/reader-api';
 import { useReaderLeaveGuard } from '../../../lib/admin/use-reader-leave-guard';
+import { formatInterviewBlocks, interviewBodyText, splitInterviewManuscript } from '../../../lib/admin/reader/interview-manuscript';
 import { readerButton } from './ReaderAdminUI';
 import { ReaderReleaseDateField } from './ReaderPublicationSchedule';
 
 const input = 'block w-full rounded-lg border border-slate-600 bg-slate-950 p-2 text-white';
 const card = 'space-y-3 rounded-xl border border-slate-700 p-4';
 const empty: InterviewArticle = { title: '', subtitle: '', person: '', summary: '', cover: '', coverAlt: '', releaseAt: '', blocks: [] };
-const newBlocks: InterviewBlock[] = [
-  { type: 'text', text: '' },
-  { type: 'qa', question: '', answer: '' },
-  { type: 'photo', photo: '', caption: '', alt: '' },
-];
-const labels = { text: '글', qa: '질문·답변', photo: '사진' };
+type PhotoBlock = Extract<InterviewBlock, { type: 'photo' }>;
+const imageTypes = 'image/jpeg,image/png,image/webp';
+
+function BodyText({ text, onText, onPaste, onPhoto }: {
+  text: string;
+  onText: (text: string) => void;
+  onPaste: (text: string) => boolean;
+  onPhoto: (file: File, before: string, after: string) => void;
+}) {
+  const textarea = useRef<HTMLTextAreaElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
+  const position = useRef(text.length);
+  return <div className="space-y-2">
+    <textarea ref={textarea} className={input} aria-label="본문" rows={text ? 14 : 8} value={text}
+      placeholder="원고를 여기에 붙여넣으세요."
+      onChange={event => onText(event.target.value)}
+      onPaste={event => { if (onPaste(event.clipboardData.getData('text/plain'))) event.preventDefault(); }} />
+    <button type="button" className={readerButton} onClick={() => {
+      position.current = textarea.current?.selectionStart ?? text.length;
+      picker.current?.click();
+    }}>본문 사진 넣기</button>
+    <input ref={picker} hidden type="file" accept={imageTypes} onChange={event => {
+      const file = event.currentTarget.files?.[0];
+      if (file) onPhoto(file, text.slice(0, position.current), text.slice(position.current));
+      event.currentTarget.value = '';
+    }} />
+  </div>;
+}
 
 function Photo({ photo, alt }: { photo: string; alt: string }) {
   const [result, setResult] = useState<{ key: string; url: string }>();
@@ -36,11 +59,27 @@ function Photo({ photo, alt }: { photo: string; alt: string }) {
     : <p role="status">사진을 불러오지 못했습니다.</p>;
 }
 
+function PhotoEditor({ block, onChange, onRemove }: {
+  block: PhotoBlock;
+  onChange: (block: PhotoBlock) => void;
+  onRemove: () => void;
+}) {
+  return <figure className={card}>
+    <Photo photo={block.photo} alt={block.alt || block.caption} />
+    <label className="block">사진 설명 <span className="text-sm text-slate-400">(선택)</span>
+      <input className={input} maxLength={500} value={block.caption}
+        onChange={event => onChange({ ...block, caption: event.target.value })} />
+    </label>
+    <button type="button" className={readerButton} onClick={onRemove}>사진 빼기</button>
+  </figure>;
+}
+
 export default function InterviewWorkspace() {
   const [items, setItems] = useState<InterviewRecord[]>([]);
   const [item, setItem] = useState<InterviewRecord>();
   const [busy, setBusy] = useState(true);
   const [preview, setPreview] = useState(false);
+  const [schedule, setSchedule] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   useEffect(() => {
@@ -59,22 +98,24 @@ export default function InterviewWorkspace() {
     if (dirty && !window.confirm('저장하지 않은 변경을 버릴까요?')) return;
     setItem(next);
     setPreview(false);
+    setSchedule(!!next.draft.releaseAt);
     setError('');
     setMessage('');
   }
   function update(patch: Partial<InterviewArticle>) {
     setItem(current => current && { ...current, draft: { ...current.draft, ...patch } });
   }
-  function setBlock(index: number, block: InterviewBlock) {
-    if (draft) update({ blocks: draft.blocks.map((entry, position) => position === index ? block : entry) });
+  function replaceBlocks(start: number, end: number, ...replacement: InterviewBlock[]) {
+    if (draft) update({ blocks: [...draft.blocks.slice(0, start), ...replacement, ...draft.blocks.slice(end)] });
   }
-  function move(index: number, offset: number) {
-    if (!draft) return;
-    const blocks = [...draft.blocks];
-    const target = index + offset;
-    if (target < 0 || target >= blocks.length) return;
-    [blocks[index], blocks[target]] = [blocks[target], blocks[index]];
-    update({ blocks });
+  const photos = (draft?.blocks ?? []).flatMap((block, index) =>
+    block.type === 'photo' ? [{ block, index }] : []);
+  const bodyParts = [
+    ...photos,
+    { block: null, index: draft?.blocks.length ?? 0 },
+  ];
+  function previewBlocks() {
+    return formatInterviewBlocks(draft?.blocks ?? []);
   }
   async function run(task: () => Promise<void>) {
     setBusy(true); setError(''); setMessage('');
@@ -88,7 +129,14 @@ export default function InterviewWorkspace() {
   function save(action: 'save' | 'publish' | 'unpublish') {
     if (!item) return;
     void run(async () => {
-      const saved = await saveInterview(action, item);
+      const blocks = previewBlocks();
+      if (action !== 'unpublish' && (blocks.length > 100 || blocks.some(block =>
+        (block.type === 'text' && block.text.length > 20000) ||
+        (block.type === 'qa' && block.answer.length > 20000)))) {
+        throw new Error('본문이 너무 깁니다. 글의 길이를 줄여 주세요.');
+      }
+      const saved = await saveInterview(action, { ...item, draft: { ...item.draft, blocks } });
+      setSchedule(!!saved.draft.releaseAt);
       setItems(current => [saved, ...current.filter(entry => entry.id !== saved.id)]);
       setItem(action === 'unpublish' ? { ...saved, draft: item.draft } : saved);
       setMessage(action === 'save' ? '초안을 저장했습니다.' : action === 'unpublish' ? '공개를 해제했습니다.' :
@@ -116,54 +164,63 @@ export default function InterviewWorkspace() {
       <div className="flex flex-wrap gap-2">
         <button className={readerButton} onClick={() => setPreview(!preview)}>{preview ? '편집으로 돌아가기' : '미리보기'}</button>
         <button className={readerButton} onClick={() => save('save')}>초안 저장</button>
-        <button className={readerButton} onClick={() => save('publish')}>공개·예약 반영</button>
+        <button className={readerButton} onClick={() => save('publish')}>{draft.releaseAt ? '예약 공개' : '공개하기'}</button>
+        <button className={readerButton} aria-expanded={schedule} onClick={() => setSchedule(!schedule)}>공개 시간 설정</button>
         {item?.live && <button className={readerButton} onClick={() => { if (window.confirm('앱과 웹에서 공개를 해제할까요?')) save('unpublish'); }}>공개 해제</button>}
         {dirty && <span className="self-center text-sm text-amber-300">저장하지 않은 변경</span>}
       </div>
+      {schedule && <ReaderReleaseDateField value={draft.releaseAt} onChange={releaseAt => update({ releaseAt })} />}
       {preview ? <article className="mx-auto max-w-2xl space-y-6 whitespace-pre-wrap text-base leading-relaxed">
         <header><h2 className="text-3xl font-bold">{draft.title}</h2><p>{draft.subtitle}</p><p>{draft.person}</p></header>
         <Photo photo={draft.cover} alt={draft.coverAlt} />
-        {draft.blocks.map((block, index) => block.type === 'text' ? <p key={index}>{block.text}</p>
+        {previewBlocks().map((block, index) => block.type === 'text' ? <p key={index}>{block.text}</p>
           : block.type === 'qa' ? <div key={index}><h3 className="mb-2 font-bold">{block.question}</h3><p>{block.answer}</p></div>
           : <figure key={index}><Photo photo={block.photo} alt={block.alt} /><figcaption>{block.caption}</figcaption></figure>)}
       </article> : <>
         <div className={card}>
-          {([{ key: 'title', label: '제목', max: 160 }, { key: 'subtitle', label: '부제', max: 300 },
-            { key: 'person', label: '인물', max: 160 }, { key: 'summary', label: '목록 소개', max: 1000 }] as const).map(({ key, label, max }) =>
-            <label className="block" key={key}>{label}<input className={input} maxLength={max} value={draft[key]} onChange={event => update({ [key]: event.target.value })} /></label>)}
-          <ReaderReleaseDateField value={draft.releaseAt} onChange={releaseAt => update({ releaseAt })} />
-          <label className="block">대표 사진<input className={input} type="file" accept="image/jpeg,image/png,image/webp" onChange={event => { upload(event.target.files?.[0], cover => update({ cover })); event.target.value = ''; }} /></label>
-          {draft.cover && <button className={readerButton} onClick={() => update({ cover: '' })}>대표 사진 제거</button>}
-          <label className="block">대표 사진 대체 텍스트<input className={input} maxLength={500} value={draft.coverAlt} onChange={event => update({ coverAlt: event.target.value })} /></label>
+          <label className="block">제목
+            <input className={input} maxLength={160} value={draft.title} onChange={event => update({ title: event.target.value })} />
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="block">대표 사진 <span className="text-sm text-slate-400">(선택)</span>
+              <input className={input} type="file" accept={imageTypes} onChange={event => {
+                upload(event.target.files?.[0], cover => update({ cover, coverAlt: '' }));
+                event.target.value = '';
+              }} />
+            </label>
+            {draft.cover && <button className={readerButton} onClick={() => update({ cover: '', coverAlt: '' })}>대표 사진 제거</button>}
+          </div>
           <Photo photo={draft.cover} alt={draft.coverAlt} />
         </div>
-        {draft.blocks.map((block, index) => <section className={card} key={index}>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="mr-auto font-semibold">{labels[block.type]}</h2>
-            <button className={readerButton} disabled={index === 0} onClick={() => move(index, -1)}>위로</button>
-            <button className={readerButton} disabled={index === draft.blocks.length - 1} onClick={() => move(index, 1)}>아래로</button>
-            <button className={readerButton} onClick={() => {
-              if (window.confirm('이 본문 항목을 제거할까요?')) {
-                update({ blocks: draft.blocks.filter((_, position) => position !== index) });
-              }
-            }}>제거</button>
-          </div>
-          {block.type === 'text' && <textarea aria-label="본문 글" className={input} rows={6} maxLength={20000} value={block.text} onChange={event => setBlock(index, { ...block, text: event.target.value })} />}
-          {block.type === 'qa' && <>
-            <label className="block">질문<input className={input} maxLength={500} value={block.question} onChange={event => setBlock(index, { ...block, question: event.target.value })} /></label>
-            <label className="block">답변<textarea className={input} rows={6} maxLength={20000} value={block.answer} onChange={event => setBlock(index, { ...block, answer: event.target.value })} /></label>
-          </>}
-          {block.type === 'photo' && <>
-            <input aria-label="본문 사진" className={input} type="file" accept="image/jpeg,image/png,image/webp" onChange={event => { upload(event.target.files?.[0], photo => setBlock(index, { ...block, photo })); event.target.value = ''; }} />
-            <label className="block">사진 설명<input className={input} maxLength={500} value={block.caption} onChange={event => setBlock(index, { ...block, caption: event.target.value })} /></label>
-            <label className="block">대체 텍스트<input className={input} maxLength={500} value={block.alt} onChange={event => setBlock(index, { ...block, alt: event.target.value })} /></label>
-            <Photo photo={block.photo} alt={block.alt} />
-          </>}
-        </section>)}
-        <div className="flex flex-wrap gap-2">
-          {newBlocks.map(block => <button className={readerButton} key={block.type} disabled={draft.blocks.length >= 100}
-            onClick={() => update({ blocks: [...draft.blocks, block] })}>{labels[block.type]} 추가</button>)}
-        </div>
+        <section className={card} aria-label="본문 편집">
+          <h2 className="font-semibold">본문</h2>
+          <p className="text-sm text-slate-400">사진을 넣을 위치에 커서를 두고 ‘본문 사진 넣기’를 누르세요.</p>
+          {bodyParts.map(({ block, index }, part) => {
+            const start = part === 0 ? 0 : photos[part - 1].index + 1;
+            const text = interviewBodyText(draft.blocks.slice(start, index));
+            return <div key={part} className="space-y-4">
+              <BodyText text={text}
+                onText={text => replaceBlocks(start, index, { type: 'text', text })}
+                onPaste={value => {
+                  if (text.trim() || photos.length || previewBlocks().length) return false;
+                  const manuscript = splitInterviewManuscript(value);
+                  if (!manuscript.title || manuscript.title.length > 160) return false;
+                  update({
+                    title: draft.title || manuscript.title,
+                    blocks: [{ type: 'text', text: manuscript.body }],
+                  });
+                  return true;
+                }}
+                onPhoto={(file, before, after) => upload(file, photo => replaceBlocks(start, index,
+                  { type: 'text', text: before },
+                  { type: 'photo', photo, caption: '', alt: '' },
+                  { type: 'text', text: after },
+                ))} />
+              {block && <PhotoEditor block={block} onChange={photo => replaceBlocks(index, index + 1, photo)}
+                onRemove={() => replaceBlocks(index, index + 1)} />}
+            </div>;
+          })}
+        </section>
       </>}
     </fieldset>}
   </div>;
